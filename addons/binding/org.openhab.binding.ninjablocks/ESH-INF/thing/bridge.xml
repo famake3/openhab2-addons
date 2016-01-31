@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="ninjablocks"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+    
+    
+    <!-- NinjaBlocks Bridge -->
+    <bridge-type id="bridge">
+        <label>NinjaBlocks RF device</label>
+        <description>Represents a single NinjaBlocks RF device.</description>
+
+        <config-description>
+            <parameter name="block-id" type="text">
+                <label>Block ID</label>
+                <description>ID of the NinjaBlock.</description>
+                <required>true</required>
+                <default>1313BB000705</default>
+            </parameter>
+            <parameter name="access-token" type="text">
+                <label>Access token</label>
+                <description>API access token</description>
+                <required>true</required>
+                <default></default>
+            </parameter>
+            <parameter name="callback-host" type="text">
+                <label>Callback host</label>
+                <description>Public host name / IP address of this server for callback.</description>
+                <required>true</required>
+                <default>dev.famake.com</default>
+            </parameter>
+            <parameter name="callback-port" type="text">
+                <label>Callback port</label>
+                <description>Port of the openhab server.</description>
+                <required>true</required>
+                <default>9080</default>
+            </parameter>
+        </config-description>
+    </bridge-type>
+    
+
+</thing:thing-descriptions>

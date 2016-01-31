@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="serialmultifunction"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+    
+    
+    <bridge-type id="bridge">
+        <label>Serial device</label>
+        <description>Serial connection.</description>
+
+        <config-description>
+            <parameter name="port" type="text">
+                <label>Serial port</label>
+                <description>Serial port, COM1, etc.</description>
+                <required>true</required>
+                <default>COM1</default>
+            </parameter>
+        </config-description>
+    </bridge-type>
+    
+
+</thing:thing-descriptions>

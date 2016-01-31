@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="ninjablocks"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <thing-type id="motion_sensor">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Motion Sensor</label>
+        <description>NinjaBlocks PIR motion detector.</description>
+
+        <channels>
+            <channel id="trigger" typeId="motion_trigger"/>
+        </channels>
+
+        <config-description>
+            <parameter name="code" type="text">
+                <label>RF code</label>
+                <description>Code of the motion sensor as a hex number.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    <channel-type id="motion_trigger">
+        <item-type>Switch</item-type>
+        <label>Switch</label>
+        <description>Motion detection</description>
+        <category>Switch</category>
+        <tags><tag>stateless</tag><tag>motion</tag></tags>
+        <state readOnly="true"/>
+    </channel-type>
+    
+    <thing-type id="button">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Ninja Button</label>
+        <description>NinjaBlocks button.</description>
+
+        <channels>
+            <channel id="trigger" typeId="button_trigger"/>
+        </channels>
+
+        <config-description>
+            <parameter name="code" type="text">
+                <label>RF code</label>
+                <description>Code of the button as a hex number.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    <channel-type id="button_trigger">
+        <item-type>Switch</item-type>
+        <label>Switch</label>
+        <description>Button pressed</description>
+        <category>Switch</category>
+        <tags><tag>stateless</tag><tag>button</tag></tags>
+        <state readOnly="true"/>
+    </channel-type>
+    
+    
+    <thing-type id="socket">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Ninja Socket</label>
+        <description>NinjaBlocks power socket switch.</description>
+
+        <channels>
+            <channel id="power" typeId="power"/>
+        </channels>
+
+        <config-description>
+            <parameter name="on_code" type="text">
+                <label>RF on code</label>
+                <description>Code to turn on switch.</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="off_code" type="text">
+                <label>RF off code</label>
+                <description>Code to turn off switch.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    
+    
+    
+     <channel-type id="power">
+        <item-type>Switch</item-type>
+        <label>Power</label>
+        <description>Power on/off</description>
+        <category>Switch</category>
+    </channel-type>
+    
+    
+    
+    <thing-type id="temperature_humidity">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>NinjaBlocks temperature and humidity sensor</label>
+        <description>Wireless temperature and humidity sensor.</description>
+
+        <channels>
+            <channel id="temperature" typeId="temperature"/>
+            <channel id="humidity" typeId="humidity"/>
+        </channels>
+
+        <config-description>
+            <parameter name="sensor_no" type="integer">
+                <label>Sensor number</label>
+                <description>Number on the screen, 1, 2, etc.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    
+    <channel-type id="temperature">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>Temperature</description>
+        <category>Temperature</category>
+        <state readOnly="true"/>
+    </channel-type>
+    
+    <channel-type id="humidity">
+        <item-type>Number</item-type>
+        <label>Humidity</label>
+        <description>Humidity</description>
+        <category>Humidity</category>
+        <state readOnly="true"/>
+    </channel-type>
+    
+    
+    <thing-type id="contact_sensor">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Double NinjaBlocks contact sensors</label>
+        <description>Using two NinjaBlocks sensors to detect open/closed state.</description>
+
+        <channels>
+            <channel id="contact" typeId="contact"/>
+        </channels>
+
+        <config-description>
+            <parameter name="open_code" type="text">
+                <label>Open code</label>
+                <description>Code for the "open" sensor.</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="closed_code" type="text">
+                <label>Closed code</label>
+                <description>Code for the "closed" sensor.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    <channel-type id="contact">
+        <item-type>Contact</item-type>
+        <label>Open/closed</label>
+        <description>Open or closed state.</description>
+        <category>Door</category>
+        <state readOnly="true"/>
+    </channel-type>
+    
+</thing:thing-descriptions>

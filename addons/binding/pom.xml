@@ -36,6 +36,10 @@
     <module>org.openhab.binding.squeezebox</module>
     <module>org.openhab.binding.tesla</module>
     <module>org.openhab.binding.vitotronic</module>
+    <module>org.openhab.binding.artnet</module>
+    <module>org.openhab.binding.folding</module>
+    <module>org.openhab.binding.rotelra1x</module>
+    <module>org.openhab.binding.serialmultifunction</module>
   </modules>
 
 </project>
