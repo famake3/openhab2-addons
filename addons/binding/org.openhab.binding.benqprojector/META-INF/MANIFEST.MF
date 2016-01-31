@@ -7,7 +7,6 @@ Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: com.google.common.collect,
- jssc,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
@@ -17,4 +16,3 @@ Import-Package: com.google.common.collect,
 Service-Component: OSGI-INF/*
 Export-Package: org.openhab.binding.benqprojector,
  org.openhab.binding.benqprojector.handler
-Require-Bundle: org.openhab.io.transport.serial;bundle-version="2.0.0"
