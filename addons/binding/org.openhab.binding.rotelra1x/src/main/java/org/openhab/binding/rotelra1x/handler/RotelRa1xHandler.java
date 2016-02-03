@@ -64,6 +64,9 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
 
     private void connect() throws IOException {
         if (!connected) {
+            if (serialPort != null) {
+                disconnect();
+            }
             String portName = (String) getThing().getConfiguration().get("port");
             if (portName == null) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
@@ -221,8 +224,8 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
                 }
 
             } catch (IOException e) {
-                disconnect();
                 e.printStackTrace();
+                disconnect();
             }
         }
     }
@@ -265,8 +268,8 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
                 }
             }
         } catch (IOException e) {
-            disconnect();
             e.printStackTrace();
+            disconnect();
         }
     }
 

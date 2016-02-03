@@ -92,6 +92,8 @@ public class FoldingClientHandler extends BaseBridgeHandler {
                     refresh();
                 }
             }, 5, period.longValue(), TimeUnit.SECONDS);
+        } else {
+            refresh();
         }
     }
 
