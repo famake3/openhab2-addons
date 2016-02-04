@@ -38,7 +38,7 @@
         </supported-bridge-type-refs>
 
         <label>Temperature</label>
-        <description>Temperature sensor.</description>
+        <description>Analog TMP36 temperature sensor.</description>
 
         <channels>
             <channel id="temperature" typeId="temperature"/>
@@ -59,7 +59,7 @@
         <label>Temperature</label>
         <description>Temperature</description>
         <category>Temperature</category>
-        <state readOnly="true"/>
+        <state readOnly="true" pattern="%.1f °C"/>
     </channel-type>
     
     <thing-type id="code-receiver">
