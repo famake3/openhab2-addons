@@ -110,7 +110,6 @@ public class SerialMultiFunctionHandler extends BaseThingHandler implements Runn
                 while (off < length) {
                     off += serialPort.getInputStream().read(data, off, length - off);
                 }
-                System.out.println("Received " + function);
                 FunctionReceiver receiver = receivers.get(function);
                 if (receiver != null) {
                     receiver.receivedUpdate(data);
