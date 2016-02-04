@@ -69,12 +69,16 @@ public class FoldingClientHandler extends BaseBridgeHandler {
                 } else if (command == OnOffType.OFF) {
                     sendCommand("unpause");
                 }
+                refresh();
+                delayedRefresh();
             } else if (channelUID.getId().equals("finish")) {
                 if (command == OnOffType.ON) {
                     sendCommand("finish");
                 } else if (command == OnOffType.OFF) {
                     sendCommand("unpause");
                 }
+                refresh();
+                delayedRefresh();
             }
         } catch (IOException e) {
             e.printStackTrace();

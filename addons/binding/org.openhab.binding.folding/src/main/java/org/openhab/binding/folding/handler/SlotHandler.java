@@ -45,6 +45,7 @@ public class SlotHandler extends BaseThingHandler implements SlotUpdateListener 
                     getBridgeHandler().sendCommand("unpause " + myId());
                 }
             }
+            getBridgeHandler().refresh();
             getBridgeHandler().delayedRefresh();
         } catch (IOException e) {
             e.printStackTrace();
