@@ -8,7 +8,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 
-public class SwitchHandler extends BaseThingHandler implements FunctionReceiver {
+public class SwitchHandler extends BaseThingHandler {
 
     public SwitchHandler(Thing thing) {
         super(thing);
@@ -21,10 +21,6 @@ public class SwitchHandler extends BaseThingHandler implements FunctionReceiver 
             ((SerialMultiFunctionHandler) getBridge().getHandler()).send(funcId,
                     new byte[] { (byte) ((command == OnOffType.ON) ? 1 : 0) });
         }
-    }
-
-    @Override
-    public void receivedUpdate(byte[] data) {
     }
 
 }
