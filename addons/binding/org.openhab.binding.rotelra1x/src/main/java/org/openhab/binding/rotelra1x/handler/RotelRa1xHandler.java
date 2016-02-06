@@ -42,6 +42,7 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
     private RXTXPort serialPort;
 
     private boolean connected, exit = false;
+    private volatile boolean power = false;
 
     public RotelRa1xHandler(Thing thing) {
         super(thing);
@@ -88,18 +89,10 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
             serialPort.getOutputStream().write("display_update_manual!".getBytes("ascii"));
             Thread receiver = new Thread(this);
             receiver.start();
-            send("get_current_power!");
-            send("get_volume!");
-            send("get_current_source!");
-            send("get_current_freq!");
+            updateStatus(ThingStatus.ONLINE);
+            sendForce("get_current_power!");
             updateState(getThing().getChannel("mute").getUID(), OnOffType.OFF);
             updateState(getThing().getChannel("dimmer").getUID(), new PercentType(100));
-            /*
-             * updateState(getThing().getChannel("volume").getUID(), new PercentType(0));
-             * updateState(getThing().getChannel("source").getUID(), new StringType("opt1"));
-             * updateState(getThing().getChannel("frequency").getUID(), new DecimalType(0));
-             */
-            updateStatus(ThingStatus.ONLINE);
         }
     }
 
@@ -175,43 +168,57 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
         return new DecimalType(freq);
     }
 
+    void powerOnRefresh() {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    send("get_volume!");
+                    send("get_current_source!");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
     @Override
     public void run() {
+        try {
+            Thread.sleep(1000); // Seems we need to wait a bit after initialization or channels won't
+                                // be updated. (making run() and initialize() synchronized doesn't work)
+        } catch (InterruptedException e1) {
+        }
         while (connected && !exit) {
             try {
                 String command = readCommand();
                 if (command.equals("volume")) {
-                    updateState(getThing().getChannel("volume").getUID(), readVolume());
+                    PercentType vol = readVolume();
+                    updateState(getThing().getChannel("volume").getUID(), vol);
                 } else if (command.equals("mute")) {
                     String muteState = readUntil('!');
                     updateState(getThing().getChannel("mute").getUID(),
                             "on".equals(muteState) ? OnOffType.ON : OnOffType.OFF);
                 } else if (command.equals("power_off")) {
+                    power = false;
                     updateState(getThing().getChannel("mute").getUID(), OnOffType.OFF);
                     updateState(getThing().getChannel("power").getUID(), OnOffType.OFF);
                     updateState(getThing().getChannel("volume").getUID(), UnDefType.NULL);
                     updateState(getThing().getChannel("source").getUID(), UnDefType.NULL);
                 } else if (command.equals("power_on")) {
+                    power = true;
                     updateState(getThing().getChannel("power").getUID(), OnOffType.ON);
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                send("get_volume!");
-                                send("get_current_source!");
-                            } catch (IOException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                        }
-                    }.start();
+                    powerOnRefresh();
                 } else if (command.equals("power")) {
                     String state = readUntil('!');
                     if (state.equals("on")) {
+                        power = true;
                         updateState(getThing().getChannel("power").getUID(), OnOffType.ON);
+                        powerOnRefresh();
                     } else if (state.equals("standby")) {
                         updateState(getThing().getChannel("mute").getUID(), OnOffType.OFF);
                         updateState(getThing().getChannel("power").getUID(), OnOffType.OFF);
+                        power = false;
                     }
                 } else if (command.equals("dimmer")) {
                     updateState(getThing().getChannel("dimmer").getUID(), readDimmer());
@@ -246,6 +253,13 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
     }
 
     void send(String text) throws IOException {
+        if (power) {
+            connect();
+            serialPort.getOutputStream().write(text.getBytes());
+        }
+    }
+
+    void sendForce(String text) throws IOException {
         connect();
         serialPort.getOutputStream().write(text.getBytes());
     }
@@ -255,11 +269,11 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
         try {
             if (channelUID.getId().equals("power")) {
                 if (command == OnOffType.ON) {
-                    send("power_on!");
+                    sendForce("power_on!");
                 } else if (command == OnOffType.OFF) {
-                    send("power_off!");
+                    sendForce("power_off!");
                 } else if (command instanceof RefreshType) {
-                    send("get_current_power!");
+                    sendForce("get_current_power!");
                 }
             } else if (channelUID.getId().equals("mute")) {
                 if (command == OnOffType.ON) {
