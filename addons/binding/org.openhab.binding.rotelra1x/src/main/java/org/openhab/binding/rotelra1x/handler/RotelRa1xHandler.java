@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 import gnu.io.PortInUseException;
 import gnu.io.RXTXPort;
@@ -188,8 +189,22 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
                 } else if (command.equals("power_off")) {
                     updateState(getThing().getChannel("mute").getUID(), OnOffType.OFF);
                     updateState(getThing().getChannel("power").getUID(), OnOffType.OFF);
+                    updateState(getThing().getChannel("volume").getUID(), UnDefType.NULL);
+                    updateState(getThing().getChannel("source").getUID(), UnDefType.NULL);
                 } else if (command.equals("power_on")) {
                     updateState(getThing().getChannel("power").getUID(), OnOffType.ON);
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                send("get_volume!");
+                                send("get_current_source!");
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    }.start();
                 } else if (command.equals("power")) {
                     String state = readUntil('!');
                     if (state.equals("on")) {
