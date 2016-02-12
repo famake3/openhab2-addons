@@ -51,6 +51,8 @@ public class FoldingClientHandler extends BaseBridgeHandler {
     private BufferedReader socketReader;
     private Gson gson;
 
+    private volatile int idRefresh = 0;
+
     private Map<String, SlotUpdateListener> slotUpdateListeners = new HashMap<String, SlotUpdateListener>();
 
     public FoldingClientHandler(Bridge thing) {
@@ -141,10 +143,13 @@ public class FoldingClientHandler extends BaseBridgeHandler {
     }
 
     public void delayedRefresh() {
+        final int i_refresh = ++idRefresh;
         refreshJob = scheduler.schedule(new Runnable() {
             @Override
             public void run() {
-                refresh();
+                if (i_refresh == idRefresh) { // Make a best effort to not run multiple deferred refresh
+                    refresh();
+                }
             }
         }, 5, TimeUnit.SECONDS);
 
