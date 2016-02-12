@@ -71,7 +71,7 @@
         <description>Code receiver.</description>
 
         <channels>
-            <channel id="code" typeId="code"/>
+            <channel id="code-input" typeId="code-input"/>
         </channels>
 
         <config-description>
@@ -83,7 +83,7 @@
         </config-description>
     </thing-type>
     
-    <channel-type id="code">
+    <channel-type id="code-input">
         <item-type>String</item-type>
         <label>Code</label>
         <description>Received code as hex string.</description>
@@ -95,8 +95,8 @@
             <bridge-type-ref id="bridge" />
         </supported-bridge-type-refs>
 
-	<label>Switch code</label>
-	<description>Send a code for on/off switch (RF, IR, etc).</description>
+		<label>Switch code</label>
+		<description>Send a code for on/off switch (RF, IR, etc).</description>
 
         <channels>
             <channel id="switch" typeId="switch"/>
@@ -111,12 +111,41 @@
             </parameter>
             <parameter name="on_code" type="text">
                 <label>"On" code</label>
-                <description>Code to send for "on" in hex. Pad with zeros to indicate length.</description>
+                <description>Code to send for "on" in hex. Pad with zeros to indicate length. Max 32 bit.</description>
                 <required>true</required>
             </parameter>
             <parameter name="off_code" type="text">
                 <label>"Off" code</label>
                 <description>Code to send for "off" in hex. Pad with zeros to indicate length.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    
+    <channel-type id="code-output">
+        <item-type>String</item-type>
+        <label>Code</label>
+        <description>Code to send, as hex string.</description>
+    </channel-type>
+    
+    <thing-type id="command-sender">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+	    <label>Command sender</label>
+	    <description>Send any code provided as a hex string, use with rules, etc.</description>
+
+        <channels>
+            <channel id="code-output" typeId="code-output"/>
+        <!-- defined above -->
+        </channels>
+
+        <config-description>
+            <parameter name="func_id" type="integer">
+                <label>Function ID</label>
+                <description>Index of the function (can share between command things).</description>
                 <required>true</required>
             </parameter>
         </config-description>

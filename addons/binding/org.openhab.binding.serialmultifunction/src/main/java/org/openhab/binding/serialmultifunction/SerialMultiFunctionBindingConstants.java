@@ -23,5 +23,6 @@ public class SerialMultiFunctionBindingConstants {
     public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
     public final static ThingTypeUID THING_TYPE_TEMPERATURE = new ThingTypeUID(BINDING_ID, "temperature");
     public final static ThingTypeUID THING_TYPE_SWITCH = new ThingTypeUID(BINDING_ID, "switch");
+    public final static ThingTypeUID THING_TYPE_ON_OFF_CODE = new ThingTypeUID(BINDING_ID, "on-off-code");
 
 }
