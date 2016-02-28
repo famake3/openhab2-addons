@@ -37,10 +37,14 @@
     <module>org.openhab.binding.squeezebox</module>
     <module>org.openhab.binding.tesla</module>
     <module>org.openhab.binding.vitotronic</module>
+    <module>org.openhab.binding.zwave</module>
     <module>org.openhab.binding.artnet</module>
     <module>org.openhab.binding.folding</module>
     <module>org.openhab.binding.rotelra1x</module>
     <module>org.openhab.binding.serialmultifunction</module>
+    <module>org.openhab.binding.benqprojector</module>
+    <module>org.openhab.binding.ninjablocks</module>
+    <module>org.openhab.binding.receivernadt748</module>
   </modules>
 
 </project>
