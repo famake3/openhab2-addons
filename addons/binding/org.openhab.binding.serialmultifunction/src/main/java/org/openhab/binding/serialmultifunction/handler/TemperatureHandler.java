@@ -1,6 +1,9 @@
 package org.openhab.binding.serialmultifunction.handler;
 
 import java.math.BigDecimal;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -13,6 +16,8 @@ import org.eclipse.smarthome.core.types.RefreshType;
 
 public class TemperatureHandler extends BaseThingHandler implements FunctionReceiver {
 
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     public TemperatureHandler(Thing thing) {
         super(thing);
     }
@@ -24,7 +29,12 @@ public class TemperatureHandler extends BaseThingHandler implements FunctionRece
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
         } else {
             bridge.addFunctionReceiver(getFunctionId(), this);
-            refresh();
+            scheduler.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    refresh();
+                }
+            }, 10, TimeUnit.SECONDS);
         }
     }
 
