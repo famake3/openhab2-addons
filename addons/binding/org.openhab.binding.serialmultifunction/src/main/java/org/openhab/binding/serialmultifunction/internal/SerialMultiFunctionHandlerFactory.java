@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.openhab.binding.serialmultifunction.handler.CodeReceiver;
 import org.openhab.binding.serialmultifunction.handler.OnOffCodeHandler;
 import org.openhab.binding.serialmultifunction.handler.SerialMultiFunctionHandler;
 import org.openhab.binding.serialmultifunction.handler.SwitchHandler;
@@ -31,7 +32,8 @@ import org.openhab.binding.serialmultifunction.handler.TemperatureHandler;
 public class SerialMultiFunctionHandlerFactory extends BaseThingHandlerFactory {
 
     private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<ThingTypeUID>(
-            Arrays.asList(THING_TYPE_BRIDGE, THING_TYPE_SWITCH, THING_TYPE_TEMPERATURE, THING_TYPE_ON_OFF_CODE));
+            Arrays.asList(THING_TYPE_BRIDGE, THING_TYPE_SWITCH, THING_TYPE_TEMPERATURE, THING_TYPE_ON_OFF_CODE,
+                    THING_TYPE_CODE_RECEIVER));
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -51,6 +53,8 @@ public class SerialMultiFunctionHandlerFactory extends BaseThingHandlerFactory {
             return new SwitchHandler(thing);
         } else if (thingTypeUID.equals(THING_TYPE_ON_OFF_CODE)) {
             return new OnOffCodeHandler(thing);
+        } else if (thingTypeUID.equals(THING_TYPE_CODE_RECEIVER)) {
+            return new CodeReceiver(thing);
         }
 
         return null;

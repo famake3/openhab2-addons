@@ -2,6 +2,7 @@ package org.openhab.binding.serialmultifunction.handler;
 
 import java.math.BigDecimal;
 
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -13,6 +14,10 @@ public class CodeReceiver extends BaseThingHandler implements FunctionReceiver {
 
     public CodeReceiver(Thing thing) {
         super(thing);
+    }
+
+    @Override
+    public void initialize() {
         SerialMultiFunctionHandler bridge = (SerialMultiFunctionHandler) getBridge().getHandler();
         if (getFunctionId() == 0) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
@@ -27,7 +32,9 @@ public class CodeReceiver extends BaseThingHandler implements FunctionReceiver {
 
     @Override
     public void receivedUpdate(byte[] data) {
-
+        updateStatus(ThingStatus.ONLINE);
+        ChannelUID channelUID = getThing().getChannel("code-input").getUID();
+        updateState(channelUID, new StringType(SerialMultiFunctionHandler.bytesToHex(data)));
     }
 
     private int getFunctionId() {
