@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.List;
@@ -181,7 +182,8 @@ public class FoldingClientHandler extends BaseBridgeHandler {
             } else if (cfgPort == null || cfgPort.intValue() == 0) {
                 throw new IOException("Port was not configured");
             }
-            activeSocket = new Socket(cfgHost, cfgPort.intValue());
+            activeSocket = new Socket();
+            activeSocket.connect(new InetSocketAddress(cfgHost, cfgPort.intValue()), 2000);
             socketReader = new BufferedReader(new InputStreamReader(activeSocket.getInputStream()));
             readUntilPrompt(activeSocket); // Discard initial banner message
             if (password != null) {
