@@ -17,8 +17,6 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gnu.io.NRSerialPort;
 
@@ -30,7 +28,6 @@ import gnu.io.NRSerialPort;
  */
 public class SerialMultiFunctionHandler extends BaseThingHandler implements Runnable {
 
-    private Logger logger = LoggerFactory.getLogger(SerialMultiFunctionHandler.class);
     private NRSerialPort serialPort;
     private final static int BAUD = 115200;
     private boolean connected = false;
