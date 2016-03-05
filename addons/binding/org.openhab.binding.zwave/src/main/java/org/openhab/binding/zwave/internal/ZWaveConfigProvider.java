@@ -143,7 +143,7 @@ public class ZWaveConfigProvider implements ConfigDescriptionProvider, ConfigOpt
         groups.add(new ConfigDescriptionParameterGroup("thingcfg", "home", false, "Device Configuration", null));
 
         parameters.add(ConfigDescriptionParameterBuilder
-                .create(ZWaveBindingConstants.PARAMETER_POLLPERIOD, Type.INTEGER).withLabel("Polling Period")
+                .create(ZWaveBindingConstants.CONFIGURATION_POLLPERIOD, Type.INTEGER).withLabel("Polling Period")
                 .withDescription("Set the minimum polling period for this device<BR/>"
                         + "Note that the polling period may be longer than set since the binding treats "
                         + "polls as the lowest priority data within the network.")
@@ -195,18 +195,21 @@ public class ZWaveConfigProvider implements ConfigDescriptionProvider, ConfigOpt
         // If we're DEAD, allow moving to the FAILED list
         if (node.getNodeState() == ZWaveNodeState.DEAD) {
             parameters.add(ConfigDescriptionParameterBuilder.create("action_failed", Type.TEXT)
-                    .withLabel("Set device as FAILed").withAdvanced(true).withGroupName("actions").build());
+                    .withLabel("Set device as FAILed").withAdvanced(true).withDefault("Go").withGroupName("actions")
+                    .build());
         }
 
         // If we're FAILED, allow removing from the controller
         if (node.getNodeState() == ZWaveNodeState.FAILED) {
             parameters.add(ConfigDescriptionParameterBuilder.create("action_remove", Type.TEXT)
-                    .withLabel("Remove device from controller").withAdvanced(true).withGroupName("actions").build());
+                    .withLabel("Remove device from controller").withAdvanced(true).withDefault("Go")
+                    .withGroupName("actions").build());
         }
 
         if (node.isInitializationComplete() == true) {
             parameters.add(ConfigDescriptionParameterBuilder.create("action_reinit", Type.TEXT)
-                    .withLabel("Reinitialise the device").withAdvanced(true).withGroupName("actions").build());
+                    .withLabel("Reinitialise the device").withAdvanced(true).withDefault("Go").withGroupName("actions")
+                    .build());
         }
 
         return new ConfigDescription(uri, parameters, groups);
@@ -218,45 +221,47 @@ public class ZWaveConfigProvider implements ConfigDescriptionProvider, ConfigOpt
             return;
         }
 
-        // Get all the thing types
-        Collection<ThingType> thingTypes = thingTypeRegistry.getThingTypes();
-        for (ThingType thingType : thingTypes) {
-            // Is this for our binding?
-            if (ZWaveBindingConstants.BINDING_ID.equals(thingType.getBindingId()) == false) {
-                continue;
-            }
-
-            // Create a list of all things supported by this binding
-            zwaveThingTypeUIDList.add(thingType.getUID());
-
-            // Get the properties
-            Map<String, String> thingProperties = thingType.getProperties();
-
-            if (thingProperties.get("manufacturerRef") == null) {
-                continue;
-            }
-
-            String[] references = thingProperties.get("manufacturerRef").split(",");
-            for (String ref : references) {
-                String[] values = ref.split(":");
-                Integer type;
-                Integer id = null;
-                if (values.length != 2) {
+        synchronized (productIndex) {
+            // Get all the thing types
+            Collection<ThingType> thingTypes = thingTypeRegistry.getThingTypes();
+            for (ThingType thingType : thingTypes) {
+                // Is this for our binding?
+                if (ZWaveBindingConstants.BINDING_ID.equals(thingType.getBindingId()) == false) {
                     continue;
                 }
 
-                type = Integer.parseInt(values[0], 16);
-                if (!values[1].trim().equals("*")) {
-                    id = Integer.parseInt(values[1], 16);
-                }
-                String versionMin = thingProperties.get("versionMin");
-                String versionMax = thingProperties.get("versionMax");
-                productIndex.add(new ZWaveProduct(thingType.getUID(),
-                        Integer.parseInt(thingProperties.get("manufacturerId"), 16), type, id, versionMin, versionMax));
-            }
+                // Create a list of all things supported by this binding
+                zwaveThingTypeUIDList.add(thingType.getUID());
 
+                // Get the properties
+                Map<String, String> thingProperties = thingType.getProperties();
+
+                if (thingProperties.get("manufacturerRef") == null) {
+                    continue;
+                }
+
+                String[] references = thingProperties.get("manufacturerRef").split(",");
+                for (String ref : references) {
+                    String[] values = ref.split(":");
+                    Integer type;
+                    Integer id = null;
+                    if (values.length != 2) {
+                        continue;
+                    }
+
+                    type = Integer.parseInt(values[0], 16);
+                    if (!values[1].trim().equals("*")) {
+                        id = Integer.parseInt(values[1], 16);
+                    }
+                    String versionMin = thingProperties.get("versionMin");
+                    String versionMax = thingProperties.get("versionMax");
+                    productIndex.add(new ZWaveProduct(thingType.getUID(),
+                            Integer.parseInt(thingProperties.get("manufacturerId"), 16), type, id, versionMin,
+                            versionMax));
+                }
+
+            }
         }
-        return;
     }
 
     public static synchronized List<ZWaveProduct> getProductIndex() {

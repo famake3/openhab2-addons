@@ -87,6 +87,12 @@
         <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.pulseaudio/${project.version}</bundle>
     </feature>
 
+   <feature name="openhab-binding-rme" description="RME Binding" version="${project.version}">
+        <feature>openhab-runtime-base</feature>
+        <feature>openhab-transport-serial</feature>
+        <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.rme/${project.version}</bundle>
+    </feature>
+
     <feature name="openhab-binding-rfxcom" description="RFXCOM Binding" version="${project.version}">
         <feature>openhab-runtime-base</feature>
         <feature>openhab-transport-serial</feature>
@@ -156,6 +162,7 @@
         <feature>esh-ui-icon</feature>
         <feature>esh-ui</feature>
         <bundle start-level="80">mvn:org.openhab.ui/org.openhab.ui.cometvisu/${project.version}</bundle>
+        <bundle start-level="80">mvn:org.openhab/com.caucho.quercus/4.0.45</bundle>
         <configfile finalname="${openhab.conf}/services/cometvisu.cfg" override="false">mvn:${project.groupId}/openhab2-addons-external/${project.version}/cfg/cometvisu</configfile>
     </feature>
 
