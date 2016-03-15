@@ -112,7 +112,7 @@ public class FoldingClientHandler extends BaseBridgeHandler {
         closeSocket();
     }
 
-    public void refresh() {
+    public synchronized void refresh() {
         initializing = false;
         List<SlotInfo> slotList = null;
         try {
@@ -172,7 +172,7 @@ public class FoldingClientHandler extends BaseBridgeHandler {
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
     }
 
-    private Socket getSocket() throws IOException {
+    private synchronized Socket getSocket() throws IOException {
         if (activeSocket == null) {
             String cfgHost = (String) getThing().getConfiguration().get("host");
             BigDecimal cfgPort = (BigDecimal) getThing().getConfiguration().get("port");
@@ -220,7 +220,7 @@ public class FoldingClientHandler extends BaseBridgeHandler {
         }
     }
 
-    public void sendCommand(String command) throws IOException {
+    public synchronized void sendCommand(String command) throws IOException {
         try {
             Socket s = getSocket();
             s.getOutputStream().write((command + "\r\n").getBytes());
