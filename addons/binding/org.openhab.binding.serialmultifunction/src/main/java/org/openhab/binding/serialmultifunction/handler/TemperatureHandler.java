@@ -66,9 +66,11 @@ public class TemperatureHandler extends BaseThingHandler implements FunctionRece
         int val = ((data[0] & 0xFF) << 8) | (data[1] & 0xFF);
         double volt = (5.0 * val / 1024.0);
         double temp = (volt - 0.5) * 100.0;
-        temp = Math.round(temp * 10.0) / 10.0;
+        // Improvements welcome :)
+        BigDecimal tempx10 = BigDecimal.valueOf(Math.round(temp * 10.0));
+        BigDecimal tempround = tempx10.divide(BigDecimal.valueOf(10));
         ChannelUID channelUID = getThing().getChannel("temperature").getUID();
-        updateState(channelUID, new DecimalType(temp));
+        updateState(channelUID, new DecimalType(tempround));
     }
 
 }
