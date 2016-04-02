@@ -35,6 +35,7 @@ public class SerialMultiFunctionHandler extends BaseThingHandler implements Runn
 
     public SerialMultiFunctionHandler(Thing thing) {
         super(thing);
+        receivers = new HashMap<Integer, FunctionReceiver>();
     }
 
     @Override
@@ -43,7 +44,6 @@ public class SerialMultiFunctionHandler extends BaseThingHandler implements Runn
         if (portName == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
         } else {
-            receivers = new HashMap<Integer, FunctionReceiver>();
             serialPort = new NRSerialPort(portName, BAUD);
             connect();
         }
@@ -91,7 +91,7 @@ public class SerialMultiFunctionHandler extends BaseThingHandler implements Runn
     @Override
     public void run() {
         try {
-            Thread.sleep(1000); // Seems we need to wait a little to be able to update state
+            Thread.sleep(5000); // Seems we need to wait a little to be able to update state
             while (connected) {
                 while (serialPort.getInputStream().read() != '!') {
                     ;
