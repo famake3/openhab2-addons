@@ -47,6 +47,7 @@
     <module>org.openhab.binding.benqprojector</module>
     <module>org.openhab.binding.ninjablocks</module>
     <module>org.openhab.binding.receivernadt748</module>
+    <module>org.openhab.binding.lifx</module>
   </modules>
 
 </project>
