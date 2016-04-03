@@ -237,10 +237,11 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
             String answer = "";
             while (!end) {
                 data = port.readBytes(1);
-                if (data == null || data.length == 0 || data[0] == '\r')
+                if (data == null || data.length == 0 || data[0] == '\r') {
                     end = true;
-                else
+                } else {
                     answer += new String(data);
+                }
             }
             port.readBytes();
             String[] parts = answer.split("=");
@@ -265,10 +266,11 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
             String answer = "";
             while (!end) {
                 data = port.readBytes(1);
-                if (data == null || data.length == 0 || data[0] == '\r')
+                if (data == null || data.length == 0 || data[0] == '\r') {
                     end = true;
-                else
+                } else {
                     answer += new String(data);
+                }
             }
             port.readBytes();
 
@@ -299,10 +301,11 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
             String answer = "";
             while (!end) {
                 data = port.readBytes(1);
-                if (data == null || data.length == 0 || data[0] == '\r')
+                if (data == null || data.length == 0 || data[0] == '\r') {
                     end = true;
-                else
+                } else {
                     answer += new String(data);
+                }
             }
             port.readBytes();
 
@@ -332,10 +335,11 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
             String answer = "";
             while (!end) {
                 data = port.readBytes(1);
-                if (data == null || data.length == 0 || data[0] == '\r')
+                if (data == null || data.length == 0 || data[0] == '\r') {
                     end = true;
-                else
+                } else {
                     answer += new String(data);
+                }
             }
             port.readBytes();
 
