@@ -7,7 +7,7 @@
  */
 package org.openhab.binding.lifx.handler;
 
-import static org.openhab.binding.lifx.LifxBindingConstants.CHANNEL_1;
+import static org.openhab.binding.lifx.LifxBindingConstants.CHANNEL_COLOR;
 
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -22,17 +22,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author Famake - Initial contribution
  */
-public class LifxLightHandler extends BaseThingHandler {
+public class LifxLightHandlerBase extends BaseThingHandler {
 
-    private Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
+    private Logger logger = LoggerFactory.getLogger(LifxLightHandlerBase.class);
 
-    public LifxLightHandler(Thing thing) {
+    public LifxLightHandlerBase(Thing thing) {
         super(thing);
     }
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (channelUID.getId().equals(CHANNEL_1)) {
+        if (channelUID.getId().equals(CHANNEL_COLOR)) {
             // TODO: handle command
 
             // Note: if communication with thing fails for some reason,

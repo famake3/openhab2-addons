@@ -1,31 +1,57 @@
 package org.openhab.binding.discovery;
 
-import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class LifxDiscoveryService extends AbstractDiscoveryService {
+public class LifxDiscoveryService extends AbstractDiscoveryService implements Runnable {
+
+    private final Logger logger = LoggerFactory.getLogger(LifxDiscoveryService.class);
+    private final int REFRESH_INTERVAL = 60;
+
+    ScheduledFuture<?> discoveryJob;
 
     public LifxDiscoveryService(int timeout) throws IllegalArgumentException {
         super(timeout);
-        // TODO Auto-generated constructor stub
-    }
-
-    public LifxDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout) throws IllegalArgumentException {
-        super(supportedThingTypes, timeout);
-        // TODO Auto-generated constructor stub
-    }
-
-    public LifxDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout,
-            boolean backgroundDiscoveryEnabledByDefault) throws IllegalArgumentException {
-        super(supportedThingTypes, timeout, backgroundDiscoveryEnabledByDefault);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
     protected void startScan() {
-        // TODO Auto-generated method stub
+    }
+
+    @Override
+    protected synchronized void stopScan() {
+        super.stopScan();
+        removeOlderResults(getTimestampOfLastScan());
+    }
+
+    @Override
+    protected void startBackgroundDiscovery() {
+        logger.debug("Start LIFX device background discovery");
+        if (discoveryJob == null || discoveryJob.isCancelled()) {
+            discoveryJob = scheduler.scheduleAtFixedRate(this, 0, REFRESH_INTERVAL, TimeUnit.SECONDS);
+        }
+    }
+
+    @Override
+    protected void stopBackgroundDiscovery() {
+        logger.debug("Stop LIFX device background discovery");
+        if (discoveryJob != null && !discoveryJob.isCancelled()) {
+            discoveryJob.cancel(true);
+            discoveryJob = null;
+        }
+    }
+
+    @Override
+    public void run() {
+        // Discovery task: send a broadcast
+
+    }
+
+    public void sendBroadcast() {
 
     }
 
