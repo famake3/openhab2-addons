@@ -15,7 +15,7 @@
                 <label>Block ID</label>
                 <description>ID of the NinjaBlock.</description>
                 <required>true</required>
-                <default>1313BB000705</default>
+                <default></default>
             </parameter>
             <parameter name="access-token" type="text">
                 <label>Access token</label>
@@ -33,7 +33,7 @@
                 <label>Callback port</label>
                 <description>Port of the openhab server.</description>
                 <required>true</required>
-                <default>9080</default>
+                <default>8080</default>
             </parameter>
         </config-description>
     </bridge-type>
