@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 public class LifxDiscoveryService extends AbstractDiscoveryService implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(LifxDiscoveryService.class);
-    private final int REFRESH_INTERVAL = 60;
+    private static final int PROBE_INTERVAL = 60;
 
     ScheduledFuture<?> discoveryJob;
 
@@ -32,7 +32,7 @@ public class LifxDiscoveryService extends AbstractDiscoveryService implements Ru
     protected void startBackgroundDiscovery() {
         logger.debug("Start LIFX device background discovery");
         if (discoveryJob == null || discoveryJob.isCancelled()) {
-            discoveryJob = scheduler.scheduleAtFixedRate(this, 0, REFRESH_INTERVAL, TimeUnit.SECONDS);
+            discoveryJob = scheduler.scheduleAtFixedRate(this, 0, PROBE_INTERVAL, TimeUnit.SECONDS);
         }
     }
 
