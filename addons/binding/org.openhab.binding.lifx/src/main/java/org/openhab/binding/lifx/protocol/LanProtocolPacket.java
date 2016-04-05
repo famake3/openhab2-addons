@@ -11,7 +11,7 @@ public class LanProtocolPacket {
      */
 
     // Size in bytes: Frame=8 + Frame address=16 + Protocol header=12
-    private static final int HEADER_SIZE = 8 + 16 + 12;
+    private static final int HEADER_LENGTH = 8 + 16 + 12;
     private static final short TAGGED = 0x2000; // Broadcast scan flag
     private static final short ADDRESSABLE = 0x1000; // Always set to one
     private static final short PROTOCOL_VERSION = 1024; // As stated in docs
@@ -31,12 +31,12 @@ public class LanProtocolPacket {
 
     public byte[] getData() {
         // Create new packet
-        byte[] data = new byte[HEADER_SIZE + payload.length];
+        byte[] data = new byte[HEADER_LENGTH + payload.length];
         ByteBuffer bb = ByteBuffer.wrap(data);
         bb.order(ByteOrder.LITTLE_ENDIAN);
 
         // --- Frame ---
-        bb.putShort((short) (HEADER_SIZE + payload.length));
+        bb.putShort((short) (HEADER_LENGTH + payload.length));
         // This field consists of flags in the top 4 bits, then the protocol version
         // All but the "tagged" flag are specified as constants in the current
         // protocol. Protocol spec is ambiguous on the exact placements of bits before/
@@ -71,8 +71,33 @@ public class LanProtocolPacket {
     }
 
     public static LanProtocolPacket decode(byte[] data, int length) throws PacketFormatException {
-
-        return null;
+        ByteBuffer bb = ByteBuffer.wrap(data);
+        int protocolLength = bb.getShort() & 0xFFFF;
+        if (length != protocolLength) {
+            throw new PacketFormatException("Length field does not match packet length");
+        }
+        short header = bb.getShort();
+        LanProtocolPacket result = new LanProtocolPacket();
+        result.tagged = (header & TAGGED) == TAGGED;
+        int vers = header & 0x0FFF;
+        if (vers != 1024) {
+            throw new PacketFormatException("Protocol version " + vers + "not understood");
+        }
+        result.source = bb.getInt();
+        result.target = bb.getLong();
+        bb.getShort();
+        bb.getShort();
+        bb.getShort();
+        byte responseCodes = bb.get();
+        result.ackRequired = (responseCodes & ACK_REQUIRED) == ACK_REQUIRED;
+        result.resRequired = (responseCodes & RES_REQUIRED) == RES_REQUIRED;
+        result.sequence = bb.get();
+        bb.getLong();
+        result.messageType = bb.getShort();
+        bb.getShort();
+        result.payload = new byte[length - HEADER_LENGTH];
+        System.arraycopy(data, HEADER_LENGTH, result.payload, 0, length - HEADER_LENGTH);
+        return result;
     }
 
     public boolean isTagged() {

@@ -12,7 +12,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LanProtocolService implements Runnable {
+public class LanProtocolService implements Runnable, PacketSender {
 
     /**
      * Singleton class to manage protocol I/O (main network loop,
@@ -100,8 +100,8 @@ public class LanProtocolService implements Runnable {
             throws PacketFormatException {
         synchronized (status) {
             status.ipAddress = inetAddress;
-            if (status.pendingResponse && lpp.getSequence() == status.sequenceNumber) {
-                status.response = lpp;
+            if (status.expectedSequenceNumbers.contains(lpp.getSequence())) {
+                status.responses.add(lpp);
                 status.notifyAll();
             }
         }
@@ -126,7 +126,7 @@ public class LanProtocolService implements Runnable {
     }
 
     public synchronized void registerDeviceListener(long id, DeviceListener dl) {
-        deviceMap.put(id, new LifxDeviceStatus(dl));
+        deviceMap.put(id, new LifxDeviceStatus(id, dl));
     }
 
     public synchronized void unregisterDeviceListener(long id) {
@@ -146,6 +146,12 @@ public class LanProtocolService implements Runnable {
     }
 
     public void startDiscovery() {
+
+    }
+
+    @Override
+    public void send(InetAddress destination, LanProtocolPacket packet) {
+        // TODO Auto-generated method stub
 
     }
 }
