@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -39,6 +40,8 @@ public class LanProtocolService implements Runnable, PacketSender {
 
     private static LanProtocolService instance;
 
+    private final InetAddress broadcastAddress;
+
     private final DatagramSocket socket;
     private final int clientId;
 
@@ -50,6 +53,12 @@ public class LanProtocolService implements Runnable, PacketSender {
 
         clientId = (new Random()).nextInt();
         deviceMap = new HashMap<>();
+
+        try {
+            broadcastAddress = InetAddress.getByAddress(new byte[] { -1, -1, -1, -1 });
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Unable to instantiate the broadcast address!", e);
+        }
 
         Thread receiveThread = new Thread(this);
         receiveThread.setDaemon(true);
@@ -77,7 +86,14 @@ public class LanProtocolService implements Runnable, PacketSender {
                     status = deviceMap.get(lpp.getTarget());
                     if (status != null) {
                         // Message from known device
-                        deviceMessageReceived(status, p.getAddress(), lpp);
+                        status.ipAddress = p.getAddress();
+                        RequestResponseHandler rrHandler = status.requestResponseHandlers.remove(lpp.getSequence());
+                        if (rrHandler != null) {
+                            rrHandler.packet();
+                        }
+                        // Note: calls device listener even if there is no request for this sequence number.
+                        // Any data may be useful for staying up to date.
+                        callDeviceEventListener(status, lpp);
                     } else {
                         if (lpp.getMessageType() == TYPE_STATE_SERVICE) {
                             // Report discovery result
@@ -86,7 +102,7 @@ public class LanProtocolService implements Runnable, PacketSender {
                 }
 
             } catch (IOException e) {
-                logger.error("Failed to receive packet, will try again in 60 seconds", e);
+                logger.error("Failed to receive something from network, will try again in 60 seconds", e);
                 try {
                     Thread.sleep(60000);
                 } catch (InterruptedException e1) {
@@ -96,19 +112,7 @@ public class LanProtocolService implements Runnable, PacketSender {
         }
     }
 
-    private void deviceMessageReceived(LifxDeviceStatus status, InetAddress inetAddress, LanProtocolPacket lpp)
-            throws PacketFormatException {
-        synchronized (status) {
-            status.ipAddress = inetAddress;
-            if (status.expectedSequenceNumbers.contains(lpp.getSequence())) {
-                status.responses.add(lpp);
-                status.notifyAll();
-            }
-        }
-        callDeviceEventListener(status, lpp);
-    }
-
-    private void callDeviceEventListener(LifxDeviceStatus status, LanProtocolPacket lpp) throws PacketFormatException {
+    static void callDeviceEventListener(LifxDeviceStatus status, LanProtocolPacket lpp) throws PacketFormatException {
         int type = lpp.getMessageType();
         if (type == TYPE_STATE_SERVICE || type == TYPE_ECHO_RESPONSE || type == TYPE_ACK) {
             status.deviceListener.ping();
@@ -151,7 +155,11 @@ public class LanProtocolService implements Runnable, PacketSender {
 
     @Override
     public void send(InetAddress destination, LanProtocolPacket packet) {
-        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void sendBroadcast(LanProtocolPacket packet) {
 
     }
 }

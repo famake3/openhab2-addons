@@ -14,4 +14,6 @@ public interface DeviceListener {
 
     void label(String label);
 
+    void timeout();
+
 }

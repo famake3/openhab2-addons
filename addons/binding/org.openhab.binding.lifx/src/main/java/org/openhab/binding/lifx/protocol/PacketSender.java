@@ -6,4 +6,6 @@ interface PacketSender {
 
     void send(InetAddress destination, LanProtocolPacket packet);
 
+    void sendBroadcast(LanProtocolPacket packet);
+
 }
