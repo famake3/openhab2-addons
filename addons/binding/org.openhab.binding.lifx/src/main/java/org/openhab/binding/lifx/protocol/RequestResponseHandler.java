@@ -7,6 +7,11 @@ import org.slf4j.LoggerFactory;
 
 public class RequestResponseHandler implements Runnable {
 
+    /**
+     * Class for reliable message delivery, with timeout if no
+     * reply is received.
+     */
+
     private final Logger logger = LoggerFactory.getLogger(RequestResponseHandler.class);
 
     private static final long TIMEOUT = 1000;
@@ -30,7 +35,7 @@ public class RequestResponseHandler implements Runnable {
         try {
             packetSender.send(device.ipAddress, requestPacket);
         } catch (IOException e) {
-            logger.error("Exception while trying to send packet", e);
+            logger.error("Exception while trying to send packet, will try again", e);
         }
         thread.start();
     }

@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 public class LanProtocolPacket {
 
     /**
-     * Protocol basic message.
+     * Low level protocol message.
      *
      */
 
