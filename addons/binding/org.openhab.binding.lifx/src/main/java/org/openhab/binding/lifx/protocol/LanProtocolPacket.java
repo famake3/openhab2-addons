@@ -26,7 +26,19 @@ public class LanProtocolPacket {
 
     private int source;
 
-    public LanProtocolPacket() {
+    private LanProtocolPacket() {
+    }
+
+    public LanProtocolPacket(int source, boolean tagged, boolean ackRequired, boolean resRequired, byte sequence,
+            long target, short messageType, byte[] payload) {
+        this.source = source;
+        this.tagged = tagged;
+        this.ackRequired = ackRequired;
+        this.resRequired = resRequired;
+        this.sequence = sequence;
+        this.target = target;
+        this.messageType = messageType;
+        this.payload = payload;
     }
 
     public byte[] getData() {

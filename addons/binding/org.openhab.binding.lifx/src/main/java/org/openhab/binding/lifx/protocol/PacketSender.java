@@ -1,11 +1,11 @@
 package org.openhab.binding.lifx.protocol;
 
+import java.io.IOException;
 import java.net.InetAddress;
 
 interface PacketSender {
 
-    void send(InetAddress destination, LanProtocolPacket packet);
-
-    void sendBroadcast(LanProtocolPacket packet);
+    // Note: will send broadcast if destination is null
+    void send(InetAddress destination, LanProtocolPacket packet) throws IOException;
 
 }

@@ -1,15 +1,18 @@
 package org.openhab.binding.lifx.protocol;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RequestResponseHandler implements Runnable {
 
-    private final Logger logger = LoggerFactory.getLogger(LanProtocolService.class);
+    private final Logger logger = LoggerFactory.getLogger(RequestResponseHandler.class);
 
     private static final long TIMEOUT = 1000;
-    private static final int IP_ATTEMPTS = 2, BCAST_ATTEMPTS = 2;
+    private static final int UNICAST_ATTEMPTS = 2, BCAST_ATTEMPTS = 2;
 
+    private final Thread thread;
     private final LanProtocolPacket requestPacket;
     private final LifxDeviceStatus device;
     private final PacketSender packetSender;
@@ -19,14 +22,25 @@ public class RequestResponseHandler implements Runnable {
         this.requestPacket = packet;
         this.device = device;
         this.packetSender = packetSender;
+        this.thread = new Thread(this);
+        this.thread.setDaemon(true);
+    }
+
+    public void start() {
+        try {
+            packetSender.send(device.ipAddress, requestPacket);
+        } catch (IOException e) {
+            logger.error("Exception while trying to send packet", e);
+        }
+        thread.start();
     }
 
     @Override
     public synchronized void run() {
-        for (int i = 0; i < (IP_ATTEMPTS + BCAST_ATTEMPTS) && responsePacketReceived; ++i) {
+        for (int i = 0; i < (UNICAST_ATTEMPTS + BCAST_ATTEMPTS) && responsePacketReceived; ++i) {
             long nextTimeout = System.currentTimeMillis() + TIMEOUT;
             long remain = System.currentTimeMillis() - nextTimeout;
-            while (responsePacketReceived && remain > 0) {
+            while (!responsePacketReceived && remain > 0) {
                 try {
                     wait(remain);
                 } catch (InterruptedException e) {
@@ -34,21 +48,20 @@ public class RequestResponseHandler implements Runnable {
                     return;
                 }
             }
-            if (responsePacketReceived) { // Timeout! Re-send.
+            if (!responsePacketReceived) { // Timeout! Re-send.
                 logger.debug("No response from bulb " + device.idString() + ", resending...");
-                if (i > IP_ATTEMPTS) {
+                if (i > UNICAST_ATTEMPTS) {
                     device.ipAddress = null;
                 }
-                if (device.ipAddress == null) {
-                    packetSender.sendBroadcast(requestPacket);
-                } else {
+                try {
                     packetSender.send(device.ipAddress, requestPacket);
+                } catch (IOException e) {
+                    logger.error("Exception while trying to send packet", e);
                 }
             }
         }
-        if (responsePacketReceived) {
+        if (!responsePacketReceived) {
             device.deviceListener.timeout();
-        } else {
             logger.info("No response from bulb " + device.idString() + ", giving up.");
         }
     }

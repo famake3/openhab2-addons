@@ -21,6 +21,10 @@ public class LifxDeviceStatus {
     }
 
     public String idString() {
+        return idString(id);
+    }
+
+    public static String idString(long id) {
         return Long.toHexString(id);
     }
 
