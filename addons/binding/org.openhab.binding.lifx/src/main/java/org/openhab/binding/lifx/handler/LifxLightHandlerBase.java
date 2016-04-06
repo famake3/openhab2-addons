@@ -9,11 +9,17 @@ package org.openhab.binding.lifx.handler;
 
 import static org.openhab.binding.lifx.LifxBindingConstants.CHANNEL_COLOR;
 
+import java.net.SocketException;
+
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.openhab.binding.lifx.protocol.DeviceListener;
+import org.openhab.binding.lifx.protocol.LanProtocolService;
+import org.openhab.binding.lifx.protocol.LifxColor;
+import org.openhab.binding.lifx.protocol.LifxDeviceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +28,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author Famake - Initial contribution
  */
-public class LifxLightHandlerBase extends BaseThingHandler {
+public abstract class LifxLightHandlerBase extends BaseThingHandler implements DeviceListener {
 
     private Logger logger = LoggerFactory.getLogger(LifxLightHandlerBase.class);
+
+    private LanProtocolService lanProtocolService;
+    private LifxDeviceStatus deviceStatus;
 
     public LifxLightHandlerBase(Thing thing) {
         super(thing);
@@ -44,15 +53,39 @@ public class LifxLightHandlerBase extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        // TODO: Initialize the thing. If done set status to ONLINE to indicate proper working.
-        // Long running initialization should be done asynchronously in background.
-        updateStatus(ThingStatus.ONLINE);
 
-        // Note: When initialization can NOT be done set the status with more details for further
-        // analysis. See also class ThingStatusDetail for all available status details.
-        // Add a description to give user information to understand why thing does not work
-        // as expected. E.g.
-        // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-        // "Can not access device as username and/or password are invalid");
+        try {
+            lanProtocolService = LanProtocolService.getInstance();
+            updateStatus(ThingStatus.INITIALIZING);
+            deviceStatus = lanProtocolService.registerDeviceListener(getDeviceId(), this);
+            lanProtocolService.queryLightState(deviceStatus);
+        } catch (SocketException e) {
+            throw new RuntimeException("Unable to open a socket, there's nothing to do but give up", e);
+        }
+    }
+
+    private long getDeviceId() {
+        getThing().getConfiguration().get("device-id");
+        return 0;
+    }
+
+    @Override
+    public void ping() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public abstract void color(LifxColor color);
+
+    @Override
+    public abstract void power(boolean on);
+
+    @Override
+    public void label(String label) {
+    }
+
+    @Override
+    public void timeout() {
     }
 }

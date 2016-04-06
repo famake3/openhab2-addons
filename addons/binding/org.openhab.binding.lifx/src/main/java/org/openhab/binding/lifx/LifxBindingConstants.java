@@ -21,7 +21,7 @@ public class LifxBindingConstants {
 
     // List of all Thing Type UIDs
     public final static ThingTypeUID THING_TYPE_LIGHT_COLOR = new ThingTypeUID(BINDING_ID, "light-color");
-    public final static ThingTypeUID THING_TYPE_LIGHT_wHITE = new ThingTypeUID(BINDING_ID, "light-color");
+    public final static ThingTypeUID THING_TYPE_LIGHT_wHITE = new ThingTypeUID(BINDING_ID, "light-white");
 
     // List of all Channel ids
     public final static String CHANNEL_COLOR = "color";

@@ -10,15 +10,28 @@
         <description>Sample thing for Lifx Binding</description>
 
         <channels>
-            <channel id="channel1" typeId="sample-channel"/>
+            <channel id="color" typeId="color"/>
         </channels>
+        
+        <config-description>
+            <parameter name="device-id" type="text" required="true">
+                <label>Device ID</label>
+                <description>LIFX device ID (hex).</description>
+            </parameter>
+
+        </config-description>
     </thing-type>
 
-    <!-- Sample Channel Type -->
-    <channel-type id="sample-channel">
-        <item-type>lifxItem</item-type>
-        <label>Lifx Binding Channel</label>
-        <description>Sample channel for Lifx Binding</description>
+    <channel-type id="color">
+        <item-type>Color</item-type>
+        <label>Color</label>
+        <description>Bulb color</description>
+    </channel-type>
+    
+    <channel-type id="color-temperature">
+        <item-type>Dimmer</item-type>
+        <label>Color temperature</label>
+        <description>Color temperature in Kelvin (2500-9000).</description>
     </channel-type>
 
 </thing:thing-descriptions>
