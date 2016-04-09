@@ -84,6 +84,7 @@ public class LanProtocolPacket {
 
     public static LanProtocolPacket decode(byte[] data, int length) throws PacketFormatException {
         ByteBuffer bb = ByteBuffer.wrap(data);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         int protocolLength = bb.getShort() & 0xFFFF;
         if (length != protocolLength) {
             throw new PacketFormatException("Length field does not match packet length");

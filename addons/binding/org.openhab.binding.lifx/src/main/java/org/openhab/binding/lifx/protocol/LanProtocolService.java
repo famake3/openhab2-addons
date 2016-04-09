@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -135,6 +136,7 @@ public class LanProtocolService implements Runnable, PacketSender {
     private static void processLightStateMessage(DeviceListener deviceListener, LanProtocolPacket lpp)
             throws PacketFormatException {
         ByteBuffer bb = ByteBuffer.wrap(lpp.getPayload());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         deviceListener.color(LifxColor.decodeFrom(bb));
         bb.getShort(); // Reserved
         deviceListener.power(bb.getShort() != 0);
@@ -155,6 +157,7 @@ public class LanProtocolService implements Runnable, PacketSender {
 
     public synchronized void setColor(LifxDeviceStatus deviceStatus, int duration, LifxColor color) {
         ByteBuffer payload = ByteBuffer.wrap(new byte[21]);
+        payload.order(ByteOrder.LITTLE_ENDIAN);
         payload.put((byte) 0);
         color.encodeInto(payload);
         payload.putInt(duration);
@@ -163,6 +166,7 @@ public class LanProtocolService implements Runnable, PacketSender {
 
     public synchronized void setPower(LifxDeviceStatus deviceStatus, int duration, boolean power) {
         ByteBuffer payload = ByteBuffer.wrap(new byte[6]);
+        payload.order(ByteOrder.LITTLE_ENDIAN);
         payload.putShort(power ? (short) 0xFFFF : 0);
         payload.putInt(duration);
         sendAndExpectReply(deviceStatus, TYPE_LIGHT_SET_POWER, true, payload.array());
