@@ -107,6 +107,7 @@ public class LanProtocolService implements Runnable, PacketSender {
                 try {
                     Thread.sleep(60000);
                 } catch (InterruptedException e1) {
+                    break;
                 }
                 continue;
             }
