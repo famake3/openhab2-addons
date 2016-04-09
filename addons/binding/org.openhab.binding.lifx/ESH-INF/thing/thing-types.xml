@@ -5,33 +5,51 @@
         xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
     <!-- Sample Thing Type -->
-    <thing-type id="sample">
-        <label>Lifx Binding Thing</label>
-        <description>Sample thing for Lifx Binding</description>
+    <thing-type id="color-light">
+        <label>Color Light</label>
+        <description>LIFX Color light bulb.</description>
 
         <channels>
             <channel id="color" typeId="color"/>
+            <channel id="color-temperature" typeId="color-temperature"/>
+            <channel id="color-temperature-latched" typeId="color-temperature-latched"/>
+            <channel id="transition-time" typeId="transition-time"/>
         </channels>
         
         <config-description>
             <parameter name="device-id" type="text" required="true">
                 <label>Device ID</label>
-                <description>LIFX device ID (hex).</description>
+                <description>LIFX device ID (in hex format).</description>
             </parameter>
-
+            <parameter name="default-transition-time" type="integer" required="true" default="200">
+                <label>Default transition time</label>
+                <description>Default transition time in milliseconds (0 - about 2 billion).</description>
+            </parameter>
         </config-description>
     </thing-type>
 
     <channel-type id="color">
         <item-type>Color</item-type>
         <label>Color</label>
-        <description>Bulb color</description>
+        <description>Bulb color.</description>
     </channel-type>
     
     <channel-type id="color-temperature">
         <item-type>Dimmer</item-type>
         <label>Color temperature</label>
         <description>Color temperature in Kelvin (2500-9000).</description>
+    </channel-type>
+    
+    <channel-type id="color-temperature-latched" advanced="true">
+        <item-type>Dimmer</item-type>
+        <label>Color temperature (latched)</label>
+        <description>Does not send a command to the light bulb. A subsequent command to Color will update color and color temperature atomically.</description>
+    </channel-type>
+    
+    <channel-type id="transition-time" advanced="true">
+        <item-type>Dimmer</item-type>
+        <label>Transition time</label>
+        <description>Transition time in milliseconds for next command. Resets to default value after each command.</description>
     </channel-type>
 
 </thing:thing-descriptions>

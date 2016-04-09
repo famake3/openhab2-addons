@@ -7,7 +7,14 @@ public class LifxColor {
 
     public double hue, saturation, brightness, colorTemperature;
 
-    public LifxColor() {
+    private LifxColor() {
+    }
+
+    public LifxColor(double hue, double saturation, double brightness, double colorTemperature) {
+        this.hue = hue;
+        this.saturation = saturation;
+        this.brightness = brightness;
+        this.colorTemperature = colorTemperature;
     }
 
     public static LifxColor decodeFrom(ByteBuffer bb) throws PacketFormatException {

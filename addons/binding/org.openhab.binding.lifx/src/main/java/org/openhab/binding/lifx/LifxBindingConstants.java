@@ -25,5 +25,8 @@ public class LifxBindingConstants {
 
     // List of all Channel ids
     public final static String CHANNEL_COLOR = "color";
+    public final static String CHANNEL_COLOR_TEMPERATURE = "color-temperature";
+    public final static String CHANNEL_COLOR_TEMPERATURE_LATCHED = "color-temperature-latched";
+    public final static String CHANNEL_TRANSITION_TIME = "transition-time";
 
 }

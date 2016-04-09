@@ -7,13 +7,15 @@
  */
 package org.openhab.binding.lifx.handler;
 
-import static org.openhab.binding.lifx.LifxBindingConstants.CHANNEL_COLOR;
-
+import java.math.BigDecimal;
 import java.net.SocketException;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.lifx.protocol.DeviceListener;
@@ -28,51 +30,70 @@ import org.slf4j.LoggerFactory;
  *
  * @author Famake - Initial contribution
  */
-public abstract class LifxLightHandlerBase extends BaseThingHandler implements DeviceListener {
+public abstract class LifxLightHandlerBase extends BaseThingHandler implements DeviceListener, Runnable {
 
     private Logger logger = LoggerFactory.getLogger(LifxLightHandlerBase.class);
 
-    private LanProtocolService lanProtocolService;
-    private LifxDeviceStatus deviceStatus;
+    protected LanProtocolService protocol;
+    protected LifxDeviceStatus deviceStatus;
+    protected ScheduledFuture<?> pollingTask;
 
     public LifxLightHandlerBase(Thing thing) {
         super(thing);
     }
 
     @Override
-    public void handleCommand(ChannelUID channelUID, Command command) {
-        if (channelUID.getId().equals(CHANNEL_COLOR)) {
-            // TODO: handle command
-
-            // Note: if communication with thing fails for some reason,
-            // indicate that by setting the status with detail information
-            // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-            // "Could not control device at IP address x.x.x.x");
-        }
-    }
+    public abstract void handleCommand(ChannelUID channelUID, Command command);
 
     @Override
     public void initialize() {
-
         try {
-            lanProtocolService = LanProtocolService.getInstance();
+            protocol = LanProtocolService.getInstance();
             updateStatus(ThingStatus.INITIALIZING);
-            deviceStatus = lanProtocolService.registerDeviceListener(getDeviceId(), this);
-            lanProtocolService.queryLightState(deviceStatus);
+            deviceStatus = protocol.registerDeviceListener(deviceId(), this);
+            protocol.queryLightState(deviceStatus);
+            startStatePolling();
         } catch (SocketException e) {
             throw new RuntimeException("Unable to open a socket, there's nothing to do but give up", e);
         }
     }
 
-    private long getDeviceId() {
-        getThing().getConfiguration().get("device-id");
-        return 0;
+    @Override
+    public void dispose() {
+        if (pollingTask != null) {
+            pollingTask.cancel(false);
+        }
+    }
+
+    private void startStatePolling() {
+        int pollingInterval = ((BigDecimal) getConfig().get("polling-interval")).intValue();
+        pollingTask = scheduler.scheduleAtFixedRate(this, 10, pollingInterval, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void run() {
+        logger.debug("Calling polling function");
+        poll();
+    }
+
+    public abstract void poll();
+
+    protected String deviceIdString() {
+        return (String) getThing().getConfiguration().get("device-id");
+    }
+
+    protected long deviceId() {
+        return Long.parseLong(deviceIdString(), 16);
+    }
+
+    protected void online() {
+        logger.debug("Received a valid packet from device " + deviceId());
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
     public void ping() {
-        // TODO Auto-generated method stub
-
+        online();
     }
 
     @Override
@@ -83,9 +104,11 @@ public abstract class LifxLightHandlerBase extends BaseThingHandler implements D
 
     @Override
     public void label(String label) {
+        // Label is not used
     }
 
     @Override
     public void timeout() {
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "Response timeout");
     }
 }
