@@ -9,8 +9,10 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,7 @@ public class LanProtocolService implements Runnable, PacketSender {
     private final int clientId;
 
     private final Map<Long, LifxDeviceStatus> deviceMap;
+    private final Set<LifxDiscoveryListener> discoveryListeners;
 
     private LanProtocolService() throws SocketException {
         socket = new DatagramSocket(LIFX_PORT);
@@ -55,6 +58,7 @@ public class LanProtocolService implements Runnable, PacketSender {
 
         clientId = (new Random()).nextInt();
         deviceMap = new HashMap<>();
+        discoveryListeners = new HashSet<>();
 
         try {
             broadcastAddress = InetAddress.getByAddress(new byte[] { -1, -1, -1, -1 });
@@ -99,6 +103,9 @@ public class LanProtocolService implements Runnable, PacketSender {
                     } else {
                         if (lpp.getMessageType() == TYPE_STATE_SERVICE) {
                             // Report discovery result
+                            for (LifxDiscoveryListener dl : discoveryListeners) {
+                                dl.deviceDiscovered(lpp.getTarget());
+                            }
                         }
                     }
                 }
@@ -153,6 +160,14 @@ public class LanProtocolService implements Runnable, PacketSender {
 
     public synchronized void unregisterDeviceListener(long id) {
         deviceMap.remove(id);
+    }
+
+    public synchronized void registerDiscoveryListener(LifxDiscoveryListener dl) {
+        discoveryListeners.add(dl);
+    }
+
+    public synchronized void removeDiscoveryListener(LifxDiscoveryListener dl) {
+        discoveryListeners.remove(dl);
     }
 
     public synchronized void setColor(LifxDeviceStatus deviceStatus, int duration, LifxColor color) {
