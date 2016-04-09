@@ -5,16 +5,14 @@ Bundle-SymbolicName: org.openhab.binding.serialmultifunction;singleton:=true
 Bundle-Vendor: openHAB
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: .
+Bundle-ClassPath: ., lib/jssc.jar
 Import-Package: com.google.common.collect,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.types,
- org.slf4j,
- gnu.io
+ org.slf4j
 Service-Component: OSGI-INF/*
 Export-Package: org.openhab.binding.serialmultifunction,
  org.openhab.binding.serialmultifunction.handler
-Require-Bundle: org.openhab.io.transport.serial
