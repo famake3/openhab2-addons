@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LifxDeviceStatus {
+public class LifxProtocolDevice {
 
     final long id;
 
@@ -14,7 +14,7 @@ public class LifxDeviceStatus {
     InetAddress ipAddress;
     final DeviceListener deviceListener;
 
-    public LifxDeviceStatus(long id, DeviceListener dl) {
+    public LifxProtocolDevice(long id, DeviceListener dl) {
         this.deviceListener = dl;
         this.requestResponseHandlers = new HashMap<>();
         this.id = id;

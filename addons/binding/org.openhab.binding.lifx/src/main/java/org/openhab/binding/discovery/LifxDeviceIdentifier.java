@@ -4,9 +4,9 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.openhab.binding.lifx.protocol.DeviceListener;
 import org.openhab.binding.lifx.protocol.LanProtocolService;
 import org.openhab.binding.lifx.protocol.LifxColor;
-import org.openhab.binding.lifx.protocol.LifxDeviceStatus;
+import org.openhab.binding.lifx.protocol.LifxProtocolDevice;
 
-public class LifxDiscoveryIdentity implements DeviceListener {
+public class LifxDeviceIdentifier implements DeviceListener {
 
     private final LifxLightIdentificationListener listener;
     private final LanProtocolService protocol;
@@ -14,12 +14,12 @@ public class LifxDiscoveryIdentity implements DeviceListener {
     private String label;
     private ThingTypeUID type;
 
-    public LifxDiscoveryIdentity(LanProtocolService protocol, LifxLightIdentificationListener listener, long id) {
+    public LifxDeviceIdentifier(LanProtocolService protocol, LifxLightIdentificationListener listener, long id) {
         this.listener = listener;
         this.protocol = protocol;
         this.id = id;
-        LifxDeviceStatus lifxDeviceStatus = protocol.registerDeviceListener(id, this);
-        protocol.queryLabel(lifxDeviceStatus);
+        LifxProtocolDevice lifxDevice = protocol.registerDeviceListener(id, this);
+        protocol.queryLabel(lifxDevice);
     }
 
     @Override

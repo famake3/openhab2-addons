@@ -19,7 +19,7 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
     private final Logger logger = LoggerFactory.getLogger(LifxDiscoveryService.class);
 
     private LanProtocolService protocol;
-    private Map<Long, LifxDiscoveryIdentity> discoveredDevices;
+    private Map<Long, LifxDeviceIdentifier> discoveredDevices;
 
     private boolean scanMode;
 
@@ -60,18 +60,18 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
         // Called by protocol service
         if (scanMode || isBackgroundDiscoveryEnabled()) {
             if (discoveredDevices.get(id) == null) {
-                discoveredDevices.put(id, new LifxDiscoveryIdentity(protocol, this, id));
+                discoveredDevices.put(id, new LifxDeviceIdentifier(protocol, this, id));
             }
         }
     }
 
     @Override
-    public void lightIdentified(LifxDiscoveryIdentity ident) {
+    public void lightIdentified(LifxDeviceIdentifier ident) {
 
     }
 
     @Override
-    public void lightIdFailed(LifxDiscoveryIdentity ident) {
+    public void lightIdFailed(LifxDeviceIdentifier ident) {
         // TODO Auto-generated method stub
 
     }

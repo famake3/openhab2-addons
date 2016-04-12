@@ -84,7 +84,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
     }
 
     private void handlePowerCommand(OnOffType command) {
-        protocol.setPower(deviceStatus, currentTransitionTime.intValue(), command == OnOffType.ON);
+        protocol.setPower(device, currentTransitionTime.intValue(), command == OnOffType.ON);
         if (command == OnOffType.ON) {
             updateState(colorUid, currentColor);
         } else {
@@ -130,7 +130,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
         double brightness = currentColor.getBrightness().doubleValue() / 100.0;
         double colorTemperature = currentColorTemperature.doubleValue();
         LifxColor lifxColor = new LifxColor(hue, saturation, brightness, colorTemperature);
-        protocol.setColor(deviceStatus, currentTransitionTime.intValue(), lifxColor);
+        protocol.setColor(device, currentTransitionTime.intValue(), lifxColor);
         resetTransitionTime();
     }
 
@@ -163,7 +163,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
 
     @Override
     public void poll() {
-        protocol.queryLightState(deviceStatus);
+        protocol.queryLightState(device);
     }
 
 }

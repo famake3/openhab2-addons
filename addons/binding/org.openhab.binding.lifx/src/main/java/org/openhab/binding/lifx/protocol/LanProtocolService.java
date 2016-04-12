@@ -49,7 +49,7 @@ public class LanProtocolService implements Runnable, PacketSender {
     private final DatagramSocket socket;
     private final int clientId;
 
-    private final Map<Long, LifxDeviceStatus> deviceMap;
+    private final Map<Long, LifxProtocolDevice> deviceMap;
     private final Set<LifxDiscoveryListener> discoveryListeners;
 
     private LanProtocolService() throws SocketException {
@@ -87,7 +87,7 @@ public class LanProtocolService implements Runnable, PacketSender {
                 socket.receive(p);
                 LanProtocolPacket lpp = LanProtocolPacket.decode(p.getData(), p.getLength());
 
-                LifxDeviceStatus status = null;
+                LifxProtocolDevice status = null;
                 synchronized (this) {
                     status = deviceMap.get(lpp.getTarget());
                     if (status != null) {
@@ -122,7 +122,7 @@ public class LanProtocolService implements Runnable, PacketSender {
         }
     }
 
-    static void callDeviceEventListener(LifxDeviceStatus status, LanProtocolPacket lpp) throws PacketFormatException {
+    static void callDeviceEventListener(LifxProtocolDevice status, LanProtocolPacket lpp) throws PacketFormatException {
         int type = lpp.getMessageType();
         if (type == TYPE_STATE_SERVICE || type == TYPE_ECHO_RESPONSE || type == TYPE_ACK) {
             status.deviceListener.ping();
@@ -152,8 +152,8 @@ public class LanProtocolService implements Runnable, PacketSender {
         deviceListener.label(new String(label));
     }
 
-    public synchronized LifxDeviceStatus registerDeviceListener(long id, DeviceListener dl) {
-        LifxDeviceStatus deviceStatus = new LifxDeviceStatus(id, dl);
+    public synchronized LifxProtocolDevice registerDeviceListener(long id, DeviceListener dl) {
+        LifxProtocolDevice deviceStatus = new LifxProtocolDevice(id, dl);
         deviceMap.put(id, deviceStatus);
         return deviceStatus;
     }
@@ -170,7 +170,7 @@ public class LanProtocolService implements Runnable, PacketSender {
         discoveryListeners.remove(dl);
     }
 
-    public synchronized void setColor(LifxDeviceStatus deviceStatus, int duration, LifxColor color) {
+    public synchronized void setColor(LifxProtocolDevice deviceStatus, int duration, LifxColor color) {
         ByteBuffer payload = ByteBuffer.wrap(new byte[21]);
         payload.order(ByteOrder.LITTLE_ENDIAN);
         payload.put((byte) 0);
@@ -179,7 +179,7 @@ public class LanProtocolService implements Runnable, PacketSender {
         sendAndExpectReply(deviceStatus, TYPE_LIGHT_SET_COLOR, true, payload.array());
     }
 
-    public synchronized void setPower(LifxDeviceStatus deviceStatus, int duration, boolean power) {
+    public synchronized void setPower(LifxProtocolDevice deviceStatus, int duration, boolean power) {
         ByteBuffer payload = ByteBuffer.wrap(new byte[6]);
         payload.order(ByteOrder.LITTLE_ENDIAN);
         payload.putShort(power ? (short) 0xFFFF : 0);
@@ -187,15 +187,15 @@ public class LanProtocolService implements Runnable, PacketSender {
         sendAndExpectReply(deviceStatus, TYPE_LIGHT_SET_POWER, true, payload.array());
     }
 
-    public synchronized void queryLightState(LifxDeviceStatus deviceStatus) {
+    public synchronized void queryLightState(LifxProtocolDevice deviceStatus) {
         sendAndExpectReply(deviceStatus, TYPE_LIGHT_GET, false, new byte[0]);
     }
 
-    public synchronized void queryLabel(LifxDeviceStatus deviceStatus) {
+    public synchronized void queryLabel(LifxProtocolDevice deviceStatus) {
         sendAndExpectReply(deviceStatus, TYPE_GET_LABEL, false, new byte[0]);
     }
 
-    private void sendAndExpectReply(LifxDeviceStatus deviceStatus, short type, boolean responseTypeAck,
+    private void sendAndExpectReply(LifxProtocolDevice deviceStatus, short type, boolean responseTypeAck,
             byte[] payload) {
         byte seq = deviceStatus.sequenceNumber++;
         LanProtocolPacket cmdPacket = new LanProtocolPacket(clientId, false, responseTypeAck, !responseTypeAck, seq,

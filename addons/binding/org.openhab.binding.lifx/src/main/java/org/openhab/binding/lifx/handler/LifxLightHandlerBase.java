@@ -21,7 +21,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.lifx.protocol.DeviceListener;
 import org.openhab.binding.lifx.protocol.LanProtocolService;
 import org.openhab.binding.lifx.protocol.LifxColor;
-import org.openhab.binding.lifx.protocol.LifxDeviceStatus;
+import org.openhab.binding.lifx.protocol.LifxProtocolDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public abstract class LifxLightHandlerBase extends BaseThingHandler implements D
     private Logger logger = LoggerFactory.getLogger(LifxLightHandlerBase.class);
 
     protected LanProtocolService protocol;
-    protected LifxDeviceStatus deviceStatus;
+    protected LifxProtocolDevice device;
     protected ScheduledFuture<?> pollingTask;
 
     public LifxLightHandlerBase(Thing thing) {
@@ -50,8 +50,8 @@ public abstract class LifxLightHandlerBase extends BaseThingHandler implements D
         try {
             protocol = LanProtocolService.getInstance();
             updateStatus(ThingStatus.INITIALIZING);
-            deviceStatus = protocol.registerDeviceListener(deviceId(), this);
-            protocol.queryLightState(deviceStatus);
+            device = protocol.registerDeviceListener(deviceId(), this);
+            protocol.queryLightState(device);
             startStatePolling();
         } catch (SocketException e) {
             throw new RuntimeException("Unable to open a socket, there's nothing to do but give up", e);
