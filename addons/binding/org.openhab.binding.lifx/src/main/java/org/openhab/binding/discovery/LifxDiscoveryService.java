@@ -2,11 +2,17 @@ package org.openhab.binding.discovery;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
+import org.eclipse.smarthome.config.discovery.DiscoveryResult;
+import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.openhab.binding.lifx.LifxBindingConstants;
 import org.openhab.binding.lifx.protocol.LanProtocolService;
 import org.openhab.binding.lifx.protocol.LifxDiscoveryListener;
@@ -14,12 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LifxDiscoveryService extends AbstractDiscoveryService
-        implements LifxDiscoveryListener, LifxLightIdentificationListener {
+        implements LifxDiscoveryListener, LifxLightIdentificationListener, Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(LifxDiscoveryService.class);
 
     private LanProtocolService protocol;
-    private Map<Long, LifxDeviceIdentifier> discoveredDevices;
+    private Map<Long, LifxDeviceAnalyzer> discoveredDevices;
+
+    private ScheduledFuture<?> cleanup;
 
     private boolean scanMode;
 
@@ -32,11 +40,13 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
             logger.error("Failed to get / create an instance of the protocol service", e);
             throw new RuntimeException("Discovery service can't get protocol service instance", e);
         }
+        cleanup = scheduler.scheduleAtFixedRate(this, 30, 30, TimeUnit.MINUTES);
     }
 
     @Override
     protected void deactivate() {
         protocol.removeDiscoveryListener(this);
+        cleanup.cancel(false);
     }
 
     @Override
@@ -59,26 +69,46 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
     public void deviceDiscovered(long id) {
         // Called by protocol service
         if (scanMode || isBackgroundDiscoveryEnabled()) {
-            if (discoveredDevices.get(id) == null) {
-                discoveredDevices.put(id, new LifxDeviceIdentifier(protocol, this, id));
+            LifxDeviceAnalyzer existingDevice = discoveredDevices.get(id);
+            if (existingDevice == null) {
+                discoveredDevices.put(id, new LifxDeviceAnalyzer(protocol, this, id));
+            } else {
+                existingDevice.clearCleanupTag();
             }
         }
     }
 
-    @Override
-    public void lightIdentified(LifxDeviceIdentifier ident) {
-
+    private static String getIdString(long id) {
+        return String.format("%06x", id);
     }
 
     @Override
-    public void lightIdFailed(LifxDeviceIdentifier ident) {
-        // TODO Auto-generated method stub
+    public void lightIdentified(LifxDeviceAnalyzer ident) {
+        if (scanMode || isBackgroundDiscoveryEnabled()) {
+            ThingUID thingUid = new ThingUID(ident.getType(), getIdString(ident.getId()));
+            Map<String, Object> properties = new HashMap<>(1);
+            properties.put(LifxBindingConstants.PARAM_DEVICE_ID, getIdString(ident.getId()));
+            DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUid).withProperties(properties)
+                    .withLabel(ident.getLabel()).build();
+            thingDiscovered(discoveryResult);
 
+        }
+    }
+
+    @Override
+    public void lightIdFailed(LifxDeviceAnalyzer ident) {
+        discoveredDevices.remove(ident);
     }
 
     @Override
     public Set<ThingTypeUID> getSupportedThingTypes() {
         return LifxBindingConstants.SUPPORTED_THING_TYPES_UIDS;
+    }
+
+    @Override
+    public void run() {
+        // Cleanup thread
+
     }
 
 }

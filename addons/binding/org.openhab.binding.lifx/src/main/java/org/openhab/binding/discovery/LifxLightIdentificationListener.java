@@ -2,8 +2,8 @@ package org.openhab.binding.discovery;
 
 public interface LifxLightIdentificationListener {
 
-    void lightIdentified(LifxDeviceIdentifier ident);
+    void lightIdentified(LifxDeviceAnalyzer ident);
 
-    void lightIdFailed(LifxDeviceIdentifier ident);
+    void lightIdFailed(LifxDeviceAnalyzer ident);
 
 }

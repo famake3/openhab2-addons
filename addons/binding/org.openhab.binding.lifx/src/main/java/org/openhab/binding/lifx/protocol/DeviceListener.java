@@ -16,4 +16,6 @@ public interface DeviceListener {
 
     void timeout();
 
+    void version(int vendor, int product, int version);
+
 }

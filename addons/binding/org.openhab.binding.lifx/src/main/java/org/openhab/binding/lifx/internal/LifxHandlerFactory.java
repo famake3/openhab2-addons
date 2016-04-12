@@ -35,6 +35,7 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.equals(THING_TYPE_LIGHT_COLOR)) {
+            // String deviceId = thing.getProperties().get(LifxBindingConstants.PARAM_DEVICE_ID);
             return new LifxColorLightHandler(thing);
         }
 

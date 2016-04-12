@@ -25,7 +25,7 @@ public class LifxBindingConstants {
 
     // List of all Thing Type UIDs
     public final static ThingTypeUID THING_TYPE_LIGHT_COLOR = new ThingTypeUID(BINDING_ID, "light-color");
-    public final static ThingTypeUID THING_TYPE_LIGHT_wHITE = new ThingTypeUID(BINDING_ID, "light-white");
+    public final static ThingTypeUID THING_TYPE_LIGHT_WHITE = new ThingTypeUID(BINDING_ID, "light-white");
 
     // List of all Channel ids
     public final static String CHANNEL_COLOR = "color";
@@ -33,7 +33,14 @@ public class LifxBindingConstants {
     public final static String CHANNEL_COLOR_TEMPERATURE_LATCHED = "color-temperature-latched";
     public final static String CHANNEL_TRANSITION_TIME = "transition-time";
 
+    public final static String PARAM_DEVICE_ID = "device-id";
+    public final static String PARAM_DEFAULT_TRANSITION_TIME = "default-transition-time";
+    public final static String PARAM_POLLING_INTERVAL = "polling-interval";
+
+    // public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<ThingTypeUID>(
+    // Arrays.asList(THING_TYPE_LIGHT_COLOR, THING_TYPE_LIGHT_WHITE));
+    // TODO: support white light
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<ThingTypeUID>(
-            Arrays.asList(THING_TYPE_LIGHT_COLOR, THING_TYPE_LIGHT_wHITE));
+            Arrays.asList(THING_TYPE_LIGHT_COLOR));
 
 }

@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,6 +28,21 @@ public class LanProtocolService implements Runnable, PacketSender {
      * http://lan.developer.lifx.com/docs/introduction
      */
 
+    @SuppressWarnings("serial")
+    public static final HashMap<Integer, String> LIFX_TYPE_DESCRIPTIONS = new HashMap<Integer, String>() {
+        {
+            put(1, "Original 1000");
+            put(3, "Color 650");
+            put(10, "White 800");
+            put(11, "White 800");
+            put(18, "White 900");
+            put(20, "Color 1000");
+            put(22, "Color 1000");
+        }
+    };
+    public static final Set<Integer> LIFX_COLOR_TYPE_IDS = new HashSet<Integer>(Arrays.asList(1, 3, 20, 22));
+    public static final Set<Integer> LIFX_WHITE_TYPE_IDS = new HashSet<Integer>(Arrays.asList(10, 11, 18));
+
     private Logger logger = LoggerFactory.getLogger(LanProtocolService.class);
 
     private final static int LIFX_PORT = 56700;
@@ -37,6 +53,7 @@ public class LanProtocolService implements Runnable, PacketSender {
     private static final short TYPE_GET_SERVICE = 2, TYPE_STATE_SERVICE = 3;
     private static final short TYPE_GET_LABEL = 23, TYPE_STATE_LABEL = 25;
     private static final short TYPE_STATE_POWER = 22;
+    private static final short TYPE_GET_VERSION = 32, TYPE_STATE_VERSION = 33;
     private static final short TYPE_ACK = 45;
     private static final short TYPE_ECHO_RESPONSE = 59;
     private static final short TYPE_LIGHT_GET = 101, TYPE_LIGHT_SET_COLOR = 102, LIGHT_STATE = 107;
@@ -137,6 +154,8 @@ public class LanProtocolService implements Runnable, PacketSender {
             }
         } else if (type == TYPE_STATE_LABEL) {
             status.deviceListener.label(new String(lpp.getPayload()).trim());
+        } else if (type == TYPE_STATE_VERSION) {
+            processVersionMessage(status.deviceListener, lpp);
         }
     }
 
@@ -150,6 +169,15 @@ public class LanProtocolService implements Runnable, PacketSender {
         byte[] label = new byte[32];
         bb.get(label);
         deviceListener.label(new String(label));
+    }
+
+    private static void processVersionMessage(DeviceListener deviceListener, LanProtocolPacket lpp) {
+        ByteBuffer bb = ByteBuffer.wrap(lpp.getPayload());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        int vendor = bb.getInt();
+        int product = bb.getInt();
+        int version = bb.getInt();
+        deviceListener.version(vendor, product, version);
     }
 
     public synchronized LifxProtocolDevice registerDeviceListener(long id, DeviceListener dl) {
@@ -193,6 +221,10 @@ public class LanProtocolService implements Runnable, PacketSender {
 
     public synchronized void queryLabel(LifxProtocolDevice deviceStatus) {
         sendAndExpectReply(deviceStatus, TYPE_GET_LABEL, false, new byte[0]);
+    }
+
+    public synchronized void queryVersion(LifxProtocolDevice deviceStatus) {
+        sendAndExpectReply(deviceStatus, TYPE_GET_VERSION, false, new byte[0]);
     }
 
     private void sendAndExpectReply(LifxProtocolDevice deviceStatus, short type, boolean responseTypeAck,

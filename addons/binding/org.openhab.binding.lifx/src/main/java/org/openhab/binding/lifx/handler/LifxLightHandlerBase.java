@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.openhab.binding.lifx.LifxBindingConstants;
 import org.openhab.binding.lifx.protocol.DeviceListener;
 import org.openhab.binding.lifx.protocol.LanProtocolService;
 import org.openhab.binding.lifx.protocol.LifxColor;
@@ -66,7 +67,7 @@ public abstract class LifxLightHandlerBase extends BaseThingHandler implements D
     }
 
     private void startStatePolling() {
-        int pollingInterval = ((BigDecimal) getConfig().get("polling-interval")).intValue();
+        int pollingInterval = ((BigDecimal) getConfig().get(LifxBindingConstants.PARAM_POLLING_INTERVAL)).intValue();
         pollingTask = scheduler.scheduleAtFixedRate(this, 10, pollingInterval, TimeUnit.SECONDS);
     }
 
@@ -79,7 +80,7 @@ public abstract class LifxLightHandlerBase extends BaseThingHandler implements D
     public abstract void poll();
 
     protected String deviceIdString() {
-        return (String) getThing().getConfiguration().get("device-id");
+        return (String) getThing().getConfiguration().get(LifxBindingConstants.PARAM_DEVICE_ID);
     }
 
     protected long deviceId() {
@@ -105,6 +106,11 @@ public abstract class LifxLightHandlerBase extends BaseThingHandler implements D
     @Override
     public void label(String label) {
         // Label is not used
+    }
+
+    @Override
+    public void version(int vendor, int product, int version) {
+        // Not used
     }
 
     @Override
