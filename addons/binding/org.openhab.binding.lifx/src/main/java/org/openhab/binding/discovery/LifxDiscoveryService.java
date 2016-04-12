@@ -1,20 +1,27 @@
 package org.openhab.binding.discovery;
 
+import java.io.IOException;
 import java.net.SocketException;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.openhab.binding.lifx.LifxBindingConstants;
 import org.openhab.binding.lifx.protocol.LanProtocolService;
 import org.openhab.binding.lifx.protocol.LifxDiscoveryListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LifxDiscoveryService extends AbstractDiscoveryService implements LifxDiscoveryListener {
+public class LifxDiscoveryService extends AbstractDiscoveryService
+        implements LifxDiscoveryListener, LifxLightIdentificationListener {
 
     private final Logger logger = LoggerFactory.getLogger(LifxDiscoveryService.class);
-    private static final int PROBE_INTERVAL = 60;
 
-    private volatile boolean scanActive = false, backgroundDiscoveryActive = false;
     private LanProtocolService protocol;
+    private Map<Long, LifxDiscoveryIdentity> discoveredDevices;
+
+    private boolean scanMode;
 
     public LifxDiscoveryService(int timeout) throws IllegalArgumentException {
         super(timeout);
@@ -34,28 +41,38 @@ public class LifxDiscoveryService extends AbstractDiscoveryService implements Li
 
     @Override
     protected void startScan() {
-        scanActive = true;
+        scanMode = true;
+        try {
+            protocol.startDiscovery();
+        } catch (IOException e) {
+            logger.error("Failed to send probe for new devices", e);
+        }
     }
 
     @Override
-    protected synchronized void stopScan() {
+    protected void stopScan() {
         super.stopScan();
-        scanActive = false;
-        removeOlderResults(getTimestampOfLastScan());
-    }
-
-    @Override
-    protected void startBackgroundDiscovery() {
-        backgroundDiscoveryActive = true;
-    }
-
-    @Override
-    protected void stopBackgroundDiscovery() {
-        backgroundDiscoveryActive = false;
+        scanMode = false;
     }
 
     @Override
     public void deviceDiscovered(long id) {
+        // Called by protocol service
+        if (scanMode || isBackgroundDiscoveryEnabled()) {
+            if (discoveredDevices.get(id) == null) {
+                discoveredDevices.put(id, new LifxDiscoveryIdentity(protocol, this, id));
+            }
+        }
+    }
+
+    @Override
+    public void lightIdentified(LifxDiscoveryIdentity id) {
+
+    }
+
+    @Override
+    public Set<ThingTypeUID> getSupportedThingTypes() {
+        return LifxBindingConstants.SUPPORTED_THING_TYPES_UIDS;
     }
 
 }

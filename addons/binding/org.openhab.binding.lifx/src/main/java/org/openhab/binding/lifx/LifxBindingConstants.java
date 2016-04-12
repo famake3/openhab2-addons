@@ -7,6 +7,10 @@
  */
 package org.openhab.binding.lifx;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -28,5 +32,8 @@ public class LifxBindingConstants {
     public final static String CHANNEL_COLOR_TEMPERATURE = "color-temperature";
     public final static String CHANNEL_COLOR_TEMPERATURE_LATCHED = "color-temperature-latched";
     public final static String CHANNEL_TRANSITION_TIME = "transition-time";
+
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<ThingTypeUID>(
+            Arrays.asList(THING_TYPE_LIGHT_COLOR, THING_TYPE_LIGHT_wHITE));
 
 }
