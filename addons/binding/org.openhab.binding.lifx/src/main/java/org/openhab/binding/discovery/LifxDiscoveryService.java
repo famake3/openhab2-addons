@@ -66,7 +66,13 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
     }
 
     @Override
-    public void lightIdentified(LifxDiscoveryIdentity id) {
+    public void lightIdentified(LifxDiscoveryIdentity ident) {
+
+    }
+
+    @Override
+    public void lightIdFailed(LifxDiscoveryIdentity ident) {
+        // TODO Auto-generated method stub
 
     }
 
