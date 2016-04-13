@@ -42,7 +42,7 @@ public class RequestResponseHandler implements Runnable {
 
     @Override
     public synchronized void run() {
-        for (int i = 0; i < (UNICAST_ATTEMPTS + BCAST_ATTEMPTS) || responsePacketReceived; ++i) {
+        for (int i = 0; i < (UNICAST_ATTEMPTS + BCAST_ATTEMPTS) && (!responsePacketReceived); ++i) {
             long nextTimeout = System.currentTimeMillis() + TIMEOUT;
             long remain = TIMEOUT;
             while (!responsePacketReceived && remain > 0) {
