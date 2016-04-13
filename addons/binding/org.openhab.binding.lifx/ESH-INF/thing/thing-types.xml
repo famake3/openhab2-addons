@@ -40,9 +40,9 @@
         <description>Color temperature in Kelvin (2500-9000).</description>
     </channel-type>
     
-    <channel-type id="color-temperature-latched" advanced="true">
+    <channel-type id="color-temperature-buffered" advanced="true">
         <item-type>Dimmer</item-type>
-        <label>Color temperature (latched)</label>
+        <label>Color temperature (buffered)</label>
         <description>Does not send a command to the light bulb. A subsequent command to Color will update color and color temperature atomically.</description>
     </channel-type>
     

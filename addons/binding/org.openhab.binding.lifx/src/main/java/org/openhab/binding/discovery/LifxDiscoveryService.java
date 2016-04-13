@@ -5,8 +5,6 @@ import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -20,14 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LifxDiscoveryService extends AbstractDiscoveryService
-        implements LifxDiscoveryListener, LifxLightIdentificationListener, Runnable {
+        implements LifxDiscoveryListener, LifxLightIdentificationListener {
 
     private final Logger logger = LoggerFactory.getLogger(LifxDiscoveryService.class);
 
     private LanProtocolService protocol;
     private Map<Long, LifxDeviceAnalyzer> discoveredDevices;
-
-    private ScheduledFuture<?> cleanup;
 
     private boolean scanMode;
 
@@ -40,13 +36,11 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
             logger.error("Failed to get / create an instance of the protocol service", e);
             throw new RuntimeException("Discovery service can't get protocol service instance", e);
         }
-        cleanup = scheduler.scheduleAtFixedRate(this, 30, 30, TimeUnit.MINUTES);
     }
 
     @Override
     protected void deactivate() {
         protocol.removeDiscoveryListener(this);
-        cleanup.cancel(false);
     }
 
     @Override
@@ -103,12 +97,6 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
     @Override
     public Set<ThingTypeUID> getSupportedThingTypes() {
         return LifxBindingConstants.SUPPORTED_THING_TYPES_UIDS;
-    }
-
-    @Override
-    public void run() {
-        // Cleanup thread
-
     }
 
 }

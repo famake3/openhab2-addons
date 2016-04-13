@@ -23,6 +23,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
     private ChannelUID colorUid, colorTemperatureUid, colorTemperatureLatchedUid, transitionTimeUid;
     private HSBType currentColor;
     private DecimalType currentColorTemperature, currentTransitionTime;
+    private boolean bufferedMode = false;
 
     public LifxColorLightHandler(Thing thing) {
         super(thing);
@@ -116,6 +117,8 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
         updateState(colorTemperatureUid, currentColorTemperature);
         if (commit) {
             sendColorCommand();
+        } else {
+            bufferedMode = true;
         }
     }
 
@@ -132,6 +135,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
         LifxColor lifxColor = new LifxColor(hue, saturation, brightness, colorTemperature);
         protocol.setColor(device, currentTransitionTime.intValue(), lifxColor);
         resetTransitionTime();
+        bufferedMode = false;
     }
 
     private void resetTransitionTime() {
@@ -152,7 +156,9 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
         currentColor = new HSBType(hue, saturation, brightness);
         updateState(colorUid, currentColor);
         currentColorTemperature = new DecimalType(color.colorTemperature);
-        updateState(colorTemperatureUid, currentColorTemperature);
+        if (!bufferedMode) {
+            updateState(colorTemperatureUid, currentColorTemperature);
+        }
     }
 
     @Override
