@@ -34,7 +34,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
         super.initialize();
         colorUid = getThing().getChannel(LifxBindingConstants.CHANNEL_COLOR).getUID();
         colorTemperatureUid = getThing().getChannel(LifxBindingConstants.CHANNEL_COLOR_TEMPERATURE).getUID();
-        colorTemperatureLatchedUid = getThing().getChannel(LifxBindingConstants.CHANNEL_COLOR_TEMPERATURE_LATCHED)
+        colorTemperatureLatchedUid = getThing().getChannel(LifxBindingConstants.CHANNEL_COLOR_TEMPERATURE_BUFFERED)
                 .getUID();
         transitionTimeUid = getThing().getChannel(LifxBindingConstants.CHANNEL_TRANSITION_TIME).getUID();
         currentTransitionTime = new DecimalType(200.0);

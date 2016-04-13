@@ -17,7 +17,6 @@ public class LifxDeviceAnalyzer implements DeviceListener {
     private String label;
     private ThingTypeUID type;
     private String typeDescription;
-    private boolean cleanupTag;
 
     private Logger logger = LoggerFactory.getLogger(LifxDeviceAnalyzer.class);
 
@@ -27,6 +26,7 @@ public class LifxDeviceAnalyzer implements DeviceListener {
         this.id = id;
         LifxProtocolDevice lifxDevice = protocol.registerDeviceListener(id, this);
         protocol.queryLabel(lifxDevice);
+        protocol.queryVersion(lifxDevice);
     }
 
     @Override
@@ -45,6 +45,7 @@ public class LifxDeviceAnalyzer implements DeviceListener {
     public void label(String label) {
         this.label = label;
         if (this.type != null) {
+            protocol.unregisterDeviceListener(id);
             listener.lightIdentified(this);
         }
     }
@@ -72,6 +73,7 @@ public class LifxDeviceAnalyzer implements DeviceListener {
             listener.lightIdFailed(this);
         }
         if (label != null) {
+            protocol.unregisterDeviceListener(id);
             listener.lightIdentified(this);
         }
     }
@@ -96,16 +98,6 @@ public class LifxDeviceAnalyzer implements DeviceListener {
 
     public long getId() {
         return id;
-    }
-
-    public boolean cleanupTag() {
-        boolean prev = cleanupTag;
-        cleanupTag = true;
-        return prev;
-    }
-
-    public void clearCleanupTag() {
-        cleanupTag = false;
     }
 
 }

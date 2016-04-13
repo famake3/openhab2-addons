@@ -246,6 +246,7 @@ public class LanProtocolService implements Runnable, PacketSender {
     public void send(InetAddress destination, LanProtocolPacket packet) throws IOException {
         byte[] packetData = packet.getData();
         DatagramPacket datagramPacket = new DatagramPacket(packetData, packetData.length);
+        datagramPacket.setPort(LIFX_PORT);
         if (destination != null) {
             datagramPacket.setAddress(destination);
         } else {

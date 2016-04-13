@@ -5,14 +5,14 @@
         xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
     <!-- Sample Thing Type -->
-    <thing-type id="color-light">
+    <thing-type id="colorlight">
         <label>Color Light</label>
         <description>LIFX Color light bulb.</description>
 
         <channels>
             <channel id="color" typeId="color"/>
             <channel id="color-temperature" typeId="color-temperature"/>
-            <channel id="color-temperature-latched" typeId="color-temperature-latched"/>
+            <channel id="color-temperature-buffered" typeId="color-temperature-buffered"/>
             <channel id="transition-time" typeId="transition-time"/>
         </channels>
         

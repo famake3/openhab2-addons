@@ -29,6 +29,7 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
 
     public LifxDiscoveryService() {
         super(10);
+        discoveredDevices = new HashMap<>();
         try {
             protocol = LanProtocolService.getInstance();
             protocol.registerDiscoveryListener(this);
@@ -74,10 +75,13 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
         if (scanMode || isBackgroundDiscoveryEnabled()) {
             LifxDeviceAnalyzer existingDevice = discoveredDevices.get(id);
             if (existingDevice == null) {
+                logger.debug("Received a response from a new device: " + getIdString(id));
                 discoveredDevices.put(id, new LifxDeviceAnalyzer(protocol, this, id));
             } else {
-                existingDevice.clearCleanupTag();
+                logger.debug("Received a response from a device which is already discovered: " + getIdString(id));
             }
+        } else {
+            logger.debug("Got discovery result, but discovery not enabled");
         }
     }
 

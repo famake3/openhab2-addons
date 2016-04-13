@@ -24,13 +24,13 @@ public class LifxBindingConstants {
     public static final String BINDING_ID = "lifx";
 
     // List of all Thing Type UIDs
-    public final static ThingTypeUID THING_TYPE_LIGHT_COLOR = new ThingTypeUID(BINDING_ID, "light-color");
-    public final static ThingTypeUID THING_TYPE_LIGHT_WHITE = new ThingTypeUID(BINDING_ID, "light-white");
+    public final static ThingTypeUID THING_TYPE_LIGHT_COLOR = new ThingTypeUID(BINDING_ID, "colorlight");
+    public final static ThingTypeUID THING_TYPE_LIGHT_WHITE = new ThingTypeUID(BINDING_ID, "whitelight");
 
     // List of all Channel ids
     public final static String CHANNEL_COLOR = "color";
     public final static String CHANNEL_COLOR_TEMPERATURE = "color-temperature";
-    public final static String CHANNEL_COLOR_TEMPERATURE_LATCHED = "color-temperature-latched";
+    public final static String CHANNEL_COLOR_TEMPERATURE_BUFFERED = "color-temperature-buffered";
     public final static String CHANNEL_TRANSITION_TIME = "transition-time";
 
     public final static String PARAM_DEVICE_ID = "device-id";
