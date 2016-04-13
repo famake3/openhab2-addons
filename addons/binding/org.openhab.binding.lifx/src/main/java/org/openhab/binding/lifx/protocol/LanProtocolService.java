@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -198,7 +199,19 @@ public class LanProtocolService implements Runnable, PacketSender {
         discoveryListeners.remove(dl);
     }
 
+    public void supersedeCommand(LifxProtocolDevice device, short type) {
+        for (Iterator<Map.Entry<Byte, RequestResponseHandler>> it = device.requestResponseHandlers.entrySet()
+                .iterator(); it.hasNext();) {
+            Map.Entry<Byte, RequestResponseHandler> entry = it.next();
+            if (entry.getValue().getRequestPacket().getMessageType() == type) {
+                it.remove();
+                entry.getValue().superseded();
+            }
+        }
+    }
+
     public synchronized void setColor(LifxProtocolDevice device, int duration, LifxColor color) {
+        supersedeCommand(device, TYPE_LIGHT_SET_COLOR);
         ByteBuffer payload = ByteBuffer.wrap(new byte[13]);
         payload.order(ByteOrder.LITTLE_ENDIAN);
         payload.put((byte) 0);
@@ -208,6 +221,7 @@ public class LanProtocolService implements Runnable, PacketSender {
     }
 
     public synchronized void setPower(LifxProtocolDevice device, int duration, boolean power) {
+        supersedeCommand(device, TYPE_LIGHT_SET_POWER);
         ByteBuffer payload = ByteBuffer.wrap(new byte[6]);
         payload.order(ByteOrder.LITTLE_ENDIAN);
         payload.putShort(power ? (short) 0xFFFF : 0);

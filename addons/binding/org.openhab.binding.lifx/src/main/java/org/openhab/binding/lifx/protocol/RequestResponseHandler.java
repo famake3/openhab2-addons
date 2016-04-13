@@ -21,7 +21,7 @@ public class RequestResponseHandler implements Runnable {
     private final LanProtocolPacket requestPacket;
     private final LifxProtocolDevice device;
     private final PacketSender packetSender;
-    private boolean responsePacketReceived;
+    private boolean okTerminate;
 
     public RequestResponseHandler(LifxProtocolDevice device, LanProtocolPacket packet, PacketSender packetSender) {
         this.requestPacket = packet;
@@ -42,10 +42,10 @@ public class RequestResponseHandler implements Runnable {
 
     @Override
     public synchronized void run() {
-        for (int i = 0; i < (UNICAST_ATTEMPTS + BCAST_ATTEMPTS) && (!responsePacketReceived); ++i) {
+        for (int i = 0; i < (UNICAST_ATTEMPTS + BCAST_ATTEMPTS) && (!okTerminate); ++i) {
             long nextTimeout = System.currentTimeMillis() + TIMEOUT;
             long remain = TIMEOUT;
-            while (!responsePacketReceived && remain > 0) {
+            while (!okTerminate && remain > 0) {
                 try {
                     wait(remain);
                     remain = nextTimeout - System.currentTimeMillis();
@@ -54,7 +54,7 @@ public class RequestResponseHandler implements Runnable {
                     return;
                 }
             }
-            if (!responsePacketReceived) { // Timeout! Re-send.
+            if (!okTerminate) { // Timeout! Re-send.
                 logger.debug("No response from bulb " + device.idString() + ", resending...");
                 if (i > UNICAST_ATTEMPTS) {
                     device.ipAddress = null;
@@ -66,15 +66,23 @@ public class RequestResponseHandler implements Runnable {
                 }
             }
         }
-        if (!responsePacketReceived) {
+        if (!okTerminate) {
             device.deviceListener.timeout();
             logger.info("No response from bulb " + device.idString() + ", giving up.");
         }
     }
 
     public synchronized void packet() {
-        responsePacketReceived = true;
+        okTerminate = true;
         notifyAll();
     }
 
+    public synchronized void superseded() {
+        okTerminate = true;
+        notifyAll();
+    }
+
+    public LanProtocolPacket getRequestPacket() {
+        return requestPacket;
+    }
 }
