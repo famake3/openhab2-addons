@@ -27,14 +27,23 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
 
     private boolean scanMode;
 
-    public LifxDiscoveryService(int timeout) throws IllegalArgumentException {
-        super(timeout);
+    public LifxDiscoveryService() {
+        super(10);
         try {
             protocol = LanProtocolService.getInstance();
             protocol.registerDiscoveryListener(this);
         } catch (SocketException e) {
             logger.error("Failed to get / create an instance of the protocol service", e);
             throw new RuntimeException("Discovery service can't get protocol service instance", e);
+        }
+    }
+
+    @Override
+    protected void startBackgroundDiscovery() {
+        try {
+            protocol.startDiscovery();
+        } catch (IOException e) {
+            logger.warn("Failed to start LIFX discovery", e);
         }
     }
 

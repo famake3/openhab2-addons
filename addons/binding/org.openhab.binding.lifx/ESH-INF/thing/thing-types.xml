@@ -21,9 +21,10 @@
                 <label>Device ID</label>
                 <description>LIFX device ID (in hex format).</description>
             </parameter>
-            <parameter name="default-transition-time" type="integer" required="true" default="200">
+            <parameter name="default-transition-time" type="integer" required="true">
                 <label>Default transition time</label>
                 <description>Default transition time in milliseconds (0 - about 2 billion).</description>
+                <default>200</default>
             </parameter>
         </config-description>
     </thing-type>
