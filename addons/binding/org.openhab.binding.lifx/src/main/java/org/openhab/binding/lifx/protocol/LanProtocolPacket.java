@@ -61,7 +61,9 @@ public class LanProtocolPacket {
         bb.putInt(source);
 
         // --- Frame Address ---
-        bb.putLong(target);
+        bb.order(ByteOrder.BIG_ENDIAN);
+        bb.putLong(target << 16);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         for (int i = 0; i < 3; ++i) {
             bb.putShort((short) 0);
         }
@@ -79,6 +81,9 @@ public class LanProtocolPacket {
         bb.putLong(0); // Reserved
         bb.putShort(messageType);
         bb.putShort((short) 0);
+
+        System.arraycopy(payload, 0, bb.array(), bb.position(), payload.length);
+
         return bb.array();
     }
 
@@ -97,7 +102,9 @@ public class LanProtocolPacket {
             throw new PacketFormatException("Protocol version " + vers + "not understood");
         }
         result.source = bb.getInt();
-        result.target = bb.getLong();
+        bb.order(ByteOrder.BIG_ENDIAN);
+        result.target = 0xFFFFFFFFFFFFL & (bb.getLong() >> 16); // Target is better represented in big endian
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.getShort();
         bb.getShort();
         bb.getShort();

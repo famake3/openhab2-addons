@@ -20,10 +20,10 @@ public class LifxColor {
     public static LifxColor decodeFrom(ByteBuffer bb) throws PacketFormatException {
         try {
             LifxColor color = new LifxColor();
-            color.hue = (bb.getShort() & 0xFFFF) * 1.0 / 0xFFFF;
-            color.saturation = (bb.getShort() & 0xFFFF) * 1.0 / 0xFFFF;
-            color.brightness = (bb.getShort() & 0xFFFF) * 1.0 / 0xFFFF;
-            color.colorTemperature = (bb.getShort() & 0xFFFF) * 1.0 / 0xFFFF;
+            color.hue = (bb.getShort() & 65535) * 1.0 / 65535;
+            color.saturation = (bb.getShort() & 65535) * 1.0 / 65535;
+            color.brightness = (bb.getShort() & 65535) * 1.0 / 65535;
+            color.colorTemperature = (bb.getShort() & 65535) * 1.0;
             return color;
         } catch (BufferOverflowException e) {
             throw new PacketFormatException("Payload is too short", e);
@@ -31,10 +31,10 @@ public class LifxColor {
     }
 
     public void encodeInto(ByteBuffer bb) {
-        bb.putShort((short) (hue * 0xFFFF));
-        bb.putShort((short) (saturation * 0xFFFF));
-        bb.putShort((short) (brightness * 0xFFFF));
-        bb.putShort((short) (colorTemperature * 0xFFFF));
+        bb.putShort((short) (hue * 65535));
+        bb.putShort((short) (saturation * 65535));
+        bb.putShort((short) (brightness * 65535));
+        bb.putShort((short) (colorTemperature));
     }
 
 }

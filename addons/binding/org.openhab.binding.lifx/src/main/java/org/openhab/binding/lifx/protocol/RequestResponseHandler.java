@@ -42,12 +42,13 @@ public class RequestResponseHandler implements Runnable {
 
     @Override
     public synchronized void run() {
-        for (int i = 0; i < (UNICAST_ATTEMPTS + BCAST_ATTEMPTS) && responsePacketReceived; ++i) {
+        for (int i = 0; i < (UNICAST_ATTEMPTS + BCAST_ATTEMPTS) || responsePacketReceived; ++i) {
             long nextTimeout = System.currentTimeMillis() + TIMEOUT;
-            long remain = System.currentTimeMillis() - nextTimeout;
+            long remain = TIMEOUT;
             while (!responsePacketReceived && remain > 0) {
                 try {
                     wait(remain);
+                    remain = nextTimeout - System.currentTimeMillis();
                 } catch (InterruptedException e) {
                     logger.error("The reliable delivery thread was interrupted!", e);
                     return;

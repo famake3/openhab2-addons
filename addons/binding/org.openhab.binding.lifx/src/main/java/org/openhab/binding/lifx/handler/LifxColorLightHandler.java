@@ -20,7 +20,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
 
     private Logger logger = LoggerFactory.getLogger(LifxLightHandlerBase.class);
 
-    private ChannelUID colorUid, colorTemperatureUid, colorTemperatureLatchedUid, transitionTimeUid;
+    private ChannelUID colorUid, colorTemperatureUid, colorTemperatureLatchedUid, transitionTimeUid, powerUid;
     private HSBType currentColor;
     private DecimalType currentColorTemperature, currentTransitionTime;
     private boolean bufferedMode = false;
@@ -37,6 +37,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
         colorTemperatureLatchedUid = getThing().getChannel(LifxBindingConstants.CHANNEL_COLOR_TEMPERATURE_BUFFERED)
                 .getUID();
         transitionTimeUid = getThing().getChannel(LifxBindingConstants.CHANNEL_TRANSITION_TIME).getUID();
+        powerUid = getThing().getChannel(LifxBindingConstants.CHANNEL_POWER).getUID();
         currentTransitionTime = new DecimalType(200.0);
     }
 
@@ -53,6 +54,8 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
                 handleColorTemperatureCommand(command, false);
             } else if (channelUID.equals(transitionTimeUid)) {
                 handleTransitionTimeComand(command);
+            } else if (channelUID.equals(powerUid)) {
+                handlePowerCommand(command);
             }
         }
     }
@@ -79,17 +82,13 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
             currentColor = new HSBType(currentColor.getHue(), currentColor.getSaturation(), (PercentType) command);
             sendColorCommand();
             updateState(colorUid, currentColor);
-        } else if (command instanceof OnOffType) {
-            handlePowerCommand((OnOffType) command);
         }
     }
 
-    private void handlePowerCommand(OnOffType command) {
-        protocol.setPower(device, currentTransitionTime.intValue(), command == OnOffType.ON);
-        if (command == OnOffType.ON) {
-            updateState(colorUid, currentColor);
-        } else {
-            updateState(colorUid, command);
+    private void handlePowerCommand(Command command) {
+        if (command instanceof OnOffType) {
+            protocol.setPower(device, currentTransitionTime.intValue(), command == OnOffType.ON);
+            updateState(powerUid, (OnOffType) command);
         }
     }
 
@@ -164,7 +163,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
     @Override
     public void power(boolean on) {
         online();
-        updateState(colorUid, on ? currentColor : OnOffType.OFF);
+        updateState(powerUid, on ? OnOffType.ON : OnOffType.OFF);
     }
 
     @Override

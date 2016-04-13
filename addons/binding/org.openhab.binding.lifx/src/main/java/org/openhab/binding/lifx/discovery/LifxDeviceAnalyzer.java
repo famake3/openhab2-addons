@@ -25,6 +25,7 @@ public class LifxDeviceAnalyzer implements DeviceListener {
         this.protocol = protocol;
         this.id = id;
         LifxProtocolDevice lifxDevice = protocol.registerDeviceListener(id, this);
+        logger.debug("Querying new device for label and version...");
         protocol.queryLabel(lifxDevice);
         protocol.queryVersion(lifxDevice);
     }
@@ -44,6 +45,7 @@ public class LifxDeviceAnalyzer implements DeviceListener {
     @Override
     public void label(String label) {
         this.label = label;
+        logger.debug("Received a label '" + label + "' for light ID " + LifxDiscoveryService.getIdString(id));
         if (this.type != null) {
             protocol.unregisterDeviceListener(id);
             listener.lightIdentified(this);
@@ -53,6 +55,8 @@ public class LifxDeviceAnalyzer implements DeviceListener {
     @Override
     public void version(int vendor, int product, int version) {
         boolean knownId = vendor == 1;
+        logger.debug("Received a version reply (" + vendor + ", " + product + ", " + version + ") for light ID "
+                + LifxDiscoveryService.getIdString(id));
         if (knownId) {
             typeDescription = LanProtocolService.LIFX_TYPE_DESCRIPTIONS.get(product);
             if (typeDescription == null) {

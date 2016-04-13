@@ -85,13 +85,14 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
         }
     }
 
-    private static String getIdString(long id) {
+    public static String getIdString(long id) {
         return String.format("%06x", id);
     }
 
     @Override
     public void lightIdentified(LifxDeviceAnalyzer ident) {
         if (scanMode || isBackgroundDiscoveryEnabled()) {
+            logger.debug("A device with ID " + getIdString(ident.getId()) + " was completely analyzed");
             ThingUID thingUid = new ThingUID(ident.getType(), getIdString(ident.getId()));
             Map<String, Object> properties = new HashMap<>(1);
             properties.put(LifxBindingConstants.PARAM_DEVICE_ID, getIdString(ident.getId()));
@@ -99,11 +100,15 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
                     .withLabel(ident.getLabel()).build();
             thingDiscovered(discoveryResult);
 
+        } else {
+            logger.debug("A device with ID " + getIdString(ident.getId())
+                    + " analyzed, but ignored since we are no longer in discovery mode");
         }
     }
 
     @Override
     public void lightIdFailed(LifxDeviceAnalyzer ident) {
+        logger.debug("Identification of light " + getIdString(ident.getId()) + " timed out.");
         discoveredDevices.remove(ident);
     }
 

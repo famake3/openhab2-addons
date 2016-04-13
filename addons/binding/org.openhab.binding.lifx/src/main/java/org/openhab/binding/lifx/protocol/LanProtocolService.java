@@ -199,7 +199,7 @@ public class LanProtocolService implements Runnable, PacketSender {
     }
 
     public synchronized void setColor(LifxProtocolDevice device, int duration, LifxColor color) {
-        ByteBuffer payload = ByteBuffer.wrap(new byte[21]);
+        ByteBuffer payload = ByteBuffer.wrap(new byte[13]);
         payload.order(ByteOrder.LITTLE_ENDIAN);
         payload.put((byte) 0);
         color.encodeInto(payload);
@@ -227,13 +227,13 @@ public class LanProtocolService implements Runnable, PacketSender {
         sendAndExpectReply(device, TYPE_GET_VERSION, false, new byte[0]);
     }
 
-    private void sendAndExpectReply(LifxProtocolDevice device, short type, boolean responseTypeAck,
-            byte[] payload) {
+    private void sendAndExpectReply(LifxProtocolDevice device, short type, boolean responseTypeAck, byte[] payload) {
         byte seq = device.sequenceNumber++;
         LanProtocolPacket cmdPacket = new LanProtocolPacket(clientId, false, responseTypeAck, !responseTypeAck, seq,
                 device.id, type, payload);
         RequestResponseHandler rrHandler = new RequestResponseHandler(device, cmdPacket, this);
         device.requestResponseHandlers.put(seq, rrHandler);
+        rrHandler.start();
     }
 
     public synchronized void startDiscovery() throws IOException {

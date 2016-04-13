@@ -12,6 +12,7 @@
         <channels>
             <channel id="color" typeId="color"/>
             <channel id="color-temperature" typeId="color-temperature"/>
+            <channel id="power" typeId="power"/>
             <channel id="color-temperature-buffered" typeId="color-temperature-buffered"/>
             <channel id="transition-time" typeId="transition-time"/>
         </channels>
@@ -26,6 +27,11 @@
                 <description>Default transition time in milliseconds (0 - about 2 billion).</description>
                 <default>200</default>
             </parameter>
+            <parameter name="polling-interval" type="integer" required="true">
+                <label>Polling interval</label>
+                <description>How often to query device state, in seconds.</description>
+                <default>60</default>
+            </parameter>
         </config-description>
     </thing-type>
 
@@ -36,19 +42,25 @@
     </channel-type>
     
     <channel-type id="color-temperature">
-        <item-type>Dimmer</item-type>
+        <item-type>Number</item-type>
         <label>Color temperature</label>
         <description>Color temperature in Kelvin (2500-9000).</description>
     </channel-type>
     
+    <channel-type id="power">
+        <item-type>Switch</item-type>
+        <label>Power</label>
+        <description>Turn light on / off.</description>
+    </channel-type>
+    
     <channel-type id="color-temperature-buffered" advanced="true">
-        <item-type>Dimmer</item-type>
+        <item-type>Number</item-type>
         <label>Color temperature (buffered)</label>
         <description>Does not send a command to the light bulb. A subsequent command to Color will update color and color temperature atomically.</description>
     </channel-type>
     
     <channel-type id="transition-time" advanced="true">
-        <item-type>Dimmer</item-type>
+        <item-type>Number</item-type>
         <label>Transition time</label>
         <description>Transition time in milliseconds for next command. Resets to default value after each command.</description>
     </channel-type>
