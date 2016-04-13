@@ -1,4 +1,4 @@
-package org.openhab.binding.discovery;
+package org.openhab.binding.lifx.discovery;
 
 public interface LifxLightIdentificationListener {
 

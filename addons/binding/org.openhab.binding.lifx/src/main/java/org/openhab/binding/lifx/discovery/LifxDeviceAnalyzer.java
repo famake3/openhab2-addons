@@ -1,4 +1,4 @@
-package org.openhab.binding.discovery;
+package org.openhab.binding.lifx.discovery;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.openhab.binding.lifx.LifxBindingConstants;
