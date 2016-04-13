@@ -104,19 +104,19 @@ public class LanProtocolService implements Runnable, PacketSender {
                 socket.receive(p);
                 LanProtocolPacket lpp = LanProtocolPacket.decode(p.getData(), p.getLength());
 
-                LifxProtocolDevice status = null;
+                LifxProtocolDevice device = null;
                 synchronized (this) {
-                    status = deviceMap.get(lpp.getTarget());
-                    if (status != null) {
+                    device = deviceMap.get(lpp.getTarget());
+                    if (device != null) {
                         // Message from known device
-                        status.ipAddress = p.getAddress();
-                        RequestResponseHandler rrHandler = status.requestResponseHandlers.remove(lpp.getSequence());
+                        device.ipAddress = p.getAddress();
+                        RequestResponseHandler rrHandler = device.requestResponseHandlers.remove(lpp.getSequence());
                         if (rrHandler != null) {
                             rrHandler.packet();
                         }
                         // Note: calls device listener even if there is no request for this sequence number.
                         // Any data may be useful for staying up to date.
-                        callDeviceEventListener(status, lpp);
+                        callDeviceEventListener(device, lpp);
                     } else {
                         if (lpp.getMessageType() == TYPE_STATE_SERVICE) {
                             // Report discovery result
@@ -139,23 +139,23 @@ public class LanProtocolService implements Runnable, PacketSender {
         }
     }
 
-    static void callDeviceEventListener(LifxProtocolDevice status, LanProtocolPacket lpp) throws PacketFormatException {
+    static void callDeviceEventListener(LifxProtocolDevice device, LanProtocolPacket lpp) throws PacketFormatException {
         int type = lpp.getMessageType();
         if (type == TYPE_STATE_SERVICE || type == TYPE_ECHO_RESPONSE || type == TYPE_ACK) {
-            status.deviceListener.ping();
+            device.deviceListener.ping();
         } else if (type == LIGHT_STATE) {
             ;
-            processLightStateMessage(status.deviceListener, lpp);
+            processLightStateMessage(device.deviceListener, lpp);
         } else if (type == TYPE_STATE_POWER || type == LIGHT_STATE_POWER) {
             try {
-                status.deviceListener.power(lpp.getPayload()[0] != 0);
+                device.deviceListener.power(lpp.getPayload()[0] != 0);
             } catch (IndexOutOfBoundsException e) {
                 throw new PacketFormatException("Too short", e);
             }
         } else if (type == TYPE_STATE_LABEL) {
-            status.deviceListener.label(new String(lpp.getPayload()).trim());
+            device.deviceListener.label(new String(lpp.getPayload()).trim());
         } else if (type == TYPE_STATE_VERSION) {
-            processVersionMessage(status.deviceListener, lpp);
+            processVersionMessage(device.deviceListener, lpp);
         }
     }
 
@@ -181,9 +181,9 @@ public class LanProtocolService implements Runnable, PacketSender {
     }
 
     public synchronized LifxProtocolDevice registerDeviceListener(long id, DeviceListener dl) {
-        LifxProtocolDevice deviceStatus = new LifxProtocolDevice(id, dl);
-        deviceMap.put(id, deviceStatus);
-        return deviceStatus;
+        LifxProtocolDevice device = new LifxProtocolDevice(id, dl);
+        deviceMap.put(id, device);
+        return device;
     }
 
     public synchronized void unregisterDeviceListener(long id) {
@@ -198,42 +198,42 @@ public class LanProtocolService implements Runnable, PacketSender {
         discoveryListeners.remove(dl);
     }
 
-    public synchronized void setColor(LifxProtocolDevice deviceStatus, int duration, LifxColor color) {
+    public synchronized void setColor(LifxProtocolDevice device, int duration, LifxColor color) {
         ByteBuffer payload = ByteBuffer.wrap(new byte[21]);
         payload.order(ByteOrder.LITTLE_ENDIAN);
         payload.put((byte) 0);
         color.encodeInto(payload);
         payload.putInt(duration);
-        sendAndExpectReply(deviceStatus, TYPE_LIGHT_SET_COLOR, true, payload.array());
+        sendAndExpectReply(device, TYPE_LIGHT_SET_COLOR, true, payload.array());
     }
 
-    public synchronized void setPower(LifxProtocolDevice deviceStatus, int duration, boolean power) {
+    public synchronized void setPower(LifxProtocolDevice device, int duration, boolean power) {
         ByteBuffer payload = ByteBuffer.wrap(new byte[6]);
         payload.order(ByteOrder.LITTLE_ENDIAN);
         payload.putShort(power ? (short) 0xFFFF : 0);
         payload.putInt(duration);
-        sendAndExpectReply(deviceStatus, TYPE_LIGHT_SET_POWER, true, payload.array());
+        sendAndExpectReply(device, TYPE_LIGHT_SET_POWER, true, payload.array());
     }
 
-    public synchronized void queryLightState(LifxProtocolDevice deviceStatus) {
-        sendAndExpectReply(deviceStatus, TYPE_LIGHT_GET, false, new byte[0]);
+    public synchronized void queryLightState(LifxProtocolDevice device) {
+        sendAndExpectReply(device, TYPE_LIGHT_GET, false, new byte[0]);
     }
 
-    public synchronized void queryLabel(LifxProtocolDevice deviceStatus) {
-        sendAndExpectReply(deviceStatus, TYPE_GET_LABEL, false, new byte[0]);
+    public synchronized void queryLabel(LifxProtocolDevice device) {
+        sendAndExpectReply(device, TYPE_GET_LABEL, false, new byte[0]);
     }
 
-    public synchronized void queryVersion(LifxProtocolDevice deviceStatus) {
-        sendAndExpectReply(deviceStatus, TYPE_GET_VERSION, false, new byte[0]);
+    public synchronized void queryVersion(LifxProtocolDevice device) {
+        sendAndExpectReply(device, TYPE_GET_VERSION, false, new byte[0]);
     }
 
-    private void sendAndExpectReply(LifxProtocolDevice deviceStatus, short type, boolean responseTypeAck,
+    private void sendAndExpectReply(LifxProtocolDevice device, short type, boolean responseTypeAck,
             byte[] payload) {
-        byte seq = deviceStatus.sequenceNumber++;
+        byte seq = device.sequenceNumber++;
         LanProtocolPacket cmdPacket = new LanProtocolPacket(clientId, false, responseTypeAck, !responseTypeAck, seq,
-                deviceStatus.id, type, payload);
-        RequestResponseHandler rrHandler = new RequestResponseHandler(deviceStatus, cmdPacket, this);
-        deviceStatus.requestResponseHandlers.put(seq, rrHandler);
+                device.id, type, payload);
+        RequestResponseHandler rrHandler = new RequestResponseHandler(device, cmdPacket, this);
+        device.requestResponseHandlers.put(seq, rrHandler);
     }
 
     public synchronized void startDiscovery() throws IOException {
