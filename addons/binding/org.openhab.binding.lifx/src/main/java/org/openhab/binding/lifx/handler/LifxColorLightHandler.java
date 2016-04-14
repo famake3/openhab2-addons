@@ -89,6 +89,7 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
         if (command instanceof OnOffType) {
             protocol.setPower(device, currentTransitionTime.intValue(), command == OnOffType.ON);
             updateState(powerUid, (OnOffType) command);
+            resetTransitionTime();
         }
     }
 
