@@ -153,8 +153,8 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
         String dimmerString = readUntil('!');
         int dimmer = Integer.parseInt(dimmerString);
         // Let's make 100 % the brightest, makes more sense
-        double volumePct = 100.0 - (dimmer * 100.0 / 6.0);
-        return new PercentType(BigDecimal.valueOf(Math.round(volumePct)));
+        double dimmerPct = 100.0 - (dimmer * 100.0 / 6.0);
+        return new PercentType(BigDecimal.valueOf(Math.round(dimmerPct)));
     }
 
     public DecimalType readFrequency() throws IOException {
@@ -286,7 +286,7 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
             } else if (channelUID.getId().equals("dimmer")) {
                 // Invert the scale
                 if (command instanceof PercentType) {
-                    double value = 6 - ((PercentType) command).doubleValue() * 6 / 100.0;
+                    double value = 6 - Math.floor(((PercentType) command).doubleValue() * 6 / 100.0);
                     send("dimmer_" + Integer.toString((int) value) + "!");
                 }
             } else if (channelUID.getId().equals("source")) {

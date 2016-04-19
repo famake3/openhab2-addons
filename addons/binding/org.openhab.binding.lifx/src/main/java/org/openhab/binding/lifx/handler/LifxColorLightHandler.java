@@ -151,8 +151,8 @@ public class LifxColorLightHandler extends LifxLightHandlerBase {
     public void color(LifxColor color) {
         online();
         DecimalType hue = new DecimalType(color.hue * 360.0);
-        PercentType saturation = new PercentType(((int) (color.saturation * 100.0)));
-        PercentType brightness = new PercentType(((int) (color.brightness * 100.0)));
+        PercentType saturation = new PercentType(((int) Math.round(color.saturation * 100.0)));
+        PercentType brightness = new PercentType(((int) Math.round(color.brightness * 100.0)));
         currentColor = new HSBType(hue, saturation, brightness);
         updateState(colorUid, currentColor);
         currentColorTemperature = new DecimalType(color.colorTemperature);
