@@ -14,7 +14,7 @@ public class RequestResponseHandler implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(RequestResponseHandler.class);
 
-    private static final long TIMEOUT = 2000;
+    private static final long TIMEOUT = 4000;
     private static final int UNICAST_ATTEMPTS = 2, BCAST_ATTEMPTS = 2;
 
     private final Thread thread;
