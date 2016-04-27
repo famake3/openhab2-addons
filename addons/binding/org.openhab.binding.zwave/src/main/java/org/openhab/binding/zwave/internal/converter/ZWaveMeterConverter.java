@@ -16,7 +16,8 @@ import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.openhab.binding.zwave.handler.ZWaveThingHandler.ZWaveThingChannel;
+import org.openhab.binding.zwave.handler.ZWaveControllerHandler;
+import org.openhab.binding.zwave.handler.ZWaveThingChannel;
 import org.openhab.binding.zwave.internal.protocol.SerialMessage;
 import org.openhab.binding.zwave.internal.protocol.ZWaveController;
 import org.openhab.binding.zwave.internal.protocol.ZWaveNode;
@@ -45,8 +46,8 @@ public class ZWaveMeterConverter extends ZWaveCommandClassConverter {
      *
      * @param controller the {@link ZWaveController} to use for sending messages.
      */
-    public ZWaveMeterConverter() {
-        super();
+    public ZWaveMeterConverter(ZWaveControllerHandler controller) {
+        super(controller);
     }
 
     /**
@@ -65,11 +66,11 @@ public class ZWaveMeterConverter extends ZWaveCommandClassConverter {
         SerialMessage serialMessage;
 
         // Don't refresh channels that are the reset button
-        if ("true".equalsIgnoreCase(channel.getArguments().get("meterReset"))) {
+        if ("true".equalsIgnoreCase(channel.getArguments().get("reset"))) {
             return null;
         }
 
-        String meterScale = channel.getArguments().get("meterScale");
+        String meterScale = channel.getArguments().get("type");
         logger.debug("NODE {}: Generating poll message for {}, endpoint {}", node.getNodeId(),
                 commandClass.getCommandClass().getLabel(), channel.getEndpoint());
 

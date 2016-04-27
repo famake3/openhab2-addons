@@ -22,7 +22,6 @@ import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
@@ -33,9 +32,11 @@ import org.openhab.binding.zwave.internal.ZWaveNetworkMonitor;
 import org.openhab.binding.zwave.internal.protocol.SerialMessage;
 import org.openhab.binding.zwave.internal.protocol.ZWaveController;
 import org.openhab.binding.zwave.internal.protocol.ZWaveEventListener;
+import org.openhab.binding.zwave.internal.protocol.ZWaveIoHandler;
 import org.openhab.binding.zwave.internal.protocol.ZWaveNode;
 import org.openhab.binding.zwave.internal.protocol.commandclass.ZWaveSecurityCommandClass;
 import org.openhab.binding.zwave.internal.protocol.event.ZWaveEvent;
+import org.openhab.binding.zwave.internal.protocol.event.ZWaveInclusionEvent;
 import org.openhab.binding.zwave.internal.protocol.event.ZWaveInitializationStateEvent;
 import org.openhab.binding.zwave.internal.protocol.event.ZWaveNetworkEvent;
 import org.openhab.binding.zwave.internal.protocol.event.ZWaveNetworkStateEvent;
@@ -49,7 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chris Jackson - Initial contribution
  */
-public abstract class ZWaveControllerHandler extends BaseBridgeHandler implements ZWaveEventListener {
+public abstract class ZWaveControllerHandler extends BaseBridgeHandler implements ZWaveEventListener, ZWaveIoHandler {
 
     private Logger logger = LoggerFactory.getLogger(ZWaveControllerHandler.class);
 
@@ -64,6 +65,7 @@ public abstract class ZWaveControllerHandler extends BaseBridgeHandler implement
     private Boolean isMaster;
     private Boolean isSUC;
     private String networkKey;
+    private Integer healTime;
 
     public ZWaveControllerHandler(Bridge bridge) {
         super(bridge);
@@ -114,7 +116,8 @@ public abstract class ZWaveControllerHandler extends BaseBridgeHandler implement
             }
         }
 
-        super.initialize();
+        // We must set the state
+        updateStatus(ThingStatus.OFFLINE);
     }
 
     /**
@@ -144,13 +147,13 @@ public abstract class ZWaveControllerHandler extends BaseBridgeHandler implement
 
         // The network monitor service needs to know the controller...
         this.networkMonitor = new ZWaveNetworkMonitor(controller);
-        // if(healtime != null) {
-        // this.networkMonitor.setHealTime(healtime);
+        if (healTime != null) {
+            networkMonitor.setHealTime(healTime);
+        }
+        // if (aliveCheckPeriod != null) {
+        // networkMonitor.setPollPeriod(aliveCheckPeriod);
         // }
-        // if(aliveCheckPeriod != null) {
-        // this.networkMonitor.setPollPeriod(aliveCheckPeriod);
-        // }
-        // if(softReset != false) {
+        // if (softReset != false) {
         // this.networkMonitor.resetOnError(softReset);
         // }
 
@@ -294,12 +297,15 @@ public abstract class ZWaveControllerHandler extends BaseBridgeHandler implement
     @Override
     public void ZWaveIncomingEvent(ZWaveEvent event) {
         if (event instanceof ZWaveNetworkStateEvent) {
+            logger.debug("Controller: Incoming Network State Event {}",
+                    ((ZWaveNetworkStateEvent) event).getNetworkState());
             if (((ZWaveNetworkStateEvent) event).getNetworkState() == true) {
                 updateStatus(ThingStatus.ONLINE);
-                Bridge bridge = this.getThing();
-                for (Thing child : bridge.getThings()) {
-                    ((ZWaveThingHandler) child.getHandler()).bridgeHandlerInitialized(this, bridge);
-                }
+                // TODO: Shouldn't the framework do this for us? Maybe it does here as there's a state change?
+                // Bridge bridge = this.getThing();
+                // for (Thing child : bridge.getThings()) {
+                // ((ZWaveThingHandler) child.getHandler()).bridgeHandlerInitialized(this, bridge);
+                // }
             } else {
                 updateStatus(ThingStatus.OFFLINE);
             }
@@ -308,10 +314,25 @@ public abstract class ZWaveControllerHandler extends BaseBridgeHandler implement
         if (event instanceof ZWaveNetworkEvent) {
             ZWaveNetworkEvent networkEvent = (ZWaveNetworkEvent) event;
 
-            if (networkEvent.getNodeId() == getOwnNodeId()
-                    && networkEvent.getEvent() == ZWaveNetworkEvent.Type.NodeRoutingInfo) {
-                updateNeighbours();
-                logger.warn("");
+            switch (networkEvent.getEvent()) {
+                case NodeRoutingInfo:
+                    if (networkEvent.getNodeId() == getOwnNodeId()) {
+                        updateNeighbours();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // Handle node discover inclusion events
+        if (event instanceof ZWaveInclusionEvent) {
+            ZWaveInclusionEvent incEvent = (ZWaveInclusionEvent) event;
+            switch (incEvent.getEvent()) {
+                case IncludeDone:
+                    discoveryService.deviceDiscovered(event.getNodeId());
+                default:
+                    break;
             }
         }
 
@@ -340,8 +361,7 @@ public abstract class ZWaveControllerHandler extends BaseBridgeHandler implement
         controller.incomingPacket(serialMessage);
     }
 
-    public abstract void sendPacket(SerialMessage serialMessage);
-
+    @Override
     public void deviceDiscovered(int nodeId) {
         if (discoveryService == null) {
             return;
@@ -439,6 +459,13 @@ public abstract class ZWaveControllerHandler extends BaseBridgeHandler implement
             return;
         }
         controller.reinitialiseNode(nodeId);
+    }
+
+    public void healNode(int nodeId) {
+        if (networkMonitor == null) {
+            return;
+        }
+        networkMonitor.startNodeHeal(nodeId);
     }
 
     private void updateNeighbours() {

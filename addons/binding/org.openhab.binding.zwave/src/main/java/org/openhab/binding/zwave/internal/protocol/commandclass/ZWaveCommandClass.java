@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openhab.binding.zwave.internal.protocol.SerialMessage;
-import org.openhab.binding.zwave.internal.protocol.ZWaveSerialMessageException;
 import org.openhab.binding.zwave.internal.protocol.ZWaveController;
 import org.openhab.binding.zwave.internal.protocol.ZWaveEndpoint;
 import org.openhab.binding.zwave.internal.protocol.ZWaveNode;
+import org.openhab.binding.zwave.internal.protocol.ZWaveSerialMessageException;
 import org.openhab.binding.zwave.internal.protocol.commandclass.proprietary.FibaroFGRM222CommandClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -402,7 +402,7 @@ public abstract class ZWaveCommandClass {
         ZIP_ADV_CLIENT(0x34, "ZIP_ADV_CLIENT", null),
         METER_PULSE(0x35, "METER_PULSE", null),
         METER_TBL_CONFIG(0x3C, "METER_TBL_CONFIG", null),
-        METER_TBL_MONITOR(0x3D, "METER_TBL_MONITOR", null),
+        METER_TBL_MONITOR(0x3D, "METER_TBL_MONITOR", ZWaveMeterTblMonitorCommandClass.class),
         METER_TBL_PUSH(0x3E, "METER_TBL_PUSH", null),
         THERMOSTAT_HEATING(0x38, "THERMOSTAT_HEATING", null),
         THERMOSTAT_MODE(0x40, "THERMOSTAT_MODE", ZWaveThermostatModeCommandClass.class),
@@ -412,7 +412,7 @@ public abstract class ZWaveCommandClass {
         THERMOSTAT_FAN_STATE(0x45, "THERMOSTAT_FAN_STATE", ZWaveThermostatFanStateCommandClass.class),
         CLIMATE_CONTROL_SCHEDULE(0x46, "CLIMATE_CONTROL_SCHEDULE", ZWaveClimateControlScheduleCommandClass.class),
         THERMOSTAT_SETBACK(0x47, "THERMOSTAT_SETBACK", null),
-        DOOR_LOCK_LOGGING(0x4C, "DOOR_LOCK_LOGGING", null),
+        DOOR_LOCK_LOGGING(0x4C, "DOOR_LOCK_LOGGING", ZWaveDoorLockLoggingCommandClass.class),
         SCHEDULE_ENTRY_LOCK(0x4E, "SCHEDULE_ENTRY_LOCK", null),
         BASIC_WINDOW_COVERING(0x50, "BASIC_WINDOW_COVERING", null),
         MTP_WINDOW_COVERING(0x51, "MTP_WINDOW_COVERING", null),
@@ -424,6 +424,7 @@ public abstract class ZWaveCommandClass {
         MULTI_INSTANCE(0x60, "MULTI_INSTANCE", ZWaveMultiInstanceCommandClass.class),
         DOOR_LOCK(0x62, "DOOR_LOCK", ZWaveDoorLockCommandClass.class),
         USER_CODE(0x63, "USER_CODE", ZWaveUserCodeCommandClass.class),
+        BARRIER_OPERATOR(0x66, "BARRIER_OPERATOR", ZWaveBarrierOperatorCommandClass.class),
         CONFIGURATION(0x70, "CONFIGURATION", ZWaveConfigurationCommandClass.class),
         ALARM(0x71, "ALARM", ZWaveAlarmCommandClass.class),
         MANUFACTURER_SPECIFIC(0x72, "MANUFACTURER_SPECIFIC", ZWaveManufacturerSpecificCommandClass.class),
@@ -445,7 +446,7 @@ public abstract class ZWaveCommandClass {
         PROPRIETARY(0x88, "PROPRIETARY", null),
         LANGUAGE(0x89, "LANGUAGE", null),
         TIME(0x8A, "TIME", null),
-        TIME_PARAMETERS(0x8B, "TIME_PARAMETERS", null),
+        TIME_PARAMETERS(0x8B, "TIME_PARAMETERS", ZWaveTimeParametersCommandClass.class),
         GEOGRAPHIC_LOCATION(0x8C, "GEOGRAPHIC_LOCATION", null),
         COMPOSITE(0x8D, "COMPOSITE", null),
         MULTI_INSTANCE_ASSOCIATION(0x8E, "MULTI_INSTANCE_ASSOCIATION", null),
