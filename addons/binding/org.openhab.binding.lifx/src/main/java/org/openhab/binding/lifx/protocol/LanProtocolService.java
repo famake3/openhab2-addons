@@ -113,7 +113,12 @@ public class LanProtocolService implements Runnable, PacketSender {
                         device.ipAddress = p.getAddress();
                         RequestResponseHandler rrHandler = device.requestResponseHandlers.remove(lpp.getSequence());
                         if (rrHandler != null) {
+                            logger.debug(
+                                    "Received a response for dev " + device.idString() + " seq " + lpp.getSequence());
                             rrHandler.packet();
+                        } else {
+                            logger.debug("Received a response for unknown seq, dev " + device.idString() + " seq "
+                                    + lpp.getSequence());
                         }
                         // Note: calls device listener even if there is no request for this sequence number.
                         // Any data may be useful for staying up to date.
@@ -127,7 +132,6 @@ public class LanProtocolService implements Runnable, PacketSender {
                         }
                     }
                 }
-
             } catch (IOException e) {
                 logger.error("Failed to receive something from network, will try again in 60 seconds", e);
                 try {
@@ -241,8 +245,12 @@ public class LanProtocolService implements Runnable, PacketSender {
         sendAndExpectReply(device, TYPE_GET_VERSION, false, new byte[0]);
     }
 
-    private void sendAndExpectReply(LifxProtocolDevice device, short type, boolean responseTypeAck, byte[] payload) {
+    private synchronized void sendAndExpectReply(LifxProtocolDevice device, short type, boolean responseTypeAck,
+            byte[] payload) {
         byte seq = device.sequenceNumber++;
+        if (seq == 0) {
+            seq = device.sequenceNumber++; // We reserve seq 0 for discovery
+        }
         LanProtocolPacket cmdPacket = new LanProtocolPacket(clientId, false, responseTypeAck, !responseTypeAck, seq,
                 device.id, type, payload);
         RequestResponseHandler rrHandler = new RequestResponseHandler(device, cmdPacket, this);

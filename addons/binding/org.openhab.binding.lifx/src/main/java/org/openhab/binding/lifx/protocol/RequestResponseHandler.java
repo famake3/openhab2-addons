@@ -21,7 +21,7 @@ public class RequestResponseHandler implements Runnable {
     private final LanProtocolPacket requestPacket;
     private final LifxProtocolDevice device;
     private final PacketSender packetSender;
-    private boolean okTerminate;
+    private volatile boolean okTerminate;
 
     public RequestResponseHandler(LifxProtocolDevice device, LanProtocolPacket packet, PacketSender packetSender) {
         this.requestPacket = packet;
