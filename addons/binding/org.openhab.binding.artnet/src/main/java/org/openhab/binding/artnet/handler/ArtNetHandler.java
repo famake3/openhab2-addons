@@ -137,7 +137,11 @@ public class ArtNetHandler extends BaseThingHandler {
 
     private void sendColor(boolean setOff) throws IOException {
         int num = ((BigDecimal) (getThing().getConfiguration().get("num-pixels"))).intValue();
-        int universe = ((BigDecimal) getThing().getConfiguration().get("start-universe")).intValue();
+        BigDecimal universeBD = (BigDecimal) getThing().getConfiguration().get("start-universe");
+        int universe = 0;
+        if (universeBD != null) {
+            universe = universeBD.intValue();
+        }
         String ipAddress = (String) getThing().getConfiguration().get("ip-address");
 
         double red, green, blue;

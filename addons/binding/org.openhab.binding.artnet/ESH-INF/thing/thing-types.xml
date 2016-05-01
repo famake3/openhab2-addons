@@ -13,11 +13,11 @@
         </channels>
         
         <config-description>
-            <parameter name="ip-address" type="text">
+            <parameter name="ip-address" type="text" required="true">
                 <label>IP address</label>
                 <description>IP address of Art-Net device</description>
             </parameter>
-            <parameter name="num-pixels" type="integer">
+            <parameter name="num-pixels" type="integer" required="true">
                 <label>Number of pixels</label>
                 <description>Number of pixels</description>
             </parameter>

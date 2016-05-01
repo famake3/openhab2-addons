@@ -12,7 +12,9 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.types,
- org.slf4j
+ org.slf4j,
+ jssc
 Service-Component: OSGI-INF/*
 Export-Package: org.openhab.binding.serialmultifunction,
  org.openhab.binding.serialmultifunction.handler
+Require-Bundle: jssc
