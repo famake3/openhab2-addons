@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<binding:binding id="lgtv"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:binding="http://eclipse.org/smarthome/schemas/binding/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0 http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd">
+
+    <name>LG TV Binding</name>
+    <description>Binding for control of LG TV using the UPnP-based protocol (http://developer.lgappstv.com/TV_HELP/index.jsp).</description>
+    <author>Famake</author>
+
+</binding:binding>
