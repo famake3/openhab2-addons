@@ -55,6 +55,7 @@
     <module>org.openhab.binding.ninjablocks</module>
     <module>org.openhab.binding.receivernadt748</module>
     <module>org.openhab.binding.lifx</module>
+    <module>org.openhab.binding.lgtv</module>
   </modules>
 
 </project>
