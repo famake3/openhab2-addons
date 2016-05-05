@@ -59,6 +59,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
             updateState(channelUID, UnDefType.UNDEF);
             channelUID = getThing().getChannel(CHANNEL_SOURCE).getUID();
             updateState(channelUID, UnDefType.UNDEF);
+            updateStatus(ThingStatus.ONLINE);
         }
     }
 
@@ -151,6 +152,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
     }
 
     private void handlePower(ChannelUID channelUID, Command command) throws SerialPortException {
+        System.out.println("Setting power to: " + command.toString());
         if (command != null) {
             if (command instanceof OnOffType) {
                 if (command.equals(OnOffType.ON)) {
