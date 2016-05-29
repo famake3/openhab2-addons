@@ -14,11 +14,16 @@
         </channels>
         
         <config-description>
-        	<parameter name="port" type="text">
-        		<label>COM port</label>
-        		<description>Select serial port</description>
-        		<default>COM1</default>
-        	</parameter>
+            <parameter name="port" type="text">
+                <label>COM port</label>
+                <description>Select serial port</description>
+                <default>COM1</default>
+            </parameter>
+            <parameter name="polling-interval" type="integer">
+                <label>Polling interval</label>
+                <description>Seconds between check power on off state, zero to disable.</description>
+                <default>60</default>
+            </parameter>
         </config-description>
     </thing-type>
 
