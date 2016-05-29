@@ -70,9 +70,9 @@ public class ArtNetHandler extends BaseThingHandler {
         }
 
         ChannelUID channelUID = getThing().getChannel(COLOR).getUID();
+        updateStatus(ThingStatus.ONLINE);
         updateState(channelUID, new HSBType(new DecimalType(h), new PercentType(BigDecimal.valueOf(s)),
                 new PercentType(BigDecimal.valueOf(b))));
-        updateStatus(ThingStatus.ONLINE);
         try {
             sendColor(false);
         } catch (IOException e) {
