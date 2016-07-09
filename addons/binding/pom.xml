@@ -50,6 +50,16 @@
     <module>org.openhab.binding.systeminfo</module>
     <module>org.openhab.binding.systeminfo.test</module>
     <module>org.openhab.binding.zwave.test</module>
+    <module>org.openhab.binding.artnet</module>
+    <module>org.openhab.binding.folding</module>
+    <module>org.openhab.binding.rotelra1x</module>
+    <module>org.openhab.binding.serialmultifunction</module>
+    <module>org.openhab.binding.benqprojector</module>
+    <module>org.openhab.binding.ninjablocks</module>
+    <module>org.openhab.binding.receivernadt748</module>
+    <module>org.openhab.binding.lifx</module>
+    <module>org.openhab.binding.lgtv</module>
+    <module>org.openhab.binding.lgtvserial</module>
   </modules>
 
 </project>
