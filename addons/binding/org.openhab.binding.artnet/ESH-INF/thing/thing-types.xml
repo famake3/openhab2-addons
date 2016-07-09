@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="artnet"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <thing-type id="node">
+        <label>ArtNet Node</label>
+        <description>A device which can receive Art-Net.</description>
+
+        <channels>
+            <channel id="color" typeId="color"/>
+        </channels>
+        
+        <config-description>
+            <parameter name="ip-address" type="text" required="true">
+                <label>IP address</label>
+                <description>IP address of Art-Net device</description>
+            </parameter>
+            <parameter name="num-pixels" type="integer" required="true">
+                <label>Number of pixels</label>
+                <description>Number of pixels</description>
+            </parameter>
+            <parameter name="start-universe" type="integer">
+                <label>First universe ID</label>
+                <description>ID of the first universe, others 
+                follow sequentially.</description>
+            </parameter>
+            <parameter name="startup-color-r" type="integer">
+                <label>Startup color (R)</label>
+                <description>Red startup color.</description>
+            </parameter>
+            <parameter name="startup-color-g" type="integer">
+                <label>Startup color (G)</label>
+                <description>Green startup color.</description>
+            </parameter>
+            <parameter name="startup-color-b" type="integer">
+                <label>Startup color (B)</label>
+                <description>Blue startup color.</description>
+            </parameter>
+        </config-description>
+        
+    </thing-type>
+
+    <channel-type id="color">
+        <item-type>Color</item-type>
+        <label>Color</label>
+        <description>Color of all RGB pixels</description>
+        <category>ColorLight</category>
+    </channel-type>
+
+</thing:thing-descriptions>
