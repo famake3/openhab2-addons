@@ -16,7 +16,9 @@ Import-Package:
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
- org.slf4j
+ org.slf4j,
+ jssc
 Service-Component: OSGI-INF/*.xml
 Export-Package: org.openhab.binding.lgtvserial,
  org.openhab.binding.lgtvserial.handler
+Require-Bundle: jssc

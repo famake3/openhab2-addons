@@ -24,5 +24,10 @@ public class LgTvSerialBindingConstants {
 
     // List of all Channel ids
     public final static String CHANNEL_POWER = "power";
+    public final static String CHANNEL_INPUT = "input";
+    public final static String CHANNEL_VOLUME = "volume";
+    public final static String CHANNEL_MUTE = "mute";
+    public final static String CHANNEL_BACKLIGHT = "backlight";
+    public final static String CHANNEL_COLOR_TEMPERATURE = "color-temperature";
 
 }
