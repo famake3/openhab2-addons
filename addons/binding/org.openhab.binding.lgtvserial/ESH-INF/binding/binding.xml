@@ -7,11 +7,12 @@
     <name>LG TV Serial binding</name>
     <description>For controlling LG TV using seial (RS232C) protocol.
     Simple unidirectional communication with just the features the author needed.
-    
+    </description>
+    <author>Famake</author>
+    <!-- 
     References: https://sites.google.com/site/brendanrobert/projects/bits-and-pieces/lg-tv-hacks
     https://code.google.com/archive/p/lg-tv-command/source/default/source
     https://www.lg.com/us/commercial/documents/m6503ccba-owner-manual.pdf
-    </description>
-    <author>Famake</author>
+     -->
 
 </binding:binding>
