@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0 http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd">
 
     <name>Folding@home</name>
-    <description>Control Folding@home clients on computers (for heating).</description>
+    <description>Control Folding@home clients on computers.</description>
     <author>FaMaKe</author>
 
 </binding:binding>
