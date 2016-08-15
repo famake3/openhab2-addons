@@ -188,11 +188,13 @@ public class FoldingClientHandler extends BaseBridgeHandler {
             readUntilPrompt(activeSocket); // Discard initial banner message
             if (password != null) {
                 activeSocket.getOutputStream().write(("auth \"" + password + "\"\r\n").getBytes());
-            }
-            if (readUntilPrompt(activeSocket).startsWith("OK")) { // Discard initial banner message
-                updateStatus(ThingStatus.ONLINE);
+                if (readUntilPrompt(activeSocket).startsWith("OK")) { // Discard initial banner message
+                    updateStatus(ThingStatus.ONLINE);
+                } else {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Incorrect password");
+                }
             } else {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Incorrect password");
+                updateStatus(ThingStatus.ONLINE);
             }
         }
         return activeSocket;
