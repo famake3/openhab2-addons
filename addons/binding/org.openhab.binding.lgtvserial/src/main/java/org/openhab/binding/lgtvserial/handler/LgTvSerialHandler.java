@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.lgtvserial.LgTvSerialBindingConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,9 @@ public class LgTvSerialHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
+        if (command instanceof RefreshType) {
+            return; // Don't support refreshing
+        }
         try {
             if (channelUID.getId().equals(LgTvSerialBindingConstants.CHANNEL_POWER)) {
                 if (command == OnOffType.ON) {
