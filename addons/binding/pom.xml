@@ -49,10 +49,8 @@
     <module>org.openhab.binding.urtsi</module>
     <module>org.openhab.binding.vitotronic</module>
     <module>org.openhab.binding.yamahareceiver</module>
-    <module>org.openhab.binding.zwave</module>
     <module>org.openhab.binding.systeminfo</module>
     <module>org.openhab.binding.systeminfo.test</module>
-    <module>org.openhab.binding.zwave.test</module>
     <module>org.openhab.binding.artnet</module>
     <module>org.openhab.binding.folding</module>
     <module>org.openhab.binding.rotelra1x</module>
