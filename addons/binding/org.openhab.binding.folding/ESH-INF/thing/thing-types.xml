@@ -9,7 +9,7 @@
         <description>Folding@home client daemon (represented as bridge).</description>
         
         <channels>
-            <channel id="pause" typeId="pause"/>
+            <channel id="run" typeId="run"/>
             <channel id="finish" typeId="finish"/>
         </channels>
             
@@ -37,10 +37,10 @@
             </parameter>
         </config-description>
     </bridge-type>
-    <channel-type id="pause">
+    <channel-type id="run">
         <item-type>Switch</item-type>
-        <label>Pause</label>
-        <description>Slot paused status.</description>
+        <label>Run</label>
+        <description>Slot running.</description>
     </channel-type>
     <channel-type id="finish">
         <item-type>Switch</item-type>
@@ -58,7 +58,7 @@
 
         <channels>
             <channel id="description" typeId="description"/>
-            <channel id="pause" typeId="pause"/>
+            <channel id="run" typeId="run"/>
             <channel id="finish" typeId="finish"/>
             <channel id="status" typeId="status"/>
         </channels>

@@ -32,11 +32,11 @@ public class SlotHandler extends BaseThingHandler implements SlotUpdateListener 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         try {
-            if (channelUID.getId().equals("pause")) {
+            if (channelUID.getId().equals("run")) {
                 if (command == OnOffType.ON) {
-                    getBridgeHandler().sendCommand("pause " + myId());
-                } else if (command == OnOffType.OFF) {
                     getBridgeHandler().sendCommand("unpause " + myId());
+                } else if (command == OnOffType.OFF) {
+                    getBridgeHandler().sendCommand("pause " + myId());
                 }
             } else if (channelUID.getId().equals("finish")) {
                 if (command == OnOffType.ON) {
@@ -57,9 +57,9 @@ public class SlotHandler extends BaseThingHandler implements SlotUpdateListener 
         updateStatus(ThingStatus.ONLINE);
         updateState(getThing().getChannel("status").getUID(), new StringType(si.status));
         boolean finishing = "FINISHING".equals(si.status);
-        boolean paused = "true".equals(si.options.get("paused"));
+        boolean run = finishing || "RUNNING".equals(si.status);
         updateState(getThing().getChannel("finish").getUID(), finishing ? OnOffType.ON : OnOffType.OFF);
-        updateState(getThing().getChannel("pause").getUID(), paused ? OnOffType.ON : OnOffType.OFF);
+        updateState(getThing().getChannel("run").getUID(), run ? OnOffType.ON : OnOffType.OFF);
         updateState(getThing().getChannel("description").getUID(), new StringType(si.description));
     }
 

@@ -66,11 +66,11 @@ public class FoldingClientHandler extends BaseBridgeHandler {
         try {
             if (command instanceof RefreshType) {
                 refresh();
-            } else if (channelUID.getId().equals("pause")) {
+            } else if (channelUID.getId().equals("run")) {
                 if (command == OnOffType.ON) {
-                    sendCommand("pause");
-                } else if (command == OnOffType.OFF) {
                     sendCommand("unpause");
+                } else if (command == OnOffType.OFF) {
+                    sendCommand("pause");
                 }
                 refresh();
                 delayedRefresh();
@@ -130,16 +130,16 @@ public class FoldingClientHandler extends BaseBridgeHandler {
             disconnected();
             return;
         }
-        boolean paused = true, finishing = true;
+        boolean running = false, finishing = true;
         for (SlotInfo si : slotList) {
             finishing &= "FINISHING".equals(si.status);
-            paused &= "true".equals(si.options.get("paused"));
+            running |= "FINISHING".equals(si.status) || "RUNNING".equals(si.status);
             SlotUpdateListener listener = slotUpdateListeners.get(si.id);
             if (listener != null) {
                 listener.refreshed(si);
             }
         }
-        updateState(getThing().getChannel("pause").getUID(), paused ? OnOffType.ON : OnOffType.OFF);
+        updateState(getThing().getChannel("run").getUID(), running ? OnOffType.ON : OnOffType.OFF);
         updateState(getThing().getChannel("finish").getUID(), finishing ? OnOffType.ON : OnOffType.OFF);
     }
 
