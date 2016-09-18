@@ -116,7 +116,7 @@ public class LanProtocolService implements Runnable, PacketSender {
                             logger.debug(
                                     "Received a response for dev " + device.idString() + " seq " + lpp.getSequence());
                             rrHandler.packet();
-                        } else {
+                        } else if (lpp.getSequence() != 0) {
                             logger.debug("Received a response for unknown seq, dev " + device.idString() + " seq "
                                     + lpp.getSequence());
                         }
