@@ -63,8 +63,6 @@
     <module>org.openhab.binding.ninjablocks</module>
     <module>org.openhab.binding.receivernadt748</module>
     <module>org.openhab.binding.lifx</module>
-    <module>org.openhab.binding.lgtv</module>
-    <module>org.openhab.binding.lgtvserial</module>
   </modules>
 
 </project>
