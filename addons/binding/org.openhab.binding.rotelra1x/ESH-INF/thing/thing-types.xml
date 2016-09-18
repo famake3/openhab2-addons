@@ -7,7 +7,7 @@
     <!-- Sample Thing Type -->
     <thing-type id="amp">
         <label>Rotel Amplifier</label>
-        <description>Rotel RA11 / RA12 amplifier + DAC.</description>
+        <description>Rotel RA11 / RA12 stereo amplifier.</description>
 
         <channels>
             <channel id="power" typeId="power"/>
@@ -31,7 +31,7 @@
             <parameter name="max-vol" type="integer">
                 <label>Maximum volume</label>
                 <description>Volume level representing 100 %.</description>
-                <default>96</default>
+                <default>100</default>
                 <required>true</required>
             </parameter>
         </config-description>
@@ -82,7 +82,7 @@
     <channel-type id="frequency" advanced="true">
         <item-type>Number</item-type>
         <label>Frequency</label>
-        <description>Digital input sample rate</description>
+        <description>Digital input sample rate.</description>
         <state readOnly="true"/>
     </channel-type>
     
