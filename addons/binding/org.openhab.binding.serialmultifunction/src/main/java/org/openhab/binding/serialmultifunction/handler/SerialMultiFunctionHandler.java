@@ -33,7 +33,7 @@ public class SerialMultiFunctionHandler extends BaseThingHandler implements Runn
     private final Logger logger = LoggerFactory.getLogger(SerialMultiFunctionHandler.class);
 
     private SerialPort serialPort;
-    private final static int BAUD = 115200;
+    private final static int BAUD = 9600; // NOTE: Reduced baud, check if stable, then increase again when not stable
     private boolean connected = false;
     private Map<Integer, FunctionReceiver> receivers;
 
