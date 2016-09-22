@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -30,6 +31,8 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
+import org.openhab.binding.folding.discovery.FoldingSlotDiscoveryService;
+import org.osgi.framework.ServiceRegistration;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -45,6 +48,8 @@ public class FoldingClientHandler extends BaseBridgeHandler {
 
     private ScheduledFuture<?> refreshJob;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private FoldingSlotDiscoveryService discovery;
+    private ServiceRegistration<FoldingSlotDiscoveryService> serviceRegistratrion;
 
     private boolean initializing = true;
 
@@ -102,12 +107,18 @@ public class FoldingClientHandler extends BaseBridgeHandler {
         } else {
             refresh();
         }
+        discovery = new FoldingSlotDiscoveryService();
+        serviceRegistratrion = bundleContext.registerService(FoldingSlotDiscoveryService.class, discovery,
+                new Hashtable<String, Object>());
     }
 
     @Override
     public synchronized void dispose() {
         if (refreshJob != null) {
             refreshJob.cancel(true);
+        }
+        if (discovery != null) {
+            serviceRegistratrion.unregister();
         }
         closeSocket();
     }
@@ -137,6 +148,9 @@ public class FoldingClientHandler extends BaseBridgeHandler {
             SlotUpdateListener listener = slotUpdateListeners.get(si.id);
             if (listener != null) {
                 listener.refreshed(si);
+            } else {
+                String host = (String) getThing().getConfiguration().get("host");
+                discovery.newSlot(getThing().getUID(), host, si.id, si.description);
             }
         }
         updateState(getThing().getChannel("run").getUID(), running ? OnOffType.ON : OnOffType.OFF);

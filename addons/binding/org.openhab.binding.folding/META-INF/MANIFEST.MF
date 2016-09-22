@@ -20,6 +20,7 @@ Import-Package:
  org.eclipse.smarthome.core.types,
  org.openhab.binding.folding,
  org.openhab.binding.folding.handler,
+ org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Export-Package: org.openhab.binding.folding,

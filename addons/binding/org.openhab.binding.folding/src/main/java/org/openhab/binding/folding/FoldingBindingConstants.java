@@ -23,6 +23,8 @@ public class FoldingBindingConstants {
     public final static ThingTypeUID THING_TYPE_CLIENT = new ThingTypeUID(BINDING_ID, "client");
     public final static ThingTypeUID THING_TYPE_SLOT = new ThingTypeUID(BINDING_ID, "slot");
 
+    public final static String PARAM_SLOT_ID = "id";
+
     // List of all Channel ids
     public final static String CHANNEL_STATUS = "status";
 
