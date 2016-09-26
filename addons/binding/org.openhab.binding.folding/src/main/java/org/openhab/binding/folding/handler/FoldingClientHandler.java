@@ -14,8 +14,8 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -32,7 +33,10 @@ import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.folding.discovery.FoldingSlotDiscoveryService;
-import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -46,10 +50,10 @@ import com.google.gson.stream.JsonReader;
  */
 public class FoldingClientHandler extends BaseBridgeHandler {
 
+    private Logger logger = LoggerFactory.getLogger(FoldingClientHandler.class);
+
     private ScheduledFuture<?> refreshJob;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private FoldingSlotDiscoveryService discovery;
-    private ServiceRegistration<FoldingSlotDiscoveryService> serviceRegistratrion;
 
     private boolean initializing = true;
 
@@ -107,18 +111,12 @@ public class FoldingClientHandler extends BaseBridgeHandler {
         } else {
             refresh();
         }
-        discovery = new FoldingSlotDiscoveryService();
-        serviceRegistratrion = bundleContext.registerService(FoldingSlotDiscoveryService.class, discovery,
-                new Hashtable<String, Object>());
     }
 
     @Override
     public synchronized void dispose() {
         if (refreshJob != null) {
             refreshJob.cancel(true);
-        }
-        if (discovery != null) {
-            serviceRegistratrion.unregister();
         }
         closeSocket();
     }
@@ -149,8 +147,30 @@ public class FoldingClientHandler extends BaseBridgeHandler {
             if (listener != null) {
                 listener.refreshed(si);
             } else {
-                String host = (String) getThing().getConfiguration().get("host");
-                discovery.newSlot(getThing().getUID(), host, si.id, si.description);
+                logger.debug("Providing a new discovery result for slot " + si.id);
+                Collection<ServiceReference<DiscoveryService>> references;
+                try {
+                    references = bundleContext.getServiceReferences(DiscoveryService.class,
+                            "(objectClass=" + FoldingSlotDiscoveryService.class.getName() + ")");
+                } catch (InvalidSyntaxException e1) {
+                    throw new RuntimeException("Search string became invalid");
+                }
+                if (references.isEmpty()) {
+                    logger.warn("The Folding slot discovery service (" + FoldingSlotDiscoveryService.class.getName()
+                            + ") is not available right now");
+                }
+                for (ServiceReference<DiscoveryService> ref : references) {
+                    try {
+                        FoldingSlotDiscoveryService service = (FoldingSlotDiscoveryService) bundleContext
+                                .getService(ref);
+                        if (service != null) {
+                            logger.debug("Offering the new slot to discovery service");
+                            String host = (String) getThing().getConfiguration().get("host");
+                            service.newSlot(getThing().getUID(), host, si.id, si.description);
+                        }
+                    } catch (ClassCastException e) {
+                    }
+                }
             }
         }
         updateState(getThing().getChannel("run").getUID(), running ? OnOffType.ON : OnOffType.OFF);

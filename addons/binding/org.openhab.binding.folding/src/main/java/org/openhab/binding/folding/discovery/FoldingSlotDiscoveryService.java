@@ -1,5 +1,6 @@
 package org.openhab.binding.folding.discovery;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ import org.openhab.binding.folding.FoldingBindingConstants;
 public class FoldingSlotDiscoveryService extends AbstractDiscoveryService {
 
     public FoldingSlotDiscoveryService() {
-        super(10);
+        super(Collections.singleton(FoldingBindingConstants.THING_TYPE_SLOT), 10, true);
     }
 
     @Override
@@ -20,21 +21,25 @@ public class FoldingSlotDiscoveryService extends AbstractDiscoveryService {
     }
 
     protected String getLabel(String host, String description) {
-        int iSpace = description.indexOf(' ');
-        if (iSpace > 0) {
-            description = description.substring(0, iSpace);
+        int endOfLabel = description.indexOf(' ');
+        if (endOfLabel > 0) {
+            description = description.substring(0, endOfLabel);
+        }
+        endOfLabel = description.indexOf(':');
+        if (endOfLabel > 0) {
+            description = description.substring(0, endOfLabel);
         }
         return description + " @ " + host;
     }
 
     public void newSlot(ThingUID bridgeUID, String host, String id, String description) {
-
-        Map<String, Object> properties = new HashMap<>(1);
-        properties.put(FoldingBindingConstants.PARAM_SLOT_ID, id);
-        ThingUID thingUID = new ThingUID(FoldingBindingConstants.THING_TYPE_SLOT, bridgeUID, id);
-        DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withProperties(properties)
-                .withBridge(bridgeUID).withLabel(getLabel(host, description)).build();
-        thingDiscovered(discoveryResult);
+        if (isBackgroundDiscoveryEnabled()) {
+            Map<String, Object> properties = new HashMap<>(1);
+            properties.put(FoldingBindingConstants.PARAM_SLOT_ID, id);
+            ThingUID thingUID = new ThingUID(FoldingBindingConstants.THING_TYPE_SLOT, bridgeUID, id);
+            DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withProperties(properties)
+                    .withBridge(bridgeUID).withLabel(getLabel(host, description)).build();
+            thingDiscovered(discoveryResult);
+        }
     }
-
 }
