@@ -14,7 +14,6 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -32,9 +30,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
-import org.openhab.binding.folding.discovery.FoldingSlotDiscoveryService;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.openhab.binding.folding.discovery.FoldingDiscoveryProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,29 +144,8 @@ public class FoldingClientHandler extends BaseBridgeHandler {
                 listener.refreshed(si);
             } else {
                 logger.debug("Providing a new discovery result for slot " + si.id);
-                Collection<ServiceReference<DiscoveryService>> references;
-                try {
-                    references = bundleContext.getServiceReferences(DiscoveryService.class,
-                            "(objectClass=" + FoldingSlotDiscoveryService.class.getName() + ")");
-                } catch (InvalidSyntaxException e1) {
-                    throw new RuntimeException("Search string became invalid");
-                }
-                if (references.isEmpty()) {
-                    logger.warn("The Folding slot discovery service (" + FoldingSlotDiscoveryService.class.getName()
-                            + ") is not available right now");
-                }
-                for (ServiceReference<DiscoveryService> ref : references) {
-                    try {
-                        FoldingSlotDiscoveryService service = (FoldingSlotDiscoveryService) bundleContext
-                                .getService(ref);
-                        if (service != null) {
-                            logger.debug("Offering the new slot to discovery service");
-                            String host = (String) getThing().getConfiguration().get("host");
-                            service.newSlot(getThing().getUID(), host, si.id, si.description);
-                        }
-                    } catch (ClassCastException e) {
-                    }
-                }
+                String host = (String) getThing().getConfiguration().get("host");
+                FoldingDiscoveryProxy.getInstance().newSlot(getThing().getUID(), host, si.id, si.description);
             }
         }
         updateState(getThing().getChannel("run").getUID(), running ? OnOffType.ON : OnOffType.OFF);

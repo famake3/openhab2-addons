@@ -14,6 +14,7 @@ public class FoldingSlotDiscoveryService extends AbstractDiscoveryService {
 
     public FoldingSlotDiscoveryService() {
         super(Collections.singleton(FoldingBindingConstants.THING_TYPE_SLOT), 10, true);
+        FoldingDiscoveryProxy.getInstance().setService(this);
     }
 
     @Override
