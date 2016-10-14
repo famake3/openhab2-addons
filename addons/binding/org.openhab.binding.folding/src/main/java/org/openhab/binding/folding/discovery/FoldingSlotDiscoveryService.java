@@ -22,6 +22,9 @@ public class FoldingSlotDiscoveryService extends AbstractDiscoveryService {
     }
 
     protected String getLabel(String host, String description) {
+        if (description == null) {
+            description = "slot";
+        }
         int endOfLabel = description.indexOf(' ');
         if (endOfLabel > 0) {
             description = description.substring(0, endOfLabel);
@@ -34,7 +37,7 @@ public class FoldingSlotDiscoveryService extends AbstractDiscoveryService {
     }
 
     public void newSlot(ThingUID bridgeUID, String host, String id, String description) {
-        if (isBackgroundDiscoveryEnabled()) {
+        if (isBackgroundDiscoveryEnabled() && id != null) {
             Map<String, Object> properties = new HashMap<>(1);
             properties.put(FoldingBindingConstants.PARAM_SLOT_ID, id);
             ThingUID thingUID = new ThingUID(FoldingBindingConstants.THING_TYPE_SLOT, bridgeUID, id);
