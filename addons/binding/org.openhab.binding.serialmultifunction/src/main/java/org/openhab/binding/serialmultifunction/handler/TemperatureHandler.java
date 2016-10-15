@@ -61,7 +61,12 @@ public class TemperatureHandler extends BaseThingHandler implements FunctionRece
 
     @Override
     public void receivedUpdate(byte[] data) {
-        updateStatus(ThingStatus.ONLINE);
+        if (data.length == 2) {
+            updateStatus(ThingStatus.ONLINE);
+        } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "Invalid message");
+            return;
+        }
         /// -128 ... 128
         int val = ((data[0] & 0xFF) << 8) | (data[1] & 0xFF);
         double volt = (5.0 * val / 1024.0);
@@ -71,6 +76,11 @@ public class TemperatureHandler extends BaseThingHandler implements FunctionRece
         BigDecimal tempround = tempx10.divide(BigDecimal.valueOf(10));
         ChannelUID channelUID = getThing().getChannel("temperature").getUID();
         updateState(channelUID, new DecimalType(tempround));
+    }
+
+    @Override
+    public int getMaxMessageSize() {
+        return 2;
     }
 
 }

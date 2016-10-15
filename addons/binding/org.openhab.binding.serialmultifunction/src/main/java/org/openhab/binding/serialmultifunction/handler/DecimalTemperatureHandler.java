@@ -61,7 +61,12 @@ public class DecimalTemperatureHandler extends BaseThingHandler implements Funct
 
     @Override
     public void receivedUpdate(byte[] data) {
-        updateStatus(ThingStatus.ONLINE);
+        if (data.length == 2) {
+            updateStatus(ThingStatus.ONLINE);
+        } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "Invalid message");
+            return;
+        }
         /// Using default shift behaviour of sign extension
         int val = (data[0] << 8) | (data[1] & 0xFF);
         double temp = val / 10.0;
@@ -69,6 +74,11 @@ public class DecimalTemperatureHandler extends BaseThingHandler implements Funct
         BigDecimal tempbig = BigDecimal.valueOf(temp);
         ChannelUID channelUID = getThing().getChannel("temperature").getUID();
         updateState(channelUID, new DecimalType(tempbig));
+    }
+
+    @Override
+    public int getMaxMessageSize() {
+        return 2;
     }
 
 }

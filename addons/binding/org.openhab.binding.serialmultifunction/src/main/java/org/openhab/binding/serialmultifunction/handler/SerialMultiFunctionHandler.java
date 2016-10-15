@@ -114,12 +114,17 @@ public class SerialMultiFunctionHandler extends BaseThingHandler implements Runn
                 }
                 byte[] header = serialPort.readBytes(2);
                 int function = header[0] & 0xFF;
-                int length = header[1] & 0xFF;
-                byte[] data = serialPort.readBytes(length);
                 FunctionReceiver receiver = receivers.get(function);
+                int length = header[1] & 0xFF;
                 if (receiver != null) {
+                    if (length > receiver.getMaxMessageSize()) {
+                        continue; // Protect against corrupted data
+                    }
+                    byte[] data = serialPort.readBytes(length);
                     receiver.receivedUpdate(data);
                 } else {
+                    // For unknown codes, we'll read up to 8 data bytes (works for most cases, will re-sync)
+                    byte[] data = serialPort.readBytes(Math.min(length, 8));
                     System.out.println("Unknown function " + function + " with data: " + bytesToHex(data));
                 }
             }

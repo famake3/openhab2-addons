@@ -45,4 +45,12 @@ public class CodeReceiver extends BaseThingHandler implements FunctionReceiver {
         }
     }
 
+    @Override
+    public int getMaxMessageSize() {
+        // Setting a somewhat arbitrary limit here
+        // 16 byte is the size of a GUID, unlikely that people want something
+        // bigger
+        return 17;
+    }
+
 }
