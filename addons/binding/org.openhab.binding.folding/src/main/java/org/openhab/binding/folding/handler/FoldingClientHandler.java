@@ -49,7 +49,6 @@ public class FoldingClientHandler extends BaseBridgeHandler {
     private Logger logger = LoggerFactory.getLogger(FoldingClientHandler.class);
 
     private ScheduledFuture<?> refreshJob;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     private boolean initializing = true;
 
@@ -98,7 +97,7 @@ public class FoldingClientHandler extends BaseBridgeHandler {
     public void initialize() {
         BigDecimal period = (BigDecimal) getThing().getConfiguration().get("polling");
         if (period != null && period.longValue() != 0) {
-            refreshJob = scheduler.scheduleAtFixedRate(new Runnable() {
+            refreshJob = scheduler.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
                     refresh();
