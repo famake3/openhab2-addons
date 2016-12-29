@@ -13,12 +13,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.openhab.binding.serialmultifunction.handler.CodeReceiver;
 import org.openhab.binding.serialmultifunction.handler.DecimalTemperatureHandler;
+import org.openhab.binding.serialmultifunction.handler.InputSwitchHandler;
 import org.openhab.binding.serialmultifunction.handler.OnOffCodeHandler;
 import org.openhab.binding.serialmultifunction.handler.SerialMultiFunctionHandler;
 import org.openhab.binding.serialmultifunction.handler.SwitchHandler;
@@ -34,7 +36,7 @@ public class SerialMultiFunctionHandlerFactory extends BaseThingHandlerFactory {
 
     private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<ThingTypeUID>(
             Arrays.asList(THING_TYPE_BRIDGE, THING_TYPE_SWITCH, THING_TYPE_TEMPERATURE, THING_TYPE_TEMPERATURE_DECIMAL,
-                    THING_TYPE_ON_OFF_CODE, THING_TYPE_CODE_RECEIVER));
+                    THING_TYPE_ON_OFF_CODE, THING_TYPE_CODE_RECEIVER, THING_TYPE_INPUT_SWITCH));
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -47,13 +49,15 @@ public class SerialMultiFunctionHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.equals(THING_TYPE_BRIDGE)) {
-            return new SerialMultiFunctionHandler(thing);
+            return new SerialMultiFunctionHandler((Bridge) thing);
         } else if (thingTypeUID.equals(THING_TYPE_TEMPERATURE)) {
             return new TemperatureHandler(thing);
         } else if (thingTypeUID.equals(THING_TYPE_TEMPERATURE_DECIMAL)) {
             return new DecimalTemperatureHandler(thing);
         } else if (thingTypeUID.equals(THING_TYPE_SWITCH)) {
             return new SwitchHandler(thing);
+        } else if (thingTypeUID.equals(THING_TYPE_INPUT_SWITCH)) {
+            return new InputSwitchHandler(thing);
         } else if (thingTypeUID.equals(THING_TYPE_ON_OFF_CODE)) {
             return new OnOffCodeHandler(thing);
         } else if (thingTypeUID.equals(THING_TYPE_CODE_RECEIVER)) {

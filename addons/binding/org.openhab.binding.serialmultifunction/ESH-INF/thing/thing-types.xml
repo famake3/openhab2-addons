@@ -31,6 +31,34 @@
         <description>Switch on/off</description>
         <category>Switch</category>
     </channel-type>
+
+    <thing-type id="input-switch">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Input switch</label>
+        <description>Direct attached on/off input.</description>
+
+        <channels>
+            <channel id="state" typeId="input-switch"/>
+        </channels>
+        <config-description>
+            <parameter name="func_id" type="integer">
+                <label>Function ID</label>
+                <description>Index of the function.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+     <channel-type id="input-switch">
+        <item-type>Switch</item-type>
+        <label>State</label>
+        <description>Input state</description>
+        <category>Switch</category>
+        <state readOnly="true" />
+    </channel-type>
     
     <thing-type id="temperature">
         <supported-bridge-type-refs>

@@ -10,11 +10,11 @@ package org.openhab.binding.serialmultifunction.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ import jssc.SerialPortException;
  *
  * @author FaMaKe - Initial contribution
  */
-public class SerialMultiFunctionHandler extends BaseThingHandler implements Runnable {
+public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(SerialMultiFunctionHandler.class);
 
@@ -37,7 +37,7 @@ public class SerialMultiFunctionHandler extends BaseThingHandler implements Runn
     private boolean connected = false;
     private Map<Integer, FunctionReceiver> receivers;
 
-    public SerialMultiFunctionHandler(Thing thing) {
+    public SerialMultiFunctionHandler(Bridge thing) {
         super(thing);
         receivers = new HashMap<Integer, FunctionReceiver>();
     }
