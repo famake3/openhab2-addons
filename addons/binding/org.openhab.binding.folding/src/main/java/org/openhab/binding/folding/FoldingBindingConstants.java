@@ -13,7 +13,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * The {@link FoldingBinding} class defines common constants, which are
  * used across the whole binding.
  *
- * @author FaMaKe - Initial contribution
+ * @author Marius Bjoernstad
  */
 public class FoldingBindingConstants {
 
