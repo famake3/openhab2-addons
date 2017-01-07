@@ -39,10 +39,11 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 /**
- * The {@link FoldingClientHandler} is responsible for handling commands, which are
- * sent to one of the channels.
+ * The {@link FoldingClientHandler} acts as connects to a single
+ * Folding at home client, and controls it, but can also act as a
+ * bridge for the SlotHandler.
  *
- * @author FaMaKe - Initial contribution
+ * @author Marius Bjørnstad
  */
 public class FoldingClientHandler extends BaseBridgeHandler {
 
@@ -196,7 +197,7 @@ public class FoldingClientHandler extends BaseBridgeHandler {
             readUntilPrompt(activeSocket); // Discard initial banner message
             if (password != null) {
                 activeSocket.getOutputStream().write(("auth \"" + password + "\"\r\n").getBytes());
-                if (readUntilPrompt(activeSocket).startsWith("OK")) { // Discard initial banner message
+                if (readUntilPrompt(activeSocket).startsWith("OK")) {
                     updateStatus(ThingStatus.ONLINE);
                 } else {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Incorrect password");
