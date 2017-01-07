@@ -39,10 +39,11 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 /**
- * The {@link FoldingClientHandler} is responsible for handling commands, which are
- * sent to one of the channels.
+ * The {@link FoldingClientHandler} acts as connects to a single
+ * Folding at home client, and controls it, but can also act as a
+ * bridge for the SlotHandler.
  *
- * @author FaMaKe - Initial contribution
+ * @author Marius Bjørnstad
  */
 public class FoldingClientHandler extends BaseBridgeHandler {
 
@@ -88,7 +89,7 @@ public class FoldingClientHandler extends BaseBridgeHandler {
                 delayedRefresh();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("Input/output error while handing command", e);
             disconnected();
         }
     }
@@ -130,7 +131,7 @@ public class FoldingClientHandler extends BaseBridgeHandler {
 
             slotList = gson.fromJson(jr, slotListType);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("Input/error while refreshing Folding client state", e);
             disconnected();
             return;
         }
@@ -142,7 +143,7 @@ public class FoldingClientHandler extends BaseBridgeHandler {
             if (listener != null) {
                 listener.refreshed(si);
             } else {
-                logger.debug("Providing a new discovery result for slot " + si.id);
+                logger.debug("Providing a new discovery result for slot {}", si.id);
                 String host = (String) getThing().getConfiguration().get("host");
                 FoldingDiscoveryProxy.getInstance().newSlot(getThing().getUID(), host, si.id, si.description);
             }
@@ -196,7 +197,7 @@ public class FoldingClientHandler extends BaseBridgeHandler {
             readUntilPrompt(activeSocket); // Discard initial banner message
             if (password != null) {
                 activeSocket.getOutputStream().write(("auth \"" + password + "\"\r\n").getBytes());
-                if (readUntilPrompt(activeSocket).startsWith("OK")) { // Discard initial banner message
+                if (readUntilPrompt(activeSocket).startsWith("OK")) {
                     updateStatus(ThingStatus.ONLINE);
                 } else {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Incorrect password");

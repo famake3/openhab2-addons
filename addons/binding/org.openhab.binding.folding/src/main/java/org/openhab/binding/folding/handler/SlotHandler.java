@@ -10,7 +10,12 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SlotHandler extends BaseThingHandler implements SlotUpdateListener {
+
+    private Logger logger = LoggerFactory.getLogger(SlotHandler.class);
 
     public SlotHandler(Thing thing) {
         super(thing);
@@ -48,7 +53,7 @@ public class SlotHandler extends BaseThingHandler implements SlotUpdateListener 
             getBridgeHandler().refresh();
             getBridgeHandler().delayedRefresh();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("Input/output error while handing command to Folding slot", e);
         }
     }
 
