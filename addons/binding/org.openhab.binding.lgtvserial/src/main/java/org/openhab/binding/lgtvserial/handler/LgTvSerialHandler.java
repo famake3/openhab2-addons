@@ -42,7 +42,6 @@ public class LgTvSerialHandler extends BaseThingHandler {
     private final static long MIN_INTERVAL = 20;
     private long lastCommandTime = System.currentTimeMillis() - MIN_INTERVAL;
 
-
     public LgTvSerialHandler(Thing thing) {
         super(thing);
     }
@@ -81,7 +80,7 @@ public class LgTvSerialHandler extends BaseThingHandler {
         long now = System.currentTimeMillis();
         if (now - lastCommandTime < MIN_INTERVAL) {
             try {
-                Thread.sleep(MIN_INTERVAL - now - lastCommandTime);
+                Thread.sleep(MIN_INTERVAL - (now - lastCommandTime));
             } catch (InterruptedException e) {
                 return;
             }
