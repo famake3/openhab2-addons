@@ -17,18 +17,17 @@
             <parameter name="host" type="text">
                 <label>Host</label>
                 <description>Hostname or IP address</description>
-                <required>true</required>
                 <default>127.0.0.1</default>
             </parameter>
             <parameter name="port" type="integer">
                 <label>Port</label>
                 <description></description>
-                <required>true</required>
                 <default>36330</default>
             </parameter>
             <parameter name="password" type="text">
                 <label>Password</label>
                 <description>Authentication password (leave empty for no p/w).</description>
+                <context>password</context>
             </parameter>
             <parameter name="polling" type="integer">
                 <label>Polling interval (s)</label>
@@ -67,7 +66,6 @@
             <parameter name="id" type="text">
                 <label>Slot ID</label>
                 <description>Slot ID, "00", "01", etc.</description>
-                <required>true</required>
                 <default>00</default>
             </parameter>
         </config-description>
@@ -76,7 +74,7 @@
     <channel-type id="description">
         <item-type>String</item-type>
         <label>Description</label>
-        <description>Description of the item type.</description>
+        <description>Description of the Folding@home slot.</description>
         <state readOnly="true"/>
     </channel-type>
     <channel-type id="status">
