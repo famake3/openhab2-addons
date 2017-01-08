@@ -39,8 +39,6 @@ public class LgTvSerialHandler extends BaseThingHandler {
     private NRSerialPort serialPort;
     private OutputStreamWriter output;
     private String portName;
-    private final static long MIN_INTERVAL = 20;
-    private long lastCommandTime = System.currentTimeMillis() - MIN_INTERVAL;
 
     public LgTvSerialHandler(Thing thing) {
         super(thing);
@@ -77,15 +75,6 @@ public class LgTvSerialHandler extends BaseThingHandler {
         if (command instanceof RefreshType) {
             return; // Don't support refreshing
         }
-        long now = System.currentTimeMillis();
-        if (now - lastCommandTime < MIN_INTERVAL) {
-            try {
-                Thread.sleep(MIN_INTERVAL - (now - lastCommandTime));
-            } catch (InterruptedException e) {
-                return;
-            }
-        }
-        lastCommandTime = now;
         try {
             if (channelUID.getId().equals(LgTvSerialBindingConstants.CHANNEL_POWER) && (command instanceof OnOffType)) {
                 if (command == OnOffType.ON) {
