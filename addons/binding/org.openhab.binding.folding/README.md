@@ -1,4 +1,4 @@
-# Folding@home binding
+# Folding@home Binding
 
 Binding for the [Folding@home](https://folding.stanford.edu/) distributed computing
 software.
@@ -13,6 +13,7 @@ The clients must be added manually in the Paper UI, but the slots for that
 client will then appear using auto-discovery.
 
 ## Requirements (network access to F@H)
+
 The Folding@home TCP interface is enabled only on localhost by default, without
 a password. In order to allow control of Folding on other machines than the one
 running openHAB, it is necessary to configure the Folding client to accept commands

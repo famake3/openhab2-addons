@@ -25,7 +25,7 @@ import org.openhab.binding.folding.handler.SlotHandler;
  * The {@link FoldingHandlerFactory} is responsible for creating things and thing
  * handlers.
  *
- * @author FaMaKe - Initial contribution
+ * @author Marius Bjoernstad - Initial contribution
  */
 public class FoldingHandlerFactory extends BaseThingHandlerFactory {
 
