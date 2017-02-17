@@ -13,8 +13,9 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 /**
  * Singleton instance to connect the Client handler and the discovery
  * service.
+ *
+ * @author Marius Bjoernstad - Initial contribution
  */
-
 public class FoldingDiscoveryProxy {
 
     private static FoldingDiscoveryProxy instance;

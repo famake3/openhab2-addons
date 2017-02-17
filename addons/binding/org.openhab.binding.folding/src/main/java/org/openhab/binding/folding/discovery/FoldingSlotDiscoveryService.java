@@ -18,6 +18,15 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.openhab.binding.folding.FoldingBindingConstants;
 
+/**
+ * Discovery service implementation.
+ *
+ * The Client handler has to be configured manually, but once connected,
+ * it will publish discovered slots to this service. This service converts
+ * the internal representation {@link SlotInfo} to discovery results.
+ *
+ * @author Marius Bjoernstad - Initial contribution
+ */
 public class FoldingSlotDiscoveryService extends AbstractDiscoveryService {
 
     public FoldingSlotDiscoveryService() {
