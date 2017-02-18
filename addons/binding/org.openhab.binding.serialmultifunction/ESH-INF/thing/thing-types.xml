@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="serialmultifunction"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <thing-type id="switch">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Switch</label>
+        <description>Direct attached switch, control on/off.</description>
+
+        <channels>
+            <channel id="switch" typeId="switch"/>
+        </channels>
+        <config-description>
+            <parameter name="func_id" type="integer">
+                <label>Function ID</label>
+                <description>Index of the function.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+
+    </thing-type>
+    
+     <channel-type id="switch">
+        <item-type>Switch</item-type>
+        <label>Switch</label>
+        <description>Switch on/off</description>
+        <category>Switch</category>
+    </channel-type>
+
+    <thing-type id="input-switch">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Input switch</label>
+        <description>Direct attached on/off input.</description>
+
+        <channels>
+            <channel id="state" typeId="input-switch"/>
+        </channels>
+        <config-description>
+            <parameter name="func_id" type="integer">
+                <label>Function ID</label>
+                <description>Index of the function.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+     <channel-type id="input-switch">
+        <item-type>Switch</item-type>
+        <label>State</label>
+        <description>Input state</description>
+        <category>Switch</category>
+        <state readOnly="true" />
+    </channel-type>
+    
+    <thing-type id="temperature">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Temperature</label>
+        <description>Analog TMP36 temperature sensor.</description>
+
+        <channels>
+            <channel id="temperature" typeId="temperature"/>
+        </channels>
+
+        <config-description>
+            <parameter name="func_id" type="integer">
+                <label>Function ID</label>
+                <description>Index of the function.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    
+    <thing-type id="temperature-decimal">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Temperature</label>
+        <description>General temperature encoded as degrees Celsius times 10 (16 bit signed int).</description>
+
+        <channels>
+            <channel id="temperature" typeId="temperature"/>
+        </channels>
+
+        <config-description>
+            <parameter name="func_id" type="integer">
+                <label>Function ID</label>
+                <description>Index of the function.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    
+    <channel-type id="temperature">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>Temperature</description>
+        <category>Temperature</category>
+        <state readOnly="true" pattern="%.1f °C"/>
+    </channel-type>
+    
+    <thing-type id="code-receiver">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Code receiver</label>
+        <description>Code receiver.</description>
+
+        <channels>
+            <channel id="code-input" typeId="code-input"/>
+        </channels>
+
+        <config-description>
+            <parameter name="func_id" type="integer">
+                <label>Function ID</label>
+                <description>Index of the function.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    <channel-type id="code-input">
+        <item-type>String</item-type>
+        <label>Code</label>
+        <description>Received code as hex string.</description>
+        <state readOnly="true"/>
+    </channel-type>
+
+    <thing-type id="on-off-code">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+		<label>Switch code</label>
+		<description>Send a code for on/off switch (RF, IR, etc).</description>
+
+        <channels>
+            <channel id="switch" typeId="switch"/>
+	    <!-- defined above -->
+        </channels>
+
+        <config-description>
+            <parameter name="func_id" type="integer">
+                <label>Function ID</label>
+                <description>Index of the function (can share between command things).</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="on_code" type="text">
+                <label>"On" code</label>
+                <description>Code to send for "on" in hex. Pad with zeros to indicate length. Max 32 bit.</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="off_code" type="text">
+                <label>"Off" code</label>
+                <description>Code to send for "off" in hex. Pad with zeros to indicate length.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+    
+    
+    <channel-type id="code-output">
+        <item-type>String</item-type>
+        <label>Code</label>
+        <description>Code to send, as hex string.</description>
+    </channel-type>
+    
+    <thing-type id="command-sender">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+	    <label>Command sender</label>
+	    <description>Send any code provided as a hex string, use with rules, etc.</description>
+
+        <channels>
+            <channel id="code-output" typeId="code-output"/>
+        <!-- defined above -->
+        </channels>
+
+        <config-description>
+            <parameter name="func_id" type="integer">
+                <label>Function ID</label>
+                <description>Index of the function (can share between command things).</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+</thing:thing-descriptions>
