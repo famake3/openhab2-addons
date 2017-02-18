@@ -18,8 +18,6 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -40,9 +38,9 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 /**
- * The {@link FoldingClientHandler} acts as connects to a single
- * Folding at home client, and controls it, but can also act as a
- * bridge for the SlotHandler.
+ * The {@link FoldingClientHandler} connects to a single Folding@home client,
+ * and controls it. The Client handler can also act as a bridge for the
+ * {@link SlotHandler}.
  *
  * @author Marius Bjørnstad
  */

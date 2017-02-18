@@ -10,9 +10,15 @@ package org.openhab.binding.folding.handler;
 
 import java.util.Map;
 
+/**
+ * Slot information entity
+ *
+ * This class specifies the format of the Json-compatible data received from
+ * the Folding client process.
+ *
+ * @author Marius Bjoernstad
+ */
 public class SlotInfo {
-
-    // Entity for Json de-serialization
 
     public String id, status, description, reason;
     public Map<String, String> options;

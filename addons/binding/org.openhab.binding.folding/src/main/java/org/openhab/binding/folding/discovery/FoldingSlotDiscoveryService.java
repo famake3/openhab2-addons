@@ -23,9 +23,9 @@ import org.openhab.binding.folding.FoldingBindingConstants;
  *
  * The Client handler has to be configured manually, but once connected,
  * it will publish discovered slots to this service. This service converts
- * the internal representation {@link SlotInfo} to discovery results.
+ * the internal representation to discovery results.
  *
- * @author Marius Bjoernstad - Initial contribution
+ * @author Marius Bjoernstad
  */
 public class FoldingSlotDiscoveryService extends AbstractDiscoveryService {
 

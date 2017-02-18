@@ -17,10 +17,17 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Thing handler representing a Folding slot.
+ *
+ * If control of each slot (CPU, GPUs, etc.) is desired, the user can add
+ * Slot handlers. The Slot handler exposes the status of a slot, and allows
+ * users to start / stop folding.
+ *
+ */
 public class SlotHandler extends BaseThingHandler implements SlotUpdateListener {
 
     private Logger logger = LoggerFactory.getLogger(SlotHandler.class);
