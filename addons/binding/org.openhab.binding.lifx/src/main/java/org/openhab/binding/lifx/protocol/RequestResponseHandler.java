@@ -15,7 +15,9 @@ public class RequestResponseHandler implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(RequestResponseHandler.class);
 
     private static final long TIMEOUT = 2000;
-    private static final int UNICAST_ATTEMPTS = 2, BCAST_ATTEMPTS = 2;
+    private static final int NUM_ATTEMPTS = 3;
+
+    private static final int DISCOVERY_AFTER_ATTEMPTS = 1;
 
     private final Thread thread;
     private final LanProtocolPacket requestPacket;
@@ -42,7 +44,13 @@ public class RequestResponseHandler implements Runnable {
 
     @Override
     public synchronized void run() {
-        for (int i = 0; i < (UNICAST_ATTEMPTS + BCAST_ATTEMPTS) && (!okTerminate); ++i) {
+        for (int i = 0; i < NUM_ATTEMPTS && (!okTerminate); ++i) {
+            if (i == DISCOVERY_AFTER_ATTEMPTS) {
+                try {
+                    packetSender.sendDiscoveryPacket();
+                } catch (IOException e) { // Best effort recovery; nothing we can do
+                }
+            }
             long nextTimeout = System.currentTimeMillis() + TIMEOUT;
             long remain = TIMEOUT;
             while (!okTerminate && remain > 0) {
@@ -56,9 +64,6 @@ public class RequestResponseHandler implements Runnable {
             }
             if (!okTerminate) { // Timeout! Re-send.
                 logger.debug("No response from bulb " + device.idString() + ", resending...");
-                if (i > UNICAST_ATTEMPTS) {
-                    device.ipAddress = null;
-                }
                 try {
                     packetSender.send(device.ipAddress, requestPacket);
                 } catch (IOException e) {
@@ -69,10 +74,6 @@ public class RequestResponseHandler implements Runnable {
         if (!okTerminate) {
             device.deviceListener.timeout();
             logger.info("No response from bulb " + device.idString() + ", giving up.");
-            try {
-                packetSender.sendDiscoveryPacket();
-            } catch (IOException e) { // Best effort recovery; nothing we can do
-            }
         }
     }
 
