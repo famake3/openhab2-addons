@@ -69,6 +69,10 @@ public class RequestResponseHandler implements Runnable {
         if (!okTerminate) {
             device.deviceListener.timeout();
             logger.info("No response from bulb " + device.idString() + ", giving up.");
+            try {
+                packetSender.sendDiscoveryPacket();
+            } catch (IOException e) { // Best effort recovery; nothing we can do
+            }
         }
     }
 

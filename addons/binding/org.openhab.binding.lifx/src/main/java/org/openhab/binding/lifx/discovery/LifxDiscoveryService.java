@@ -42,7 +42,7 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
     @Override
     protected void startBackgroundDiscovery() {
         try {
-            protocol.startDiscovery();
+            protocol.sendDiscoveryPacket();
         } catch (IOException e) {
             logger.warn("Failed to start LIFX discovery", e);
         }
@@ -57,7 +57,7 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
     protected void startScan() {
         scanMode = true;
         try {
-            protocol.startDiscovery();
+            protocol.sendDiscoveryPacket();
         } catch (IOException e) {
             logger.error("Failed to send probe for new devices", e);
         }

@@ -258,7 +258,7 @@ public class LanProtocolService implements Runnable, PacketSender {
         rrHandler.start();
     }
 
-    public synchronized void startDiscovery() throws IOException {
+    public synchronized void sendDiscoveryPacket() throws IOException {
         LanProtocolPacket discoveryPacket = new LanProtocolPacket(clientId, true, false, true, (byte) 0, 0,
                 TYPE_GET_SERVICE, new byte[] {});
         send(null, discoveryPacket);

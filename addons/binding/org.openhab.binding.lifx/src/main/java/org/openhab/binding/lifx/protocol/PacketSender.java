@@ -8,4 +8,6 @@ interface PacketSender {
     // Note: will send broadcast if destination is null
     void send(InetAddress destination, LanProtocolPacket packet) throws IOException;
 
+    void sendDiscoveryPacket() throws IOException;
+
 }
