@@ -9,6 +9,11 @@ package org.openhab.binding.receivernadt748.handler;
 
 import static org.openhab.binding.receivernadt748.ReceiverNadT748BindingConstants.*;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -17,6 +22,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -24,8 +30,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jssc.SerialPort;
-import jssc.SerialPortException;
+import gnu.io.NRSerialPort;
 
 /**
  * The {@link ReceiverNadT748Handler} is responsible for handling commands, which are
@@ -37,9 +42,10 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
 
     private Logger logger = LoggerFactory.getLogger(ReceiverNadT748Handler.class);
 
-    private SerialPort port;
-
+    private NRSerialPort serialPort;
     private boolean on = false;
+    private OutputStreamWriter output;
+    private InputStream input;
 
     public ReceiverNadT748Handler(Thing thing) {
         super(thing);
@@ -47,23 +53,28 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        ChannelUID channelUID = getThing().getChannel(CHANNEL_POWER).getUID();
-        boolean powerOn = isOn();
-        updateState(channelUID, powerOn ? OnOffType.ON : OnOffType.OFF);
-        if (powerOn) {
-            refreshAll();
-        } else {
-            channelUID = getThing().getChannel(CHANNEL_VOLUME).getUID();
-            updateState(channelUID, UnDefType.UNDEF);
-            channelUID = getThing().getChannel(CHANNEL_MUTE).getUID();
-            updateState(channelUID, UnDefType.UNDEF);
-            channelUID = getThing().getChannel(CHANNEL_SOURCE).getUID();
-            updateState(channelUID, UnDefType.UNDEF);
-            updateStatus(ThingStatus.ONLINE);
+        try {
+            ChannelUID channelUID = getThing().getChannel(CHANNEL_POWER).getUID();
+            boolean powerOn = isOn();
+            updateState(channelUID, powerOn ? OnOffType.ON : OnOffType.OFF);
+            if (powerOn) {
+                refreshAll();
+            } else {
+                channelUID = getThing().getChannel(CHANNEL_VOLUME).getUID();
+                updateState(channelUID, UnDefType.UNDEF);
+                channelUID = getThing().getChannel(CHANNEL_MUTE).getUID();
+                updateState(channelUID, UnDefType.UNDEF);
+                channelUID = getThing().getChannel(CHANNEL_SOURCE).getUID();
+                updateState(channelUID, UnDefType.UNDEF);
+                updateStatus(ThingStatus.ONLINE);
+            }
+        } catch (IOException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
         }
+
     }
 
-    private void refreshAll() {
+    private void refreshAll() throws IOException {
         ChannelUID channelUID;
         channelUID = getThing().getChannel(CHANNEL_VOLUME).getUID();
         try {
@@ -73,7 +84,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
             updateState(channelUID, isMute ? OnOffType.ON : OnOffType.OFF);
             channelUID = getThing().getChannel(CHANNEL_SOURCE).getUID();
             updateState(channelUID, new StringType(Integer.toString(askInt("Main.Source"))));
-        } catch (CommunicationException | SerialPortException e) {
+        } catch (CommunicationException e) {
             e.printStackTrace();
         }
     }
@@ -81,20 +92,21 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
     @Override
     public void dispose() {
         try {
-            port.closePort();
-        } catch (SerialPortException | NullPointerException e) {
+            serialPort.disconnect();
+        } catch (NullPointerException e) {
         }
     }
 
-    private SerialPort getSerialPort() throws SerialPortException {
-        if (port == null || !port.isOpened()) {
+    private synchronized void connect() {
+        if (serialPort == null || !serialPort.isConnected()) {
             String comPort = (String) getThing().getConfiguration().get("port");
-            port = new SerialPort(comPort);
-            port.openPort();
-            port.setParams(112500, 8, 1, 0);
+            serialPort = new NRSerialPort(comPort, 112500);
+            serialPort.connect();
+            OutputStream outStream = serialPort.getOutputStream();
+            output = new OutputStreamWriter(outStream);
+            input = serialPort.getInputStream();
             updateStatus(ThingStatus.ONLINE);
         }
-        return port;
     }
 
     private double toPercent(double decibel) {
@@ -117,15 +129,16 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
             } else if (channelUID.getId().equals(CHANNEL_SOURCE)) {
                 handleSource(channelUID, command);
             }
-        } catch (SerialPortException | CommunicationException e) {
-            port = null;
+        } catch (IOException | CommunicationException e) {
+            serialPort.disconnect();
+            serialPort = null;
             updateStatus(ThingStatus.OFFLINE);
             logger.error("Serial port error: " + e.getMessage());
             on = false;
         }
     }
 
-    private void handleMute(ChannelUID channelUID, Command command) throws CommunicationException, SerialPortException {
+    private void handleMute(ChannelUID channelUID, Command command) throws CommunicationException, IOException {
         if (command != null) {
             if (command instanceof OnOffType) {
                 if (command.equals(OnOffType.ON)) {
@@ -140,8 +153,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
         }
     }
 
-    private void handleSource(ChannelUID channelUID, Command command)
-            throws SerialPortException, CommunicationException {
+    private void handleSource(ChannelUID channelUID, Command command) throws CommunicationException, IOException {
         if (command != null) {
             if (command instanceof RefreshType) {
                 updateState(channelUID, new StringType(Integer.toString(askInt("Main.Source"))));
@@ -151,7 +163,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
         }
     }
 
-    private void handlePower(ChannelUID channelUID, Command command) throws SerialPortException {
+    private void handlePower(ChannelUID channelUID, Command command) throws IOException, CommunicationException {
         System.out.println("Setting power to: " + command.toString());
         if (command != null) {
             if (command instanceof OnOffType) {
@@ -166,8 +178,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
         }
     }
 
-    private void handleVolume(ChannelUID channelUID, Command command)
-            throws SerialPortException, CommunicationException {
+    private void handleVolume(ChannelUID channelUID, Command command) throws CommunicationException, IOException {
         if (command != null) {
             if (command instanceof IncreaseDecreaseType && command == IncreaseDecreaseType.INCREASE) {
                 adjustValue("Main.Volume", "+");
@@ -181,179 +192,103 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
         }
     }
 
-    public void off() throws SerialPortException {
-        getSerialPort().readBytes();
-        getSerialPort().writeBytes("\rMain.Power=Off\r".getBytes());
-        getSerialPort().readBytes();
+    public void off() throws IOException, CommunicationException {
+        connect();
+        setValue("Main.Power", "Off");
     }
 
-    public void on() throws SerialPortException {
+    public void on() throws IOException {
+        connect();
         int attempts = 0;
         do {
-            getSerialPort().readBytes();
-            getSerialPort().writeBytes("\rMain.Power=On\r".getBytes());
+            output.write("\rMain.Power=On\r");
+            output.flush();
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                return;
             }
-            getSerialPort().readBytes();
         } while (!isOn() && attempts++ < 3);
         if (isOn()) {
             refreshAll();
         }
     }
 
-    public boolean isOn() {
+    public boolean isOn() throws IOException {
         String power;
         try {
             power = askString("Main.Power", true);
-        } catch (SerialPortException | CommunicationException e) {
+        } catch (CommunicationException e) {
             power = "";
         }
         on = "On".equals(power);
         return on;
     }
 
-    private String askString(String key, boolean ignorePowerState) throws SerialPortException, CommunicationException {
+    private String askString(String key, boolean ignorePowerState) throws CommunicationException, IOException {
+        String answer = requestResponse(key + "?", ignorePowerState);
+        String[] parts = answer.split("=");
+        if (parts.length == 2) {
+            updateStatus(ThingStatus.ONLINE);
+            return parts[1];
+        }
+        throw new CommunicationException("Invalid response from receiver");
+    }
+
+    private int askInt(String key) throws CommunicationException, IOException {
+        try {
+            return Integer.parseInt(askString(key, false));
+        } catch (NumberFormatException e) {
+            throw new CommunicationException("Not a number received", e);
+        }
+    }
+
+    private void setValue(String key, String value) throws CommunicationException, IOException {
+        String answer = requestResponse(key + "=" + value, false);
+        String[] parts = answer.split("=");
+        if (parts.length != 2) {
+            throw new CommunicationException("Invalid response from receiver: (length=" + Integer.toString(parts.length)
+                    + ") key \"" + parts[0] + "\" answer " + answer + " expected \"" + key + "\"");
+        }
+    }
+
+    private String adjustValue(String key, String operator) throws CommunicationException, IOException {
+        String answer = requestResponse(key + operator, false);
+        String[] parts = answer.split("=");
+        if (parts.length == 2 && key.equals(parts[0])) {
+            return parts[1];
+        } else {
+            throw new CommunicationException("Got the wrong answer: " + answer);
+        }
+    }
+
+    private String requestResponse(String request, boolean ignorePowerState)
+            throws IOException, CommunicationException {
         if (!on && !ignorePowerState && !isOn()) {
             throw new CommunicationException("Receiver is off");
         }
-        SerialPort port = getSerialPort();
-        port.readBytes();
-        port.writeBytes(("\r" + key + "?\r").getBytes());
-        int waiting = 0;
-        while (port.getInputBufferBytesCount() == 0 && waiting < 10) {
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-            }
-            ++waiting;
+        connect();
+        while (input.available() > 0) {
+            char c = (char) input.read();
+            System.err.println("FLUSHING '" + c + "'");
         }
-        if (port.getInputBufferBytesCount() == 0) {
-            throw new CommunicationException("Communication timeout");
-        }
-        byte[] data = port.readBytes(1);
-
-        if (data[0] == '\r') {
+        output.write("\r" + request + "\r");
+        output.flush();
+        int data = input.read();
+        if (data == '\r') {
             boolean end = false;
             String answer = "";
             while (!end) {
-                data = port.readBytes(1);
-                if (data == null || data.length == 0 || data[0] == '\r') {
+                data = input.read();
+                if (data == '\r') {
                     end = true;
+                } else if (data == -1) {
+                    throw new CommunicationException("Unexpected end of input");
                 } else {
-                    answer += new String(data);
+                    answer += (char) data;
                 }
             }
-            port.readBytes();
-            String[] parts = answer.split("=");
-            if (parts.length == 2) {
-                updateStatus(ThingStatus.ONLINE);
-                return parts[1];
-            }
-        }
-        throw new CommunicationException("Invalid response from receiver");
-    }
-
-    private int askInt(String key) throws CommunicationException, SerialPortException {
-        if (!on && !isOn()) {
-            throw new CommunicationException("Receiver is off");
-        }
-        SerialPort port = getSerialPort();
-        port.readBytes();
-        port.writeBytes(("\r" + key + "?\r").getBytes());
-        byte[] data = port.readBytes(1);
-        if (data[0] == '\r') {
-            boolean end = false;
-            String answer = "";
-            while (!end) {
-                data = port.readBytes(1);
-                if (data == null || data.length == 0 || data[0] == '\r') {
-                    end = true;
-                } else {
-                    answer += new String(data);
-                }
-            }
-            port.readBytes();
-
-            String[] parts = answer.split("=");
-            if (parts.length == 2 && key.equals(parts[0])) {
-                return Integer.parseInt(parts[1]);
-            } else {
-                System.err.println("Ugyldig svar fra forsterker: " + answer);
-            }
-        } else {
-            System.err.println("Ugyldig svar fra forsterker: " + data[0]);
-        }
-        throw new CommunicationException("Invalid response from receiver");
-    }
-
-    private void setValue(String key, String value) throws CommunicationException, SerialPortException {
-        if (!on && !isOn()) {
-            throw new CommunicationException("Receiver is off");
-        }
-        SerialPort port = getSerialPort();
-        port.readBytes();
-        port.writeBytes(("\r" + key + "=" + value + "\r").getBytes());
-
-        byte[] data = port.readBytes(1);
-
-        if (data[0] == '\r') {
-            boolean end = false;
-            String answer = "";
-            while (!end) {
-                data = port.readBytes(1);
-                if (data == null || data.length == 0 || data[0] == '\r') {
-                    end = true;
-                } else {
-                    answer += new String(data);
-                }
-            }
-            port.readBytes();
-
-            String[] parts = answer.split("=");
-            if (parts.length != 2) {
-                throw new CommunicationException(
-                        "Invalid response from receiver: (length=" + Integer.toString(parts.length) + ") key \""
-                                + parts[0] + "\" answer " + answer + " expected \"" + key + "\"");
-            }
-        } else {
-            throw new CommunicationException("Invalid response from receiver" + data[0]);
-        }
-    }
-
-    private String adjustValue(String key, String operator) throws CommunicationException, SerialPortException {
-        if (!on && !isOn()) {
-            throw new CommunicationException("Receiver is off");
-        }
-        SerialPort port = getSerialPort();
-        port.readBytes();
-        port.writeBytes(("\r" + key + operator + "\r").getBytes());
-
-        byte[] data = port.readBytes(1);
-        // System.out.println();
-        if (data[0] == '\r') {
-            boolean end = false;
-            String answer = "";
-            while (!end) {
-                data = port.readBytes(1);
-                if (data == null || data.length == 0 || data[0] == '\r') {
-                    end = true;
-                } else {
-                    answer += new String(data);
-                }
-            }
-            port.readBytes();
-
-            String[] parts = answer.split("=");
-            if (parts.length == 2 && key.equals(parts[0])) {
-                return parts[1];
-            } else {
-
-                System.out.println("Got the wrong answer: " + answer);
-            }
-        } else {
-            System.out.println("Got the wrong byte: " + Integer.toString(data[0]));
+            return answer;
         }
         throw new CommunicationException("Invalid response from receiver");
     }
