@@ -60,8 +60,8 @@
     <module>org.openhab.binding.pulseaudio</module>
     <module>org.openhab.binding.rme</module>
     <module>org.openhab.binding.rfxcom</module>
-    <module>org.openhab.binding.rotelra1x</module>
     <module>org.openhab.binding.rfxcom.test</module>
+    <module>org.openhab.binding.rotelra1x</module>
     <module>org.openhab.binding.russound</module>
     <module>org.openhab.binding.samsungtv</module>
     <module>org.openhab.binding.silvercrestwifisocket</module>

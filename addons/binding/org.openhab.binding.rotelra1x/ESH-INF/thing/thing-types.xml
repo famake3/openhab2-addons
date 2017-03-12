@@ -4,7 +4,6 @@
         xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
         xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-    <!-- Sample Thing Type -->
     <thing-type id="amp">
         <label>Rotel Amplifier</label>
         <description>Rotel RA11 / RA12 stereo amplifier.</description>
@@ -38,7 +37,6 @@
         
     </thing-type>
 
-    <!-- Sample Channel Type -->
     <channel-type id="power">
         <item-type>Switch</item-type>
         <label>Power</label>
@@ -58,6 +56,7 @@
         <label>Volume</label>
         <description>Volume control (%)</description>
         <category>SoundVolume</category>
+        <state pattern="%d %%"></state>
     </channel-type>
     
     <channel-type id="source">
