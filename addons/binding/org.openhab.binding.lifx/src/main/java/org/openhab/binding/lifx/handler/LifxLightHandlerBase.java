@@ -50,7 +50,6 @@ public abstract class LifxLightHandlerBase extends BaseThingHandler implements D
     public void initialize() {
         try {
             protocol = LanProtocolService.getInstance();
-            updateStatus(ThingStatus.INITIALIZING);
             device = protocol.registerDeviceListener(deviceId(), this);
             protocol.queryLightState(device);
             startStatePolling();
