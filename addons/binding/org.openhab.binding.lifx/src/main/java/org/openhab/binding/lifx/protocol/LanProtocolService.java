@@ -203,8 +203,8 @@ public class LanProtocolService implements Runnable, PacketSender {
         discoveryListeners.remove(dl);
     }
 
-    public void supersedeCommand(LifxProtocolDevice device, short type) {
-        for (Iterator<Map.Entry<Byte, RequestResponseHandler>> it = device.requestResponseHandlers.entrySet()
+    public synchronized void supersedeCommand(LifxProtocolDevice device, short type) {
+        for (Iterator< Map.Entry<Byte, RequestResponseHandler>>it = device.requestResponseHandlers.entrySet()
                 .iterator(); it.hasNext();) {
             Map.Entry<Byte, RequestResponseHandler> entry = it.next();
             if (entry.getValue().getRequestPacket().getMessageType() == type) {
@@ -233,24 +233,25 @@ public class LanProtocolService implements Runnable, PacketSender {
         sendAndExpectReply(device, TYPE_LIGHT_SET_POWER, true, payload.array());
     }
 
-    public synchronized void queryLightState(LifxProtocolDevice device) {
+    public void queryLightState(LifxProtocolDevice device) {
         sendAndExpectReply(device, TYPE_LIGHT_GET, false, new byte[0]);
     }
 
-    public synchronized void queryLabel(LifxProtocolDevice device) {
+    public void queryLabel(LifxProtocolDevice device) {
         sendAndExpectReply(device, TYPE_GET_LABEL, false, new byte[0]);
     }
 
-    public synchronized void queryVersion(LifxProtocolDevice device) {
+    public void queryVersion(LifxProtocolDevice device) {
         sendAndExpectReply(device, TYPE_GET_VERSION, false, new byte[0]);
     }
 
     private synchronized void sendAndExpectReply(LifxProtocolDevice device, short type, boolean responseTypeAck,
             byte[] payload) {
-        byte seq = device.sequenceNumber++;
+        byte seq = device.sequenceNumber;
         if (seq == 0) {
-            seq = device.sequenceNumber++; // We reserve seq 0 for discovery
+            seq++; // We reserve seq 0 for discovery
         }
+        device.sequenceNumber = (byte) ((seq & 0xFFL) + 1);
         LanProtocolPacket cmdPacket = new LanProtocolPacket(clientId, false, responseTypeAck, !responseTypeAck, seq,
                 device.id, type, payload);
         RequestResponseHandler rrHandler = new RequestResponseHandler(device, cmdPacket, this);
@@ -258,6 +259,7 @@ public class LanProtocolService implements Runnable, PacketSender {
         rrHandler.start();
     }
 
+    @Override
     public synchronized void sendDiscoveryPacket() throws IOException {
         LanProtocolPacket discoveryPacket = new LanProtocolPacket(clientId, true, false, true, (byte) 0, 0,
                 TYPE_GET_SERVICE, new byte[] {});
@@ -265,7 +267,7 @@ public class LanProtocolService implements Runnable, PacketSender {
     }
 
     @Override
-    public void send(InetAddress destination, LanProtocolPacket packet) throws IOException {
+    public synchronized void send(InetAddress destination, LanProtocolPacket packet) throws IOException {
         byte[] packetData = packet.getData();
         DatagramPacket datagramPacket = new DatagramPacket(packetData, packetData.length);
         datagramPacket.setPort(LIFX_PORT);
