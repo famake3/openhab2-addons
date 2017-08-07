@@ -1,13 +1,19 @@
 package org.openhab.binding.artnet.infrastructure;
 
-public class Layer {
+public abstract class Layer {
 
     public final Model model;
-    public byte[] data;
+    public final byte[] data;
+
+    public Layer() {
+        model = null;
+        data = null;
+    }
 
     public Layer(Model model) {
         this.model = model;
         this.data = new byte[model.getSize()];
     }
 
+    public abstract boolean update(long timeCode);
 }
