@@ -1,4 +1,4 @@
-package org.openhab.binding.artnet.internal;
+package org.openhab.binding.artnet.infrastructure;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

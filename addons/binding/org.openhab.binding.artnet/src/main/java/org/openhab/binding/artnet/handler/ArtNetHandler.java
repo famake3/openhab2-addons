@@ -24,7 +24,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.openhab.binding.artnet.internal.ArtNetSender;
+import org.openhab.binding.artnet.infrastructure.ArtNetSender;
 
 /**
  * The {@link ArtNetHandler} is responsible for handling commands, which are
