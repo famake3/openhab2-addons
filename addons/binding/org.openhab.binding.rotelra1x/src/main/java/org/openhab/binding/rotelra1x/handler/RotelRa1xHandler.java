@@ -81,18 +81,18 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
     private void connect() throws IOException, ConfigurationError {
         // Note: connect may leave the port open even if it throws an exception.
         if (serialPort == null) {
-            RXTXPort newPort;
             String portName = (String) getThing().getConfiguration().get("port");
             if (portName == null) {
                 throw new ConfigurationError("Serial port name not configured");
             }
             try {
-                newPort = new RXTXPort(portName);
+                serialPort = new RXTXPort(portName);
             } catch (PortInUseException e) {
                 throw new IOException(e);
             }
             try {
-                newPort.setSerialPortParams(BAUD, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                serialPort.setSerialPortParams(BAUD, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
+                        SerialPort.PARITY_NONE);
             } catch (UnsupportedCommOperationException e) {
                 serialPort.close();
                 throw new IOException(e);
