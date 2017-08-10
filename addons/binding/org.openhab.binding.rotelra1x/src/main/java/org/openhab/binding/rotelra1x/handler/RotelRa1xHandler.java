@@ -43,12 +43,12 @@ import gnu.io.UnsupportedCommOperationException;
  */
 public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
 
-    private final static int BAUD = 115200;
-    private int maximumVolume = 0;
+    private static final int BAUD = 115200;
+    private int maximumVolume;
     private RXTXPort serialPort;
 
-    private boolean exit = false;
-    private volatile boolean power = false;
+    private boolean exit;
+    private volatile boolean power;
 
     private Logger logger = LoggerFactory.getLogger(RotelRa1xHandler.class);
 
@@ -93,7 +93,7 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
             try {
                 newPort.setSerialPortParams(BAUD, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
             } catch (UnsupportedCommOperationException e) {
-                newPort.close();
+                serialPort.close();
                 throw new IOException(e);
             }
 
@@ -107,7 +107,6 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
             // Seems we need to wait a bit after initialization for the channels to
             // be ready to accept updates, so deferring input loop by 1 sec.
             scheduler.schedule(this, 1, TimeUnit.SECONDS);
-            serialPort = newPort;
         }
     }
 
@@ -182,7 +181,7 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
                     send("get_volume!");
                     send("get_current_source!");
                 } catch (IOException | ConfigurationError e) {
-                    logger.warn("Failed to request volume and source after powering on.", e);
+                    logger.info("Failed to request volume and source after powering on.", e);
                 }
             }
         }, 0, TimeUnit.SECONDS);
@@ -222,7 +221,7 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
                         power = false;
                     }
                 } else if ("dimmer".equals(command)) {
-                    updateState(getThing().getChannel("dimmer").getUID(), readDimmer());
+                    updateState(getThing().getChannel("brightness").getUID(), readDimmer());
                 } else if ("freq".equals(command)) {
                     updateState(getThing().getChannel("frequency").getUID(), readFrequency());
                 } else if ("source".equals(command)) {
@@ -294,8 +293,8 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
                 }
             } else if ("volume".equals(channelUID.getId())) {
                 handleVolume(command);
-            } else if ("dimmer".equals(channelUID.getId())) {
-                handleDimmer(command);
+            } else if ("brightness".equals(channelUID.getId())) {
+                handleBrightness(command);
             } else if ("source".equals(channelUID.getId())) {
                 if (command instanceof StringType) {
                     send(command.toString() + "!");
@@ -327,7 +326,7 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
         }
     }
 
-    private void handleDimmer(Command command) throws IOException, ConfigurationError {
+    private void handleBrightness(Command command) throws IOException, ConfigurationError {
         // Invert the scale so 100% is brightest
         if (command instanceof PercentType) {
             double value = 6 - Math.floor(((PercentType) command).doubleValue() * 6 / 100.0);
