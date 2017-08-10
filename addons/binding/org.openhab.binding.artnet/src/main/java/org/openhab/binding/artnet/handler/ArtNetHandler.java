@@ -10,6 +10,7 @@ package org.openhab.binding.artnet.handler;
 import static org.openhab.binding.artnet.ArtNetBindingConstants.COLOR;
 
 import java.awt.Color;
+import java.awt.color.ColorSpace;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.SocketException;
@@ -150,13 +151,13 @@ public class ArtNetHandler extends BaseThingHandler {
         } else {
             Color value = Color.getHSBColor((float) (h / 360.0), (float) (s / 100.0), (float) (b / 100.0));
             float[] moo = new float[3];
-            // value.getColorComponents(ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB), moo);
-            red = value.getRed();
-            green = value.getGreen();
-            blue = value.getBlue();
-            // red = moo[0] * 256;
-            // green = moo[1] * 256;
-            // blue = moo[2] * 256;
+            value.getColorComponents(ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB), moo);
+            // red = value.getRed();
+            // green = value.getGreen();
+            // blue = value.getBlue();
+            red = moo[0] * 256;
+            green = moo[1] * 256;
+            blue = moo[2] * 256;
             on = (red + green + blue) > 0;
         }
 
