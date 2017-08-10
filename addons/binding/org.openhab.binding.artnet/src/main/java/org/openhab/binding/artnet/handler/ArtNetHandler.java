@@ -25,7 +25,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.openhab.binding.artnet.internal.ArtNetSender;
+import org.openhab.binding.artnet.infrastructure.ArtNetSender;
 
 /**
  * The {@link ArtNetHandler} is responsible for handling commands, which are
@@ -183,24 +183,6 @@ public class ArtNetHandler extends BaseThingHandler {
         }
     }
 
-    /*
-     * private byte[] getData(int num_pixels, double r, double g, double b) {
-     * byte[] data = new byte[3 * num_pixels];
-     * int ir = (int) r, ig = (int) g, ib = (int) b;
-     * double rx = r - ir, gx = g - ig, bx = b - ib;
-     * double accR = 0.0, accG = 0.0, accB = 0.0;
-     * for (int i = 0; i < num_pixels; ++i) {
-     * int incR = (int) accR, incG = (int) accG, incB = (int) accB;
-     * accR += (rx - incR);
-     * accG += (gx - incG);
-     * accB += (bx - incB);
-     * data[i * 3] = (byte) (ir + incR);
-     * data[i * 3 + 1] = (byte) (ig + incG);
-     * data[i * 3 + 2] = (byte) (ib + incB);
-     * }
-     * return data;
-     * }
-     */
     private byte[] getData(int num_pixels, double r, double g, double b) {
         int ir = (int) r, ig = (int) g, ib = (int) b;
         byte[] data = new byte[3 * num_pixels];
