@@ -44,6 +44,7 @@ import gnu.io.UnsupportedCommOperationException;
 public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
 
     private static final int BAUD = 115200;
+    private static final long ERROR_RETRY_DELAY_MS = 60000;
     private int maximumVolume;
     private RXTXPort serialPort;
 
@@ -62,6 +63,9 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
         exit = false;
         try {
             connect();
+            // Seems we need to wait a bit after initialization for the channels to
+            // be ready to accept updates, so deferring input loop by 4 sec.
+            scheduler.schedule(this, 4, TimeUnit.SECONDS);
         } catch (IOException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             disconnect();
@@ -99,14 +103,11 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
 
             // Don't need continuous updates of the display, we still get updates when
             // the volume, etc., changes
-            sendForce("display_update_manual!");
+            serialPort.getOutputStream().write("display_update_manual!".getBytes(StandardCharsets.US_ASCII));
             updateStatus(ThingStatus.ONLINE);
-            sendForce("get_current_power!");
+            serialPort.getOutputStream().write("get_current_power!".getBytes(StandardCharsets.US_ASCII));
             updateState(getThing().getChannel("mute").getUID(), OnOffType.OFF);
-            updateState(getThing().getChannel("dimmer").getUID(), new PercentType(100));
-            // Seems we need to wait a bit after initialization for the channels to
-            // be ready to accept updates, so deferring input loop by 1 sec.
-            scheduler.schedule(this, 1, TimeUnit.SECONDS);
+            updateState(getThing().getChannel("brightness").getUID(), new PercentType(100));
         }
     }
 
@@ -189,8 +190,11 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
 
     @Override
     public void run() {
-        while (serialPort != null && !exit) {
+        while (!exit) {
             try {
+                if (serialPort == null) {
+                    connect();
+                }
                 String command = readCommand();
                 if ("volume".equals(command)) {
                     PercentType vol = readVolume();
@@ -246,9 +250,14 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
 
             } catch (IOException e) {
                 if (serialPort != null) {
-                    logger.info("Input error while receiving data from amplifier", e);
+                    logger.info("Input error while receiving data from amplifier, waiting...", e);
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
                     disconnect();
+                    try {
+                        Thread.sleep(ERROR_RETRY_DELAY_MS);
+                    } catch (InterruptedException e1) {
+                        return;
+                    }
                 }
             } catch (Exception e) {
                 if (serialPort != null) { // If serial port is closed, it's set to null,
@@ -257,6 +266,11 @@ public class RotelRa1xHandler extends BaseThingHandler implements Runnable {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE,
                             "Unknown error while processing input: " + e.getMessage());
                     disconnect();
+                    try {
+                        Thread.sleep(ERROR_RETRY_DELAY_MS);
+                    } catch (InterruptedException e1) {
+                        return;
+                    }
                 }
             }
         }
