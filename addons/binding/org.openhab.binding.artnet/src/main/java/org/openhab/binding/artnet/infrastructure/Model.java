@@ -4,7 +4,8 @@ import java.util.ArrayList;
 
 public class Model {
 
-    private ArrayList<LinearSegment> segments;
+    public ArrayList<LinearSegment> segments;
+    public ArrayList<Host> targets;
 
     public int getSize() {
         return 0;

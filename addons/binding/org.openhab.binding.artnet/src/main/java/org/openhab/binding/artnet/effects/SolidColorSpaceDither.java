@@ -15,13 +15,11 @@ public class SolidColorSpaceDither extends Layer {
     }
 
     @Override
-    public boolean update(long timeCode) {
+    public Layer update(long timeCode) {
         if (!generated) {
             generateRandom(data, color.r, color.g, color.b);
-            return true;
-        } else {
-            return false;
         }
+        return null;
     }
 
     private byte[] generateRandom(byte[] data, double r, double g, double b) {

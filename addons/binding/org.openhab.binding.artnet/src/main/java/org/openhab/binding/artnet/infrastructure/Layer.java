@@ -15,5 +15,12 @@ public abstract class Layer {
         this.data = new byte[model.getSize()];
     }
 
-    public abstract boolean update(long timeCode);
+    /**
+     * Layer update function. Returns a layer to use in the current
+     * refresh cycle. Normally returns self.
+     *
+     * @param timeCode Monotonically increasing number representing milliseconds
+     * @return Layer to use for ext frame, or null if the animation is finished.
+     */
+    public abstract Layer update(long timeCode);
 }

@@ -5,9 +5,9 @@ import org.openhab.binding.artnet.infrastructure.Layer;
 public class Sky extends Layer {
 
     @Override
-    public boolean update(long timeCode) {
+    public Layer update(long timeCode) {
         // TODO Auto-generated method stub
-        return false;
+        return null;
     }
 
 }
