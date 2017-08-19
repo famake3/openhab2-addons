@@ -20,7 +20,7 @@ public class OutputLoop extends Thread {
         while (!exit) {
             long now = System.currentTimeMillis();
             lastSendTime = now;
-            topLayer = topLayer.update(now);
+            // topLayer = topLayer.update(now);
 
             try {
                 Thread.sleep(frameTime + lastSendTime - now);

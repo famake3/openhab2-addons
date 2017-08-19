@@ -1,11 +1,11 @@
 package org.openhab.binding.artnet.infrastructure;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Model {
 
-    public ArrayList<LinearSegment> segments;
-    public ArrayList<Host> targets;
+    public List<Fixture> fixtures;
+    public List<Device> devices;
 
     public int getSize() {
         return 0;

@@ -1,5 +1,5 @@
 package org.openhab.binding.artnet.infrastructure;
 
-public class Host {
+public class Fixture {
 
 }
