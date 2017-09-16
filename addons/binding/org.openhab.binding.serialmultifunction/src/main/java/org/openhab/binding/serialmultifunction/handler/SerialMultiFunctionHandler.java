@@ -7,6 +7,9 @@
  */
 package org.openhab.binding.serialmultifunction.handler;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,8 +22,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jssc.SerialPort;
-import jssc.SerialPortException;
+import gnu.io.NRSerialPort;
 
 /**
  * The {@link SerialMultiFunctionHandler} is responsible for handling commands, which are
@@ -32,10 +34,12 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
 
     private final Logger logger = LoggerFactory.getLogger(SerialMultiFunctionHandler.class);
 
-    private SerialPort serialPort;
+    private NRSerialPort serialPort;
     private final static int BAUD = 9600;
     private boolean connected = false;
     private Map<Integer, FunctionReceiver> receivers;
+    private OutputStream output;
+    private InputStream input;
 
     public SerialMultiFunctionHandler(Bridge thing) {
         super(thing);
@@ -44,15 +48,22 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
 
     @Override
     public void initialize() {
-        String portName = (String) getThing().getConfiguration().get("port");
-        if (portName == null) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
-        } else {
-            serialPort = new SerialPort(portName);
-            try {
-                connect();
-            } catch (SerialPortException e) {
-                logger.error("Serial port setup error!", e);
+        connect();
+    }
+
+    private void connect() {
+        if (!connected) {
+            String portName = (String) getThing().getConfiguration().get("port");
+            if (portName == null) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
+            } else {
+                serialPort = new NRSerialPort(portName, BAUD);
+                connected = serialPort.connect();
+                output = serialPort.getOutputStream();
+                input = serialPort.getInputStream();
+                Thread receiver = new Thread(this);
+                receiver.start();
+                updateStatus(ThingStatus.ONLINE);
             }
         }
     }
@@ -60,23 +71,9 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
     @Override
     public void dispose() {
         if (connected && serialPort != null) {
-            try {
-                serialPort.closePort();
-            } catch (SerialPortException e) {
-                logger.error("Failed to close the serial port", e);
-            }
+            serialPort.disconnect();
         }
         connected = false;
-    }
-
-    private void connect() throws SerialPortException {
-        if (!connected) {
-            connected = serialPort.openPort();
-            serialPort.setParams(BAUD, 8, 1, 0);
-            Thread receiver = new Thread(this);
-            receiver.start();
-            updateStatus(ThingStatus.ONLINE);
-        }
     }
 
     @Override
@@ -88,18 +85,16 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
     }
 
     public void send(int functionId, byte[] data) {
+        connect();
         try {
-            connect();
-            serialPort.writeBytes(new byte[] { (byte) '!', (byte) functionId, (byte) data.length });
-            serialPort.writeBytes(data);
-        } catch (SerialPortException e) {
+            output.write(new byte[] { (byte) '!', (byte) functionId, (byte) data.length });
+            output.write(data);
+            output.flush();
+        } catch (IOException e) {
             connected = false;
             logger.error("Error while writing to serial port", e);
-            try {
-                serialPort.closePort();
-            } catch (SerialPortException e2) {
-                logger.error("Additionally, failed to close the serial port", e2);
-            }
+            serialPort.disconnect();
+            serialPort = null;
             updateStatus(ThingStatus.OFFLINE);
         }
     }
@@ -109,10 +104,13 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
         try {
             Thread.sleep(5000); // Seems we need to wait a little to be able to update state
             while (connected) {
-                while (serialPort.readBytes(1)[0] != '!') {
+                while (input.read() != '!') {
                     ;
                 }
-                byte[] header = serialPort.readBytes(2);
+                byte[] header = new byte[2];
+                if (input.read(header) != 2) {
+                    continue;
+                }
                 int function = header[0] & 0xFF;
                 FunctionReceiver receiver = receivers.get(function);
                 int length = header[1] & 0xFF;
@@ -120,22 +118,22 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
                     if (length > receiver.getMaxMessageSize()) {
                         continue; // Protect against corrupted data
                     }
-                    byte[] data = serialPort.readBytes(length);
-                    receiver.receivedUpdate(data);
+                    byte[] data = new byte[length];
+                    int n_read = input.read(data);
+                    if (n_read == length) {
+                        receiver.receivedUpdate(data);
+                    }
                 } else {
                     // For unknown codes, we'll read up to 8 data bytes (works for most cases, will re-sync)
-                    byte[] data = serialPort.readBytes(Math.min(length, 8));
+                    byte[] data = new byte[Math.min(length, 8)];
+                    input.read(data);
                     System.out.println("Unknown function " + function + " with data: " + bytesToHex(data));
                 }
             }
-        } catch (SerialPortException | InterruptedException e) {
+        } catch (InterruptedException | IOException e) {
             connected = false;
             logger.error("Error while reading from serial port (or waiting)", e);
-            try {
-                serialPort.closePort();
-            } catch (SerialPortException e2) {
-                logger.error("Additionally, there was an error while closing the serial port", e2);
-            }
+            serialPort.disconnect();
             updateStatus(ThingStatus.OFFLINE);
         }
     }
@@ -151,4 +149,5 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
         }
         return new String(hexChars);
     }
+
 }
