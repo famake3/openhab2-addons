@@ -11,6 +11,7 @@ import static org.openhab.binding.benqprojector.BenqProjectorBindingConstants.PO
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
@@ -66,7 +67,7 @@ public class BenqProjectorHandler extends BaseThingHandler implements Runnable {
         serialPort.disconnect();
     }
 
-    private boolean isOn() throws CommunicationException, IOException {
+    private synchronized boolean isOn() throws CommunicationException, IOException {
         connect();
         output.write("X000X");
         output.flush();
@@ -77,11 +78,7 @@ public class BenqProjectorHandler extends BaseThingHandler implements Runnable {
         while (numRead < expected.length()) {
             int b = input.read();
             if (b == -1) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    return false;
-                }
+                return false;
             } else {
                 reply[numRead++] = (char) b;
             }
@@ -91,7 +88,7 @@ public class BenqProjectorHandler extends BaseThingHandler implements Runnable {
             updateStatus(ThingStatus.ONLINE);
         } else {
             on = false;
-            throw new CommunicationException("Unexpected reply from projector");
+            // throw new CommunicationException("Unexpected reply from projector");
         }
         return on;
     }
@@ -104,7 +101,7 @@ public class BenqProjectorHandler extends BaseThingHandler implements Runnable {
         command("X002X", "X002XX0_2X");
     }
 
-    private void command(String cmd, String expectedReply) throws CommunicationException, IOException {
+    private synchronized void command(String cmd, String expectedReply) throws CommunicationException, IOException {
         connect();
 
         // System.out.println("Sending command");
@@ -119,9 +116,11 @@ public class BenqProjectorHandler extends BaseThingHandler implements Runnable {
             try {
                 b = input.read();
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new CommunicationException("Input error", e);
+            }
+            if (b == -1) {
                 if (numTries-- == 0) {
-                    throw new CommunicationException("Input error", e);
+                    throw new CommunicationException("Input timeout after reading " + numRead + ".");
                 }
                 try {
                     Thread.sleep(1000);
@@ -129,13 +128,6 @@ public class BenqProjectorHandler extends BaseThingHandler implements Runnable {
                     return;
                 }
                 continue;
-            }
-            if (b == -1) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    return;
-                }
             } else {
                 reply[numRead++] = (char) b;
             }
@@ -150,10 +142,12 @@ public class BenqProjectorHandler extends BaseThingHandler implements Runnable {
     private synchronized void connect() {
         if (serialPort == null || !serialPort.isConnected()) {
             String comPort = (String) getThing().getConfiguration().get("port");
-            serialPort = new NRSerialPort(comPort, 112500);
+            System.err.println("Opening porn: " + comPort);
+            serialPort = new NRSerialPort(comPort, 115200);
             serialPort.connect();
-            output = new OutputStreamWriter(serialPort.getOutputStream());
             input = serialPort.getInputStream();
+            OutputStream outStream = serialPort.getOutputStream();
+            output = new OutputStreamWriter(outStream);
             updateStatus(ThingStatus.ONLINE);
         }
     }
@@ -165,11 +159,13 @@ public class BenqProjectorHandler extends BaseThingHandler implements Runnable {
                 handlePower(channelUID, command);
             }
         } catch (CommunicationException | IOException e) {
-            serialPort.disconnect();
-            serialPort = null;
-            updateStatus(ThingStatus.OFFLINE);
-            logger.error("Serial port error: " + e.getMessage());
-            on = false;
+            synchronized (this) {
+                serialPort.disconnect();
+                serialPort = null;
+                updateStatus(ThingStatus.OFFLINE);
+                logger.error("Serial port error: " + e.getMessage());
+                on = false;
+            }
         }
     }
 

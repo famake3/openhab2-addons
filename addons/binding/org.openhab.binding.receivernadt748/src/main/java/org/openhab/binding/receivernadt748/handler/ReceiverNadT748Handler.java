@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -38,7 +40,7 @@ import gnu.io.NRSerialPort;
  *
  * @author Mikael Aasen - Initial contribution
  */
-public class ReceiverNadT748Handler extends BaseThingHandler {
+public class ReceiverNadT748Handler extends BaseThingHandler implements Runnable {
 
     private Logger logger = LoggerFactory.getLogger(ReceiverNadT748Handler.class);
 
@@ -52,7 +54,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
     }
 
     @Override
-    public void initialize() {
+    public synchronized void initialize() {
         try {
             ChannelUID channelUID = getThing().getChannel(CHANNEL_POWER).getUID();
             boolean powerOn = isOn();
@@ -71,7 +73,11 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
         } catch (IOException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
         }
-
+        BigDecimal pollingInterval = (BigDecimal) getThing().getConfiguration().get("polling-interval");
+        if (pollingInterval != null && pollingInterval.longValue() != 0) {
+            scheduler.scheduleAtFixedRate(this, pollingInterval.longValue(), pollingInterval.longValue(),
+                    TimeUnit.SECONDS);
+        }
     }
 
     private void refreshAll() throws IOException {
@@ -100,7 +106,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
     private synchronized void connect() {
         if (serialPort == null || !serialPort.isConnected()) {
             String comPort = (String) getThing().getConfiguration().get("port");
-            serialPort = new NRSerialPort(comPort, 112500);
+            serialPort = new NRSerialPort(comPort, 115200);
             serialPort.connect();
             OutputStream outStream = serialPort.getOutputStream();
             output = new OutputStreamWriter(outStream);
@@ -187,7 +193,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
             } else if (command instanceof DecimalType) {
                 setValue("Main.Volume", Integer.toString((int) toDecibel(Double.parseDouble(command.toString()))));
             } else if (command instanceof RefreshType) {
-                updateState(channelUID, PercentType.valueOf(Double.toString(toPercent(askInt("Main.Volume")))));
+                updateState(channelUID, PercentType.valueOf(Integer.toString((int) toPercent(askInt("Main.Volume")))));
             }
         }
     }
@@ -197,7 +203,7 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
         setValue("Main.Power", "Off");
     }
 
-    public void on() throws IOException {
+    public synchronized void on() throws IOException {
         connect();
         int attempts = 0;
         do {
@@ -262,15 +268,14 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
         }
     }
 
-    private String requestResponse(String request, boolean ignorePowerState)
+    private synchronized String requestResponse(String request, boolean ignorePowerState)
             throws IOException, CommunicationException {
         if (!on && !ignorePowerState && !isOn()) {
             throw new CommunicationException("Receiver is off");
         }
         connect();
         while (input.available() > 0) {
-            char c = (char) input.read();
-            System.err.println("FLUSHING '" + c + "'");
+            input.read();
         }
         output.write("\r" + request + "\r");
         output.flush();
@@ -291,5 +296,22 @@ public class ReceiverNadT748Handler extends BaseThingHandler {
             return answer;
         }
         throw new CommunicationException("Invalid response from receiver");
+    }
+
+    @Override
+    public void run() {
+        ChannelUID channelUID = getThing().getChannel(CHANNEL_POWER).getUID();
+        try {
+            boolean power = isOn();
+            updateStatus(ThingStatus.ONLINE);
+            updateState(channelUID, power ? OnOffType.ON : OnOffType.OFF);
+            if (power) {
+                refreshAll();
+            }
+        } catch (IOException e) {
+            updateStatus(ThingStatus.OFFLINE);
+            e.printStackTrace();
+        }
+
     }
 }

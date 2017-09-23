@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
-import org.eclipse.smarthome.core.net.NetUtil;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -23,17 +23,17 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
-import org.openhab.binding.homematic.discovery.HomematicDeviceDiscoveryService;
 import org.openhab.binding.homematic.internal.common.HomematicConfig;
 import org.openhab.binding.homematic.internal.communicator.HomematicGateway;
 import org.openhab.binding.homematic.internal.communicator.HomematicGatewayAdapter;
 import org.openhab.binding.homematic.internal.communicator.HomematicGatewayFactory;
+import org.openhab.binding.homematic.internal.discovery.HomematicDeviceDiscoveryService;
 import org.openhab.binding.homematic.internal.misc.HomematicClientException;
 import org.openhab.binding.homematic.internal.model.HmDatapoint;
 import org.openhab.binding.homematic.internal.model.HmDatapointConfig;
 import org.openhab.binding.homematic.internal.model.HmDevice;
-import org.openhab.binding.homematic.type.HomematicTypeGenerator;
-import org.openhab.binding.homematic.type.UidUtils;
+import org.openhab.binding.homematic.internal.type.HomematicTypeGenerator;
+import org.openhab.binding.homematic.internal.type.UidUtils;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +55,12 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
     private HomematicDeviceDiscoveryService discoveryService;
     private ServiceRegistration<?> discoveryServiceRegistration;
 
-    public HomematicBridgeHandler(Bridge bridge, HomematicTypeGenerator typeGenerator) {
+    private String ipv4Address;
+
+    public HomematicBridgeHandler(@NonNull Bridge bridge, HomematicTypeGenerator typeGenerator, String ipv4Address) {
         super(bridge);
         this.typeGenerator = typeGenerator;
+        this.ipv4Address = ipv4Address;
     }
 
     /**
@@ -181,7 +184,7 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
     private HomematicConfig createHomematicConfig() {
         HomematicConfig homematicConfig = getThing().getConfiguration().as(HomematicConfig.class);
         if (homematicConfig.getCallbackHost() == null) {
-            homematicConfig.setCallbackHost(NetUtil.getLocalIpv4HostAddress());
+            homematicConfig.setCallbackHost(this.ipv4Address);
         }
         if (homematicConfig.getXmlCallbackPort() == 0) {
             homematicConfig.setXmlCallbackPort(portPool.getNextPort());
@@ -280,14 +283,6 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
     public void onDeviceDeleted(HmDevice device) {
         discoveryService.deviceRemoved(device);
         updateThing(device);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onServerRestart() {
-        reloadAllDeviceValues();
     }
 
     /**
