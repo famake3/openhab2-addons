@@ -112,6 +112,7 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
                     continue;
                 }
                 int function = header[0] & 0xFF;
+
                 FunctionReceiver receiver = receivers.get(function);
                 int length = header[1] & 0xFF;
                 if (receiver != null) {
@@ -119,9 +120,21 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
                         continue; // Protect against corrupted data
                     }
                     byte[] data = new byte[length];
-                    int n_read = input.read(data);
+                    int n_read = 0;
+                    while (n_read < length) {
+                        int code = input.read(data, n_read, length - n_read);
+                        if (code == -1) {
+                            break;
+                        } else {
+                            n_read += code;
+                        }
+                    }
                     if (n_read == length) {
                         receiver.receivedUpdate(data);
+                    } else {
+
+                        logger.warn("While reading from serial port, expected " + length + " bytes but only read "
+                                + n_read);
                     }
                 } else {
                     // For unknown codes, we'll read up to 8 data bytes (works for most cases, will re-sync)
