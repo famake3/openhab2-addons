@@ -3,10 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: LIFX Binding
 Bundle-SymbolicName: org.openhab.binding.lifx;singleton:=true
 Bundle-Vendor: openHAB
-Bundle-Version: 2.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Version: 2.2.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.openhab.binding.lifx,
  org.openhab.binding.lifx.handler,
  org.eclipse.smarthome.config.core,

@@ -23,6 +23,11 @@
         		<description>Select serial port</description>
         		<default>COM1</default>
         	</parameter>
+        	<parameter name="polling-interval" type="integer">
+                <label>polling Interval</label>
+                <description>Select polling Interval</description>
+                <default>60</default>
+            </parameter>
         </config-description>
     </thing-type>
 
@@ -52,12 +57,17 @@
 		<item-type>String</item-type>
 		<label>Source</label>
 		<description>Select input</description>
-	    <!-- <state>
+	    <state>
             <options>
-                <option value="1">TV</option>
+                <option value="1">PC</option>
                 <option value="2">XBOX</option>
-                <option value="5">PC</option>
+                <option value="3">TV</option>
+                <option value="4">XBOX PX</option>
+                <option value="5">Ipod Menu</option>
+                <option value="6">PC SONOS</option>
+                <option value="7">XBOX SONOS</option>
+                <option value="8">FM Radio</option>
             </options>
-        </state> -->
+        </state>
 	</channel-type>
 </thing:thing-descriptions>

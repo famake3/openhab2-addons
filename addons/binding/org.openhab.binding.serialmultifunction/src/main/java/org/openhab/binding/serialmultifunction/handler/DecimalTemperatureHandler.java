@@ -1,8 +1,6 @@
 package org.openhab.binding.serialmultifunction.handler;
 
 import java.math.BigDecimal;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -15,8 +13,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 
 public class DecimalTemperatureHandler extends BaseThingHandler implements FunctionReceiver {
-
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public DecimalTemperatureHandler(Thing thing) {
         super(thing);
