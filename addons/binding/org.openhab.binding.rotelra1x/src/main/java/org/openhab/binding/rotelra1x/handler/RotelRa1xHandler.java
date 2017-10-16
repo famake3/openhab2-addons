@@ -188,7 +188,7 @@ public class RotelRa1xHandler extends BaseThingHandler {
     }
 
     private void inputLoop() {
-        while (!exit) {
+        while (!exit && !Thread.currentThread().isInterrupted()) {
             try {
                 if (serialPort == null) {
                     connect();
@@ -254,7 +254,7 @@ public class RotelRa1xHandler extends BaseThingHandler {
                         return;
                     }
                 }
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 if (serialPort != null) { // If serial port is closed, it's set to null,
                                           // there is no message here,
                     logger.warn("Unexpected error", e);
