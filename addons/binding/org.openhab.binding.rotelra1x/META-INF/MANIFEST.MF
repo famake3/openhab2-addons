@@ -10,6 +10,7 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.openhab.binding.rotelra1x,
  org.openhab.binding.rotelra1x.handler,
+ org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
