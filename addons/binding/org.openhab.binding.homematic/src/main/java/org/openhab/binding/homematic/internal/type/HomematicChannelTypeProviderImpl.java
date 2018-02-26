@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -30,49 +30,31 @@ public class HomematicChannelTypeProviderImpl implements HomematicChannelTypePro
     private Map<ChannelTypeUID, ChannelType> channelTypesByUID = new HashMap<ChannelTypeUID, ChannelType>();
     private Map<ChannelGroupTypeUID, ChannelGroupType> channelGroupTypesByUID = new HashMap<ChannelGroupTypeUID, ChannelGroupType>();
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<ChannelType> getChannelTypes(Locale locale) {
         return channelTypesByUID.values();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ChannelType getChannelType(ChannelTypeUID channelTypeUID, Locale locale) {
         return channelTypesByUID.get(channelTypeUID);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, Locale locale) {
         return channelGroupTypesByUID.get(channelGroupTypeUID);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<ChannelGroupType> getChannelGroupTypes(Locale locale) {
         return channelGroupTypesByUID.values();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void addChannelType(ChannelType channelType) {
         channelTypesByUID.put(channelType.getUID(), channelType);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void addChannelGroupType(ChannelGroupType channelGroupType) {
         channelGroupTypesByUID.put(channelGroupType.getUID(), channelGroupType);

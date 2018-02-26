@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -75,7 +75,7 @@ public class MeteostickSensorHandler extends BaseThingHandler implements Meteost
 
         // Scheduling a job on each hour to update the last hour rainfall
         long start = 3600 - ((System.currentTimeMillis() % 3600000) / 1000);
-        rainHourlyJob = scheduler.scheduleAtFixedRate(pollingRunnable, start, 3600, TimeUnit.SECONDS);
+        rainHourlyJob = scheduler.scheduleWithFixedDelay(pollingRunnable, start, 3600, TimeUnit.SECONDS);
 
         updateStatus(ThingStatus.UNKNOWN);
     }

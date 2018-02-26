@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -51,30 +51,23 @@ public class HomematicDeviceDiscoveryService extends AbstractDiscoveryService {
         super.activate(null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void deactivate() {
         super.deactivate();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void startScan() {
         logger.debug("Starting Homematic discovery scan");
         loadDevices();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public synchronized void stopScan() {
         logger.debug("Stopping Homematic discovery scan");
-        bridgeHandler.getGateway().cancelLoadAllDeviceMetadata();
+        if (bridgeHandler != null && bridgeHandler.getGateway() != null) {
+            bridgeHandler.getGateway().cancelLoadAllDeviceMetadata();
+        }
         waitForScanFinishing();
         super.stopScan();
     }
@@ -100,7 +93,7 @@ public class HomematicDeviceDiscoveryService extends AbstractDiscoveryService {
      * Starts a thread which loads all Homematic devices connected to the gateway.
      */
     public void loadDevices() {
-        if (scanFuture == null) {
+        if (scanFuture == null && bridgeHandler.getGateway() != null) {
             scanFuture = scheduler.submit(new Runnable() {
 
                 @Override

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,9 +28,6 @@ import org.slf4j.LoggerFactory;
 public class PercentTypeConverter extends AbstractTypeConverter<PercentType> {
     private final Logger logger = LoggerFactory.getLogger(PercentTypeConverter.class);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected Object commandToBinding(Command command, HmDatapoint dp) throws ConverterException {
         if (command.getClass() == IncreaseDecreaseType.class) {
@@ -56,18 +53,12 @@ public class PercentTypeConverter extends AbstractTypeConverter<PercentType> {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean toBindingValidation(HmDatapoint dp, Class<? extends Type> typeClass) {
         return dp.isNumberType() && dp.getMaxValue() != null && dp.getMinValue() != null
                 && dp.getChannel().getType() != null && typeClass.isAssignableFrom(PercentType.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected Object toBinding(PercentType type, HmDatapoint dp) throws ConverterException {
         Double number = (type.doubleValue() / 100) * dp.getMaxValue().doubleValue();
@@ -85,18 +76,12 @@ public class PercentTypeConverter extends AbstractTypeConverter<PercentType> {
         return round(number).doubleValue();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean fromBindingValidation(HmDatapoint dp) {
         return dp.isNumberType() && dp.getValue() instanceof Number && dp.getMaxValue() != null
                 && dp.getChannel().getType() != null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected PercentType fromBinding(HmDatapoint dp) throws ConverterException {
         Double number = ((Number) dp.getValue()).doubleValue();
