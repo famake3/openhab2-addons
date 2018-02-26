@@ -108,9 +108,7 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
                     ;
                 }
                 byte[] header = new byte[2];
-                if (input.read(header) != 2) {
-                    continue;
-                }
+                readAll(input, header);
                 int function = header[0] & 0xFF;
 
                 FunctionReceiver receiver = receivers.get(function);
@@ -120,22 +118,8 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
                         continue; // Protect against corrupted data
                     }
                     byte[] data = new byte[length];
-                    int n_read = 0;
-                    while (n_read < length) {
-                        int code = input.read(data, n_read, length - n_read);
-                        if (code == -1) {
-                            break;
-                        } else {
-                            n_read += code;
-                        }
-                    }
-                    if (n_read == length) {
-                        receiver.receivedUpdate(data);
-                    } else {
-
-                        logger.warn("While reading from serial port, expected " + length + " bytes but only read "
-                                + n_read);
-                    }
+                    readAll(input, data);
+                    receiver.receivedUpdate(data);
                 } else {
                     // For unknown codes, we'll read up to 8 data bytes (works for most cases, will re-sync)
                     byte[] data = new byte[Math.min(length, 8)];
@@ -143,7 +127,9 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
                     System.out.println("Unknown function " + function + " with data: " + bytesToHex(data));
                 }
             }
-        } catch (InterruptedException | IOException e) {
+        } catch (InterruptedException |
+
+                IOException e) {
             connected = false;
             logger.error("Error while reading from serial port (or waiting)", e);
             serialPort.disconnect();
@@ -153,7 +139,7 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
-    public static String bytesToHex(byte[] bytes) {
+    static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
@@ -161,6 +147,18 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    private static void readAll(InputStream input, byte[] buffer) throws IOException {
+        int n_read = 0;
+        while (n_read < buffer.length) {
+            int r = input.read(buffer, n_read, buffer.length - n_read);
+            if (r == -1) {
+                throw new IOException("End of input!");
+            } else {
+                n_read += r;
+            }
+        }
     }
 
 }
