@@ -170,7 +170,9 @@ public class LgTvSerialHandler extends BaseThingHandler {
             if (command instanceof RefreshType) {
                 channelCommands.get(channelUID).execute(channelUID, communicator, null);
             } else {
-                channelCommands.get(channelUID).execute(channelUID, communicator, command);
+                if (channelCommands.containsKey(channelUID)) {
+                    channelCommands.get(channelUID).execute(channelUID, communicator, command);
+                }
             }
         } catch (IOException e) {
             logger.error("Serial port write error", e);

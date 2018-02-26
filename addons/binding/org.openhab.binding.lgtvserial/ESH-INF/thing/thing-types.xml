@@ -45,16 +45,12 @@
             <channel id="sharpness" typeId="sharpness"/>
             <channel id="sleep-time" typeId="sleep-time"/>
             <channel id="software-version" typeId="software-version"/>
-            <channel id="sound-mode" typeId="sound-mode"/>
             <channel id="speaker" typeId="speaker"/>
             <channel id="temperature-value" typeId="temperature-value"/>
-            <channel id="tile" typeId="tile"/>
             <channel id="tile-h-position" typeId="tile-h-position"/>
             <channel id="tile-h-size" typeId="tile-h-size"/>
-            <channel id="tile-id-set" typeId="tile-id-set"/>
             <channel id="tile-v-position" typeId="tile-v-position"/>
             <channel id="tile-v-size" typeId="tile-v-size"/>
-            <channel id="time" typeId="time"/>
             <channel id="tint" typeId="tint"/>
             <channel id="treble" typeId="treble"/>
             <channel id="volume" typeId="volume"/>
