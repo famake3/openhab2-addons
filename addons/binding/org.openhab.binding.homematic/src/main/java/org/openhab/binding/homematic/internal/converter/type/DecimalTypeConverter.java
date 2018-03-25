@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,18 +21,11 @@ import org.openhab.binding.homematic.internal.model.HmDatapoint;
  * @author Gerhard Riegler - Initial contribution
  */
 public class DecimalTypeConverter extends AbstractTypeConverter<DecimalType> {
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean toBindingValidation(HmDatapoint dp, Class<? extends Type> typeClass) {
         return dp.isNumberType() && typeClass.isAssignableFrom(DecimalType.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected Object toBinding(DecimalType type, HmDatapoint dp) throws ConverterException {
         if (dp.isIntegerType()) {
@@ -41,17 +34,11 @@ public class DecimalTypeConverter extends AbstractTypeConverter<DecimalType> {
         return round(type.doubleValue()).doubleValue();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean fromBindingValidation(HmDatapoint dp) {
         return dp.isNumberType() && dp.getValue() instanceof Number;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected DecimalType fromBinding(HmDatapoint dp) throws ConverterException {
         Number number = ((Number) dp.getValue()).doubleValue();

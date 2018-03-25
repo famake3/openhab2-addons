@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,19 +17,19 @@ import javax.jmdns.ServiceInfo;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
-import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryService;
 import org.openhab.binding.minecraft.MinecraftBindingConstants;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The {@link MinecraftMDNSDiscoveryParticipant} is responsible for discovering Minecraft servers
  * {@link MDNSDiscoveryService}.
  *
- * @author Mattias Markehed
- *
+ * @author Mattias Markehed - Initial contribution
  */
+@Component(service = MDNSDiscoveryParticipant.class, immediate = true)
 public class MinecraftMDNSDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
     @Override
@@ -74,7 +74,6 @@ public class MinecraftMDNSDiscoveryParticipant implements MDNSDiscoveryParticipa
 
     @Override
     public ThingUID getThingUID(ServiceInfo service) {
-
         if (isMinecraftServer(service) && service.getInetAddresses().length > 0) {
             String host = service.getInetAddresses()[0].getHostAddress();
             host = host.replace('.', '_');

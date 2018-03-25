@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
-import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.openhab.binding.minecraft.MinecraftBindingConstants;
 import org.openhab.binding.minecraft.handler.MinecraftServerHandler;
@@ -25,6 +25,7 @@ import org.openhab.binding.minecraft.internal.message.data.PlayerData;
 import org.openhab.binding.minecraft.internal.message.data.SignData;
 import org.openhab.binding.minecraft.internal.server.ServerConnection;
 import org.openhab.binding.minecraft.internal.util.Pair;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,9 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * Handles discovery of Minecraft server, players and signs.
  *
- * @author Mattias Markehed
+ * @author Mattias Markehed - Initial contribution
  */
+@Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.minecraft")
 public class MinecraftDiscoveryService extends AbstractDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(MinecraftDiscoveryService.class);
@@ -51,18 +53,12 @@ public class MinecraftDiscoveryService extends AbstractDiscoveryService {
         super(Collections.singleton(MinecraftBindingConstants.THING_TYPE_SERVER), DISCOVER_TIMEOUT_SECONDS, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void startScan() {
         logger.debug("Starting Minecraft discovery scan");
         discoverServers();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected synchronized void stopScan() {
         logger.debug("Stopping Minecraft discovery scan");
@@ -157,11 +153,8 @@ public class MinecraftDiscoveryService extends AbstractDiscoveryService {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(MinecraftBindingConstants.PARAMETER_PLAYER_NAME, name);
-        thingDiscovered(DiscoveryResultBuilder.create(uid)
-                .withProperties(properties)
-                .withBridge(bridgeUID)
-                .withLabel(name)
-                .build());
+        thingDiscovered(DiscoveryResultBuilder.create(uid).withProperties(properties).withBridge(bridgeUID)
+                .withLabel(name).build());
     }
 
     /**
@@ -176,11 +169,8 @@ public class MinecraftDiscoveryService extends AbstractDiscoveryService {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(MinecraftBindingConstants.PARAMETER_SIGN_NAME, sign.getName());
-        thingDiscovered(DiscoveryResultBuilder.create(uid)
-                .withProperties(properties)
-                .withBridge(bridgeUID)
-                .withLabel(sign.getName())
-                .build());
+        thingDiscovered(DiscoveryResultBuilder.create(uid).withProperties(properties).withBridge(bridgeUID)
+                .withLabel(sign.getName()).build());
     }
 
     /**

@@ -316,6 +316,31 @@ A Chime device.
         * ENVIVO - Envivo
 
 
+### current - RFXCOM Current Sensor
+
+A Current sensing device.
+
+#### Channels
+
+| Name         | Channel Type                        | Item Type | Remarks          |
+|--------------|-------------------------------------|-----------|------------------|
+| channel1Amps | [instantamp](#channels)             | Number    |                  |
+| channel2Amps | [instantamp](#channels)             | Number    |                  |
+| channel3Amps | [instantamp](#channels)             | Number    |                  |
+| signalLevel  | [system.signal-strength](#channels) | Number    |                  |
+| batteryLevel | [system.battery-level](#channels)   | Number    |                  |
+| lowBattery   | [system.low-battery](#channels)     | Switch    |                  |
+
+#### Configuration Options
+
+ * deviceId - Device Id
+    * Sensor Id. Example 5693
+
+ * subType - Sub Type
+    * Specifies device sub type.
+
+        * ELEC1 - OWL - CM113
+
 ### currentenergy - RFXCOM CurrentEnergy Actuator
 
 A CurrentEnergy device.
@@ -445,7 +470,7 @@ A Humidity device.
         * HUM2 - LaCrosse WS2300
 
 
-#### Configuration options:
+### lighting1 - RFXCOM Lighting1 Actuator
 
 A Lighting1 device.
 
@@ -565,11 +590,11 @@ A Lighting4 device.
         * 7 - ON (value 7)
         * 8 - value 8
         * 9 - ON (value 9)
-        * 10 - value 10
-        * 11 - value 11
+        * 10 - ON (value 10)
+        * 11 - ON (value 11)
         * 12 - ON (value 12)
         * 13 - value 13
-        * 14 - value 14
+        * 14 - OFF (value 14)
         * 15 - value 15
 
 #### Examples
@@ -605,6 +630,15 @@ rule "Set random relay variations"
         SwitchCommandId.sendCommand((Math::random * 15.9).intValue)
 end
 ```
+
+#### Devices:
+
+| Brand | What          | Action      | Command ID | Supported | Source | 
+|-------|---------------|-------------|------------|-----------|--------|
+| Kerui | Motion Sensor | Motion      | 10         | as ON     | [#3103](https://github.com/openhab/openhab2-addons/issues/3103) |
+| Kerui | Door Contact  | door open   | 14         | as OFF    | [#3103](https://github.com/openhab/openhab2-addons/issues/3103) |
+| Kerui | Door Contact  | door closed | 7          | as ON     | [#3103](https://github.com/openhab/openhab2-addons/issues/3103) |
+| Kerui | Door Contact  | tamper      | 7          | as ON     | [#3103](https://github.com/openhab/openhab2-addons/issues/3103) |
 
 ### lighting5 - RFXCOM Lighting5 Actuator
 

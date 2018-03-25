@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,28 +27,18 @@ import org.osgi.service.component.annotations.Component;
 public class HomematicThingTypeProviderImpl implements HomematicThingTypeProvider {
     private Map<ThingTypeUID, ThingType> thingTypesByUID = new HashMap<ThingTypeUID, ThingType>();
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<ThingType> getThingTypes(Locale locale) {
         return thingTypesByUID.values();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
         return thingTypesByUID.get(thingTypeUID);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void addThingType(ThingType thingType) {
         thingTypesByUID.put(thingType.getUID(), thingType);
     }
-
 }
