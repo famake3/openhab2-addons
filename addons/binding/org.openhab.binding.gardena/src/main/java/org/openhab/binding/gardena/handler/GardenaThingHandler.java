@@ -94,12 +94,12 @@ public class GardenaThingHandler extends BaseThingHandler {
     protected void updateProperties(Device device) throws GardenaException {
         Map<String, String> properties = editProperties();
         Ability deviceInfo = device.getAbility(ABILITY_DEVICE_INFO);
-        properties.put(PROPERTY_MANUFACTURER, deviceInfo.getProperty(PROPERTY_MANUFACTURER).getValue());
-        properties.put(PROPERTY_PRODUCT, deviceInfo.getProperty(PROPERTY_PRODUCT).getValue());
-        properties.put(PROPERTY_SERIALNUMBER, deviceInfo.getProperty(PROPERTY_SERIALNUMBER).getValue());
-        properties.put(PROPERTY_SGTIN, deviceInfo.getProperty(PROPERTY_SGTIN).getValue());
-        properties.put(PROPERTY_VERSION, deviceInfo.getProperty(PROPERTY_VERSION).getValue());
-        properties.put(PROPERTY_CATEGORY, deviceInfo.getProperty(PROPERTY_CATEGORY).getValue());
+        properties.put(PROPERTY_MANUFACTURER, deviceInfo.getProperty(PROPERTY_MANUFACTURER).getValueAsString());
+        properties.put(PROPERTY_PRODUCT, deviceInfo.getProperty(PROPERTY_PRODUCT).getValueAsString());
+        properties.put(PROPERTY_SERIALNUMBER, deviceInfo.getProperty(PROPERTY_SERIALNUMBER).getValueAsString());
+        properties.put(PROPERTY_SGTIN, deviceInfo.getProperty(PROPERTY_SGTIN).getValueAsString());
+        properties.put(PROPERTY_VERSION, deviceInfo.getProperty(PROPERTY_VERSION).getValueAsString());
+        properties.put(PROPERTY_CATEGORY, deviceInfo.getProperty(PROPERTY_CATEGORY).getValueAsString());
         updateProperties(properties);
     }
 
@@ -133,7 +133,7 @@ public class GardenaThingHandler extends BaseThingHandler {
         String propertyName = channelUID.getIdWithoutGroup();
 
         try {
-            String value = device.getAbility(abilityName).getProperty(propertyName).getValue();
+            String value = device.getAbility(abilityName).getProperty(propertyName).getValueAsString();
 
             if (StringUtils.trimToNull(value) == null || StringUtils.equals(value, "N/A")) {
                 return UnDefType.NULL;
@@ -181,6 +181,8 @@ public class GardenaThingHandler extends BaseThingHandler {
             return type == OnOffType.ON ? Boolean.TRUE : Boolean.FALSE;
         } else if (type instanceof DecimalType) {
             return ((DecimalType) type).intValue();
+        } else if (type instanceof StringType) {
+            return ((StringType) type).toFullString();
         }
         return null;
     }
@@ -237,6 +239,21 @@ public class GardenaThingHandler extends BaseThingHandler {
                 return OUTLET_MANUAL_OVERRIDE_TIME;
             case "outlet#valve_open":
                 return OUTLET_VALVE;
+
+            case "power#power_timer":
+                return POWER_TIMER;
+            case "watering#watering_timer_1":
+                return WATERING_TIMER_VALVE_1;
+            case "watering#watering_timer_2":
+                return WATERING_TIMER_VALVE_2;
+            case "watering#watering_timer_3":
+                return WATERING_TIMER_VALVE_3;
+            case "watering#watering_timer_4":
+                return WATERING_TIMER_VALVE_4;
+            case "watering#watering_timer_5":
+                return WATERING_TIMER_VALVE_5;
+            case "watering#watering_timer_6":
+                return WATERING_TIMER_VALVE_6;
             default:
                 return null;
         }
@@ -248,7 +265,8 @@ public class GardenaThingHandler extends BaseThingHandler {
     protected void updateStatus(Device device) {
         String connectionStatus = "";
         try {
-            connectionStatus = device.getAbility(ABILITY_RADIO).getProperty(PROPERTY_CONNECTION_STATUS).getValue();
+            connectionStatus = device.getAbility(ABILITY_RADIO).getProperty(PROPERTY_CONNECTION_STATUS)
+                    .getValueAsString();
         } catch (GardenaException ex) {
             // ignore, device has no connection status property
         }

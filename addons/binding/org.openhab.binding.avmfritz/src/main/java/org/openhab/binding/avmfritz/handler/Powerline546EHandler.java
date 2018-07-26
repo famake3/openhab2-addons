@@ -10,15 +10,23 @@ package org.openhab.binding.avmfritz.handler;
 
 import static org.openhab.binding.avmfritz.BindingConstants.*;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.avmfritz.BindingConstants;
 import org.openhab.binding.avmfritz.internal.ahamodel.AVMFritzBaseModel;
@@ -56,29 +64,37 @@ public class Powerline546EHandler extends AVMFritzBaseBridgeHandler {
     }
 
     @Override
-    public void addDeviceList(AVMFritzBaseModel device) {
-        logger.debug("set device model: {}", device);
-        ThingUID thingUID = getThingUID(device);
-        if (getThing().getUID().equals(thingUID)) {
-            logger.debug("update self {} with device model: {}", thingUID, device);
+    public void addDeviceList(ArrayList<AVMFritzBaseModel> devicelist) {
+        Optional<AVMFritzBaseModel> optionalDevice = devicelist.stream()
+                .filter(it -> it.getIdentifier().equals(getIdentifier())).findFirst();
+        if (optionalDevice.isPresent()) {
+            AVMFritzBaseModel device = optionalDevice.get();
+            devicelist.remove(device);
+            logger.debug("update self {} with device model: {}", getThing().getUID(), device);
             setState(device);
-            updateThingFromDevice(getThing(), device);
+            if (device.getPresent() == 1) {
+                setStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null);
+                updateThingFromDevice(getThing(), device);
+            } else {
+                setStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "Device not present");
+            }
         } else {
-            super.addDeviceList(device);
+            setStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.GONE, "Device not present in response");
         }
+        super.addDeviceList(devicelist);
     }
 
     /**
      * Updates things from device model.
      *
-     * @param thing Thing to be updated.
+     * @param thing  Thing to be updated.
      * @param device Device model with new data.
      */
     @Override
     protected void updateThingFromDevice(Thing thing, AVMFritzBaseModel device) {
         // save AIN to config for FRITZ!Powerline 546E stand-alone
-        if (thing.getConfiguration().get(THING_AIN) == null) {
-            thing.getConfiguration().put(THING_AIN, device.getIdentifier());
+        if (thing.getConfiguration().get(CONFIG_AIN) == null) {
+            thing.getConfiguration().put(CONFIG_AIN, device.getIdentifier());
         }
         super.updateThingFromDevice(thing, device);
     }
@@ -99,16 +115,14 @@ public class Powerline546EHandler extends AVMFritzBaseBridgeHandler {
         String ipAddress = getConfigAs(AVMFritzConfiguration.class).getIpAddress();
 
         if (PL546E_STANDALONE_THING_TYPE.equals(thingTypeUID)) {
-            String thingName = "fritz.powerline".equals(ipAddress) ? ipAddress : ipAddress.replaceAll(INVALID_PATTERN, "_");
+            String thingName = "fritz.powerline".equals(ipAddress) ? ipAddress
+                    : ipAddress.replaceAll(INVALID_PATTERN, "_");
             return new ThingUID(thingTypeUID, thingName);
         } else {
             return super.getThingUID(device);
         }
     }
 
-    /**
-     * Handle the commands for switchable outlets.
-     */
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         String channelId = channelUID.getIdWithoutGroup();
@@ -118,31 +132,56 @@ public class Powerline546EHandler extends AVMFritzBaseBridgeHandler {
             logger.debug("Cannot handle command '{}' because connection is missing", command);
             return;
         }
-        if (getThing().getConfiguration().get(THING_AIN) == null) {
+        String ain = getIdentifier();
+        if (ain == null) {
             logger.debug("Cannot handle command '{}' because AIN is missing", command);
             return;
         }
-        String ain = getThing().getConfiguration().get(THING_AIN).toString();
         switch (channelId) {
             case CHANNEL_MODE:
             case CHANNEL_LOCKED:
             case CHANNEL_DEVICE_LOCKED:
             case CHANNEL_ENERGY:
             case CHANNEL_POWER:
+            case CHANNEL_VOLTAGE:
                 logger.debug("Channel {} is a read-only channel and cannot handle command '{}'", channelId, command);
                 break;
-            case CHANNEL_SWITCH:
+            case CHANNEL_OUTLET:
                 if (command instanceof OnOffType) {
                     state.getSwitch().setState(OnOffType.ON.equals(command) ? SwitchModel.ON : SwitchModel.OFF);
                     fritzBox.setSwitch(ain, OnOffType.ON.equals(command));
                 } else {
-                    logger.warn("Received unknown command '{}' for channel {}", command, CHANNEL_SWITCH);
+                    logger.warn("Received unknown command '{}' for channel {}", command, CHANNEL_OUTLET);
                 }
                 break;
             default:
                 super.handleCommand(channelUID, command);
                 break;
         }
+    }
+
+    /**
+     * Creates new channels for the thing.
+     *
+     * @param channelId ID of the channel to be created.
+     */
+    public void createChannel(String channelId) {
+        ThingHandlerCallback callback = getCallback();
+        if (callback != null) {
+            ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
+            ChannelTypeUID channelTypeUID = CHANNEL_BATTERY.equals(channelId)
+                    ? new ChannelTypeUID("system:battery-level")
+                    : new ChannelTypeUID(BINDING_ID, channelId);
+
+            Channel channel = callback.createChannelBuilder(channelUID, channelTypeUID).build();
+            updateThing(editThing().withoutChannel(channelUID).withChannel(channel).build());
+        }
+    }
+
+    @Nullable
+    public String getIdentifier() {
+        Object ain = getThing().getConfiguration().get(CONFIG_AIN);
+        return ain != null ? ain.toString() : null;
     }
 
     @Nullable

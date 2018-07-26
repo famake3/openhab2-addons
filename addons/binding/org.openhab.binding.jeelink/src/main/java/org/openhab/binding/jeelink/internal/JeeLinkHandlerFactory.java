@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "binding.jeelink")
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.jeelink")
 public class JeeLinkHandlerFactory extends BaseThingHandlerFactory {
     private final Logger logger = LoggerFactory.getLogger(JeeLinkHandlerFactory.class);
 
@@ -49,7 +49,8 @@ public class JeeLinkHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUid = thing.getThingTypeUID();
         ThingHandler handler = null;
 
-        if (thingTypeUid.equals(JEELINK_USB_STICK_THING_TYPE) || thingTypeUid.equals(JEELINK_TCP_STICK_THING_TYPE)) {
+        if (thingTypeUid.equals(JEELINK_USB_STICK_THING_TYPE) || thingTypeUid.equals(JEELINK_TCP_STICK_THING_TYPE)
+                || thingTypeUid.equals(LGW_TCP_STICK_THING_TYPE) || thingTypeUid.equals(LGW_USB_STICK_THING_TYPE)) {
             logger.debug("creating JeeLinkHandler for thing {}...", thing.getUID().getId());
 
             handler = new JeeLinkHandler((Bridge) thing);

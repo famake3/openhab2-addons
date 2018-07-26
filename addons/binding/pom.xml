@@ -4,9 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>pom</artifactId>
     <groupId>org.openhab.addons</groupId>
-    <version>2.3.0-SNAPSHOT</version>
+    <artifactId>pom</artifactId>
+    <version>2.4.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.openhab.binding</groupId>
@@ -20,6 +20,7 @@
     <module>org.openhab.binding.airquality</module>
     <module>org.openhab.binding.allplay</module>
     <module>org.openhab.binding.amazondashbutton</module>
+    <module>org.openhab.binding.amazonechocontrol</module>
     <module>org.openhab.binding.atlona</module>
     <module>org.openhab.binding.autelis</module>
     <module>org.openhab.binding.avmfritz</module>
@@ -31,6 +32,7 @@
     <module>org.openhab.binding.coolmasternet</module>
     <module>org.openhab.binding.dlinksmarthome</module>
     <module>org.openhab.binding.dscalarm</module>
+    <module>org.openhab.binding.denonmarantz</module>
     <module>org.openhab.binding.exec</module>
     <module>org.openhab.binding.feed</module>
     <module>org.openhab.binding.feed.test</module>
@@ -44,7 +46,7 @@
     <module>org.openhab.binding.hdanywhere</module>
     <module>org.openhab.binding.hdpowerview</module>
     <module>org.openhab.binding.helios</module>
-    <module>org.openhab.binding.homematic</module>
+    <module>org.openhab.binding.hyperion</module>
     <module>org.openhab.binding.globalcache</module>
     <module>org.openhab.binding.icloud</module>
     <module>org.openhab.binding.innogysmarthome</module>
@@ -93,6 +95,8 @@
     <module>org.openhab.binding.rme</module>
     <module>org.openhab.binding.rfxcom</module>
     <module>org.openhab.binding.rfxcom.test</module>
+    <module>org.openhab.binding.robonect</module>
+    <module>org.openhab.binding.robonect.test</module>
     <module>org.openhab.binding.rotelra1x</module>
     <module>org.openhab.binding.russound</module>
     <module>org.openhab.binding.samsungtv</module>
@@ -102,11 +106,13 @@
     <module>org.openhab.binding.silvercrestwifisocket</module>
     <module>org.openhab.binding.sleepiq</module>
     <module>org.openhab.binding.smaenergymeter</module>
+    <module>org.openhab.binding.solaredge</module>
     <module>org.openhab.binding.solarlog</module>
     <module>org.openhab.binding.squeezebox</module>
     <module>org.openhab.binding.synopanalyzer</module>
     <module>org.openhab.binding.systeminfo</module>
     <module>org.openhab.binding.systeminfo.test</module>
+    <module>org.openhab.binding.tado</module>
     <module>org.openhab.binding.tankerkoenig</module>
     <module>org.openhab.binding.tellstick</module>
     <module>org.openhab.binding.tesla</module>
@@ -120,7 +126,9 @@
     <module>org.openhab.binding.wifiled.test</module>
     <module>org.openhab.binding.windcentrale</module>
     <module>org.openhab.binding.yamahareceiver</module>
+    <module>org.openhab.binding.yamahareceiver.test</module>
+    <module>org.openhab.binding.yeelight</module>
     <module>org.openhab.binding.zoneminder</module>
-	<module>org.openhab.binding.zway</module>
+    <module>org.openhab.binding.zway</module>
   </modules>
 </project>
