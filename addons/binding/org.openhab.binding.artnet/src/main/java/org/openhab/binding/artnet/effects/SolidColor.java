@@ -9,7 +9,7 @@ import org.openhab.binding.artnet.infrastructure.Model;
 public class SolidColor extends Layer {
 
     private boolean generated = false;
-    
+
     public enum Mode {
         SPACE_DITHER
     }
@@ -20,7 +20,7 @@ public class SolidColor extends Layer {
     }
 
     @Override
-    public Layer update(long timeCode) {
+    public Layer update(double timeCode) {
         if (!generated) {
         }
         return null;

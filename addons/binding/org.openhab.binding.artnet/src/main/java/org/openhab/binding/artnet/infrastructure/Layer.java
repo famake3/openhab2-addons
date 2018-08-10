@@ -33,6 +33,6 @@ public abstract class Layer {
      * @param timeCode Monotonically increasing number representing milliseconds
      * @return Layer to use for ext frame, or null if the animation is finished.
      */
-    public abstract Layer update(long timeCode);
+    public abstract Layer update(double timeCode);
 
 }
