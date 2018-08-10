@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,146 +8,164 @@
  */
 package org.openhab.binding.nest.internal.data;
 
+import static org.eclipse.smarthome.core.library.unit.ImperialUnits.FAHRENHEIT;
+import static org.eclipse.smarthome.core.library.unit.SIUnits.CELSIUS;
+
 import java.util.Date;
+
+import javax.measure.Unit;
+import javax.measure.quantity.Temperature;
 
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Gson class to encapsulate the data for the nest thermostat.
+ * Gson class to encapsulate the data for the Nest thermostat.
  *
- * @author David Bennett - Initial Contribution
+ * @author David Bennett - Initial contribution
+ * @author Wouter Born - Add equals and hashCode methods
  */
 public class Thermostat extends BaseNestDevice {
-    @SerializedName("can_cool")
-    private boolean canCool;
-    @SerializedName("can_heat")
-    private boolean canHeat;
-    @SerializedName("is_using_emergency_heat")
-    private boolean isUsingEmergencyHeat;
-    @SerializedName("has_fan")
-    private boolean hasFan;
-    @SerializedName("fan_timer_active")
-    private boolean fanTimerActive;
-    @SerializedName("fan_timer_timeout")
+
+    private Boolean canCool;
+    private Boolean canHeat;
+    private Boolean isUsingEmergencyHeat;
+    private Boolean hasFan;
+    private Boolean fanTimerActive;
     private Date fanTimerTimeout;
-    @SerializedName("has_leaf")
-    private boolean hasLeaf;
-    @SerializedName("temperature_scale")
-    private String tempScale;
-    @SerializedName("ambient_temperature_c")
-    private Double ambientTemperature;
-    @SerializedName("humidity")
+    private Boolean hasLeaf;
+    private String temperatureScale;
+    private Double ambientTemperatureC;
+    private Double ambientTemperatureF;
     private Integer humidity;
-    @SerializedName("target_temperature_c")
-    private Double targetTemperature;
-    @SerializedName("target_temperature_high_c")
-    private Double targetTemperatureHigh;
-    @SerializedName("target_temperature_low_c")
-    private Double targetTemperatureLow;
-    @SerializedName("hvac_mode")
-    private String mode;
-    @SerializedName("previous_hvac_mode")
-    private String previousMode;
-    @SerializedName("hvac_state")
-    private String state;
-    @SerializedName("is_locked")
-    private boolean isLocked;
-    @SerializedName("locked_temp_max_c")
-    private Double lockedTemperatureHigh;
-    @SerializedName("locked_temp_min_c")
-    private Double lockedTemperatureLow;
-    @SerializedName("sunlight_correction_enabled")
-    private boolean sunlightCorrectionEnabled;
-    @SerializedName("sunlight_correction_active")
-    private boolean sunlightCorrectionActive;
-    @SerializedName("fan_timer_duration")
+    private Double targetTemperatureC;
+    private Double targetTemperatureF;
+    private Double targetTemperatureHighC;
+    private Double targetTemperatureHighF;
+    private Double targetTemperatureLowC;
+    private Double targetTemperatureLowF;
+    private Mode hvacMode;
+    private Mode previousHvacMode;
+    private State hvacState;
+    private Double ecoTemperatureHighC;
+    private Double ecoTemperatureHighF;
+    private Double ecoTemperatureLowC;
+    private Double ecoTemperatureLowF;
+    private Boolean isLocked;
+    private Double lockedTempMaxC;
+    private Double lockedTempMaxF;
+    private Double lockedTempMinC;
+    private Double lockedTempMinF;
+    private Boolean sunlightCorrectionEnabled;
+    private Boolean sunlightCorrectionActive;
     private Integer fanTimerDuration;
-    @SerializedName("time_to_target")
     private String timeToTarget;
-    @SerializedName("where_name")
     private String whereName;
 
-    public String getTempScale() {
-        return tempScale;
-    }
-
-    public void setTempScale(String tempScale) {
-        this.tempScale = tempScale;
+    public Unit<Temperature> getTemperatureUnit() {
+        if ("C".equals(temperatureScale)) {
+            return CELSIUS;
+        } else if ("F".equals(temperatureScale)) {
+            return FAHRENHEIT;
+        } else {
+            return null;
+        }
     }
 
     public Double getTargetTemperature() {
-        return targetTemperature;
-    }
-
-    public void setTargetTemperature(Double targetTemperature) {
-        this.targetTemperature = targetTemperature;
+        if (getTemperatureUnit() == CELSIUS) {
+            return targetTemperatureC;
+        } else if (getTemperatureUnit() == FAHRENHEIT) {
+            return targetTemperatureF;
+        } else {
+            return null;
+        }
     }
 
     public Double getTargetTemperatureHigh() {
-        return targetTemperatureHigh;
-    }
-
-    public void setTargetTemperatureHigh(Double targetTemperatureHigh) {
-        this.targetTemperatureHigh = targetTemperatureHigh;
+        if (getTemperatureUnit() == CELSIUS) {
+            return targetTemperatureHighC;
+        } else if (getTemperatureUnit() == FAHRENHEIT) {
+            return targetTemperatureHighF;
+        } else {
+            return null;
+        }
     }
 
     public Double getTargetTemperatureLow() {
-        return targetTemperatureLow;
+        if (getTemperatureUnit() == CELSIUS) {
+            return targetTemperatureLowC;
+        } else if (getTemperatureUnit() == FAHRENHEIT) {
+            return targetTemperatureLowF;
+        } else {
+            return null;
+        }
     }
 
-    public void setTargetTemperatureLow(Double targetTemperatureLow) {
-        this.targetTemperatureLow = targetTemperatureLow;
+    public Mode getMode() {
+        return hvacMode;
     }
 
-    public String getMode() {
-        return mode;
+    public Double getEcoTemperatureHigh() {
+        if (getTemperatureUnit() == CELSIUS) {
+            return ecoTemperatureHighC;
+        } else if (getTemperatureUnit() == FAHRENHEIT) {
+            return ecoTemperatureHighF;
+        } else {
+            return null;
+        }
     }
 
-    public void setMode(String mode) {
-        this.mode = mode;
+    public Double getEcoTemperatureLow() {
+        if (getTemperatureUnit() == CELSIUS) {
+            return ecoTemperatureLowC;
+        } else if (getTemperatureUnit() == FAHRENHEIT) {
+            return ecoTemperatureLowF;
+        } else {
+            return null;
+        }
     }
 
-    public boolean isLocked() {
+    public Boolean isLocked() {
         return isLocked;
     }
 
-    public void setLocked(boolean isLocked) {
-        this.isLocked = isLocked;
+    public Double getLockedTempMax() {
+        if (getTemperatureUnit() == CELSIUS) {
+            return lockedTempMaxC;
+        } else if (getTemperatureUnit() == FAHRENHEIT) {
+            return lockedTempMaxF;
+        } else {
+            return null;
+        }
     }
 
-    public Double getLockedTemperatureHigh() {
-        return lockedTemperatureHigh;
+    public Double getLockedTempMin() {
+        if (getTemperatureUnit() == CELSIUS) {
+            return lockedTempMinC;
+        } else if (getTemperatureUnit() == FAHRENHEIT) {
+            return lockedTempMinF;
+        } else {
+            return null;
+        }
     }
 
-    public void setLockedTemperatureHigh(Double lockedTemperatureHigh) {
-        this.lockedTemperatureHigh = lockedTemperatureHigh;
-    }
-
-    public Double getLockedTemperatureLow() {
-        return lockedTemperatureLow;
-    }
-
-    public void setLockedTemperatureLow(Double lockedTemperatureLow) {
-        this.lockedTemperatureLow = lockedTemperatureLow;
-    }
-
-    public boolean isCanCool() {
+    public Boolean isCanCool() {
         return canCool;
     }
 
-    public boolean isCanHeat() {
+    public Boolean isCanHeat() {
         return canHeat;
     }
 
-    public boolean isUsingEmergencyHeat() {
+    public Boolean isUsingEmergencyHeat() {
         return isUsingEmergencyHeat;
     }
 
-    public boolean isHasFan() {
+    public Boolean isHasFan() {
         return hasFan;
     }
 
-    public boolean isFanTimerActive() {
+    public Boolean isFanTimerActive() {
         return fanTimerActive;
     }
 
@@ -155,23 +173,23 @@ public class Thermostat extends BaseNestDevice {
         return fanTimerTimeout;
     }
 
-    public boolean isHasLeaf() {
+    public Boolean isHasLeaf() {
         return hasLeaf;
     }
 
-    public String getPreviousMode() {
-        return previousMode;
+    public Mode getPreviousHvacMode() {
+        return previousHvacMode;
     }
 
-    public String getState() {
-        return state;
+    public State getHvacState() {
+        return hvacState;
     }
 
-    public boolean isSunlightCorrectionEnabled() {
+    public Boolean isSunlightCorrectionEnabled() {
         return sunlightCorrectionEnabled;
     }
 
-    public boolean isSunlightCorrectionActive() {
+    public Boolean isSunlightCorrectionActive() {
         return sunlightCorrectionActive;
     }
 
@@ -179,18 +197,20 @@ public class Thermostat extends BaseNestDevice {
         return fanTimerDuration;
     }
 
-    public void setFanTimerDuration(Integer duration) {
-        fanTimerDuration = duration;
+    public Integer getTimeToTarget() {
+        return parseTimeToTarget(timeToTarget);
     }
 
     /*
      * Turns the time to target string into a real value.
      */
-    public Integer getTimeToTarget() {
-        if (timeToTarget.startsWith("~")) {
-            timeToTarget = timeToTarget.substring(1);
+    static Integer parseTimeToTarget(String timeToTarget) {
+        if (timeToTarget == null) {
+            return null;
+        } else if (timeToTarget.startsWith("~") || timeToTarget.startsWith("<") || timeToTarget.startsWith(">")) {
+            return Integer.valueOf(timeToTarget.substring(1));
         }
-        return Integer.parseInt(timeToTarget);
+        return Integer.valueOf(timeToTarget);
     }
 
     public String getWhereName() {
@@ -198,42 +218,39 @@ public class Thermostat extends BaseNestDevice {
     }
 
     public Double getAmbientTemperature() {
-        return ambientTemperature;
+        if (getTemperatureUnit() == CELSIUS) {
+            return ambientTemperatureC;
+        } else if (getTemperatureUnit() == FAHRENHEIT) {
+            return ambientTemperatureF;
+        } else {
+            return null;
+        }
     }
 
     public Integer getHumidity() {
         return humidity;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((ambientTemperature == null) ? 0 : ambientTemperature.hashCode());
-        result = prime * result + (canCool ? 1231 : 1237);
-        result = prime * result + (canHeat ? 1231 : 1237);
-        result = prime * result + (fanTimerActive ? 1231 : 1237);
-        result = prime * result + ((fanTimerDuration == null) ? 0 : fanTimerDuration.hashCode());
-        result = prime * result + ((fanTimerTimeout == null) ? 0 : fanTimerTimeout.hashCode());
-        result = prime * result + (hasFan ? 1231 : 1237);
-        result = prime * result + (hasLeaf ? 1231 : 1237);
-        result = prime * result + ((humidity == null) ? 0 : humidity.hashCode());
-        result = prime * result + (isLocked ? 1231 : 1237);
-        result = prime * result + (isUsingEmergencyHeat ? 1231 : 1237);
-        result = prime * result + ((lockedTemperatureHigh == null) ? 0 : lockedTemperatureHigh.hashCode());
-        result = prime * result + ((lockedTemperatureLow == null) ? 0 : lockedTemperatureLow.hashCode());
-        result = prime * result + ((mode == null) ? 0 : mode.hashCode());
-        result = prime * result + ((previousMode == null) ? 0 : previousMode.hashCode());
-        result = prime * result + ((state == null) ? 0 : state.hashCode());
-        result = prime * result + (sunlightCorrectionActive ? 1231 : 1237);
-        result = prime * result + (sunlightCorrectionEnabled ? 1231 : 1237);
-        result = prime * result + ((targetTemperature == null) ? 0 : targetTemperature.hashCode());
-        result = prime * result + ((targetTemperatureHigh == null) ? 0 : targetTemperatureHigh.hashCode());
-        result = prime * result + ((targetTemperatureLow == null) ? 0 : targetTemperatureLow.hashCode());
-        result = prime * result + ((tempScale == null) ? 0 : tempScale.hashCode());
-        result = prime * result + ((timeToTarget == null) ? 0 : timeToTarget.hashCode());
-        result = prime * result + ((whereName == null) ? 0 : whereName.hashCode());
-        return result;
+    public enum Mode {
+        @SerializedName("heat")
+        HEAT,
+        @SerializedName("cool")
+        COOL,
+        @SerializedName("heat-cool")
+        HEAT_COOL,
+        @SerializedName("eco")
+        ECO,
+        @SerializedName("off")
+        OFF
+    }
+
+    public enum State {
+        @SerializedName("heating")
+        HEATING,
+        @SerializedName("cooling")
+        COOLING,
+        @SerializedName("off")
+        OFF
     }
 
     @Override
@@ -244,27 +261,71 @@ public class Thermostat extends BaseNestDevice {
         if (!super.equals(obj)) {
             return false;
         }
-        if (obj == null) {
-            return false;
-        }
         if (getClass() != obj.getClass()) {
             return false;
         }
         Thermostat other = (Thermostat) obj;
-        if (ambientTemperature == null) {
-            if (other.ambientTemperature != null) {
+        if (ambientTemperatureC == null) {
+            if (other.ambientTemperatureC != null) {
                 return false;
             }
-        } else if (!ambientTemperature.equals(other.ambientTemperature)) {
+        } else if (!ambientTemperatureC.equals(other.ambientTemperatureC)) {
             return false;
         }
-        if (canCool != other.canCool) {
+        if (ambientTemperatureF == null) {
+            if (other.ambientTemperatureF != null) {
+                return false;
+            }
+        } else if (!ambientTemperatureF.equals(other.ambientTemperatureF)) {
             return false;
         }
-        if (canHeat != other.canHeat) {
+        if (canCool == null) {
+            if (other.canCool != null) {
+                return false;
+            }
+        } else if (!canCool.equals(other.canCool)) {
             return false;
         }
-        if (fanTimerActive != other.fanTimerActive) {
+        if (canHeat == null) {
+            if (other.canHeat != null) {
+                return false;
+            }
+        } else if (!canHeat.equals(other.canHeat)) {
+            return false;
+        }
+        if (ecoTemperatureHighC == null) {
+            if (other.ecoTemperatureHighC != null) {
+                return false;
+            }
+        } else if (!ecoTemperatureHighC.equals(other.ecoTemperatureHighC)) {
+            return false;
+        }
+        if (ecoTemperatureHighF == null) {
+            if (other.ecoTemperatureHighF != null) {
+                return false;
+            }
+        } else if (!ecoTemperatureHighF.equals(other.ecoTemperatureHighF)) {
+            return false;
+        }
+        if (ecoTemperatureLowC == null) {
+            if (other.ecoTemperatureLowC != null) {
+                return false;
+            }
+        } else if (!ecoTemperatureLowC.equals(other.ecoTemperatureLowC)) {
+            return false;
+        }
+        if (ecoTemperatureLowF == null) {
+            if (other.ecoTemperatureLowF != null) {
+                return false;
+            }
+        } else if (!ecoTemperatureLowF.equals(other.ecoTemperatureLowF)) {
+            return false;
+        }
+        if (fanTimerActive == null) {
+            if (other.fanTimerActive != null) {
+                return false;
+            }
+        } else if (!fanTimerActive.equals(other.fanTimerActive)) {
             return false;
         }
         if (fanTimerDuration == null) {
@@ -281,10 +342,18 @@ public class Thermostat extends BaseNestDevice {
         } else if (!fanTimerTimeout.equals(other.fanTimerTimeout)) {
             return false;
         }
-        if (hasFan != other.hasFan) {
+        if (hasFan == null) {
+            if (other.hasFan != null) {
+                return false;
+            }
+        } else if (!hasFan.equals(other.hasFan)) {
             return false;
         }
-        if (hasLeaf != other.hasLeaf) {
+        if (hasLeaf == null) {
+            if (other.hasLeaf != null) {
+                return false;
+            }
+        } else if (!hasLeaf.equals(other.hasLeaf)) {
             return false;
         }
         if (humidity == null) {
@@ -294,79 +363,118 @@ public class Thermostat extends BaseNestDevice {
         } else if (!humidity.equals(other.humidity)) {
             return false;
         }
-        if (isLocked != other.isLocked) {
+        if (hvacMode != other.hvacMode) {
             return false;
         }
-        if (isUsingEmergencyHeat != other.isUsingEmergencyHeat) {
+        if (hvacState != other.hvacState) {
             return false;
         }
-        if (lockedTemperatureHigh == null) {
-            if (other.lockedTemperatureHigh != null) {
+        if (isLocked == null) {
+            if (other.isLocked != null) {
                 return false;
             }
-        } else if (!lockedTemperatureHigh.equals(other.lockedTemperatureHigh)) {
+        } else if (!isLocked.equals(other.isLocked)) {
             return false;
         }
-        if (lockedTemperatureLow == null) {
-            if (other.lockedTemperatureLow != null) {
+        if (isUsingEmergencyHeat == null) {
+            if (other.isUsingEmergencyHeat != null) {
                 return false;
             }
-        } else if (!lockedTemperatureLow.equals(other.lockedTemperatureLow)) {
+        } else if (!isUsingEmergencyHeat.equals(other.isUsingEmergencyHeat)) {
             return false;
         }
-        if (mode == null) {
-            if (other.mode != null) {
+        if (lockedTempMaxC == null) {
+            if (other.lockedTempMaxC != null) {
                 return false;
             }
-        } else if (!mode.equals(other.mode)) {
+        } else if (!lockedTempMaxC.equals(other.lockedTempMaxC)) {
             return false;
         }
-        if (previousMode == null) {
-            if (other.previousMode != null) {
+        if (lockedTempMaxF == null) {
+            if (other.lockedTempMaxF != null) {
                 return false;
             }
-        } else if (!previousMode.equals(other.previousMode)) {
+        } else if (!lockedTempMaxF.equals(other.lockedTempMaxF)) {
             return false;
         }
-        if (state == null) {
-            if (other.state != null) {
+        if (lockedTempMinC == null) {
+            if (other.lockedTempMinC != null) {
                 return false;
             }
-        } else if (!state.equals(other.state)) {
+        } else if (!lockedTempMinC.equals(other.lockedTempMinC)) {
             return false;
         }
-        if (sunlightCorrectionActive != other.sunlightCorrectionActive) {
-            return false;
-        }
-        if (sunlightCorrectionEnabled != other.sunlightCorrectionEnabled) {
-            return false;
-        }
-        if (targetTemperature == null) {
-            if (other.targetTemperature != null) {
+        if (lockedTempMinF == null) {
+            if (other.lockedTempMinF != null) {
                 return false;
             }
-        } else if (!targetTemperature.equals(other.targetTemperature)) {
+        } else if (!lockedTempMinF.equals(other.lockedTempMinF)) {
             return false;
         }
-        if (targetTemperatureHigh == null) {
-            if (other.targetTemperatureHigh != null) {
-                return false;
-            }
-        } else if (!targetTemperatureHigh.equals(other.targetTemperatureHigh)) {
+        if (previousHvacMode != other.previousHvacMode) {
             return false;
         }
-        if (targetTemperatureLow == null) {
-            if (other.targetTemperatureLow != null) {
+        if (sunlightCorrectionActive == null) {
+            if (other.sunlightCorrectionActive != null) {
                 return false;
             }
-        } else if (!targetTemperatureLow.equals(other.targetTemperatureLow)) {
+        } else if (!sunlightCorrectionActive.equals(other.sunlightCorrectionActive)) {
             return false;
         }
-        if (tempScale == null) {
-            if (other.tempScale != null) {
+        if (sunlightCorrectionEnabled == null) {
+            if (other.sunlightCorrectionEnabled != null) {
                 return false;
             }
-        } else if (!tempScale.equals(other.tempScale)) {
+        } else if (!sunlightCorrectionEnabled.equals(other.sunlightCorrectionEnabled)) {
+            return false;
+        }
+        if (targetTemperatureC == null) {
+            if (other.targetTemperatureC != null) {
+                return false;
+            }
+        } else if (!targetTemperatureC.equals(other.targetTemperatureC)) {
+            return false;
+        }
+        if (targetTemperatureF == null) {
+            if (other.targetTemperatureF != null) {
+                return false;
+            }
+        } else if (!targetTemperatureF.equals(other.targetTemperatureF)) {
+            return false;
+        }
+        if (targetTemperatureHighC == null) {
+            if (other.targetTemperatureHighC != null) {
+                return false;
+            }
+        } else if (!targetTemperatureHighC.equals(other.targetTemperatureHighC)) {
+            return false;
+        }
+        if (targetTemperatureHighF == null) {
+            if (other.targetTemperatureHighF != null) {
+                return false;
+            }
+        } else if (!targetTemperatureHighF.equals(other.targetTemperatureHighF)) {
+            return false;
+        }
+        if (targetTemperatureLowC == null) {
+            if (other.targetTemperatureLowC != null) {
+                return false;
+            }
+        } else if (!targetTemperatureLowC.equals(other.targetTemperatureLowC)) {
+            return false;
+        }
+        if (targetTemperatureLowF == null) {
+            if (other.targetTemperatureLowF != null) {
+                return false;
+            }
+        } else if (!targetTemperatureLowF.equals(other.targetTemperatureLowF)) {
+            return false;
+        }
+        if (temperatureScale == null) {
+            if (other.temperatureScale != null) {
+                return false;
+            }
+        } else if (!temperatureScale.equals(other.temperatureScale)) {
             return false;
         }
         if (timeToTarget == null) {
@@ -387,20 +495,75 @@ public class Thermostat extends BaseNestDevice {
     }
 
     @Override
-    public String toString() {
-        return "Thermostat [canCool=" + canCool + ", canHeat=" + canHeat + ", isUsingEmergencyHeat="
-                + isUsingEmergencyHeat + ", hasFan=" + hasFan + ", fanTimerActive=" + fanTimerActive
-                + ", fanTimerTimeout=" + fanTimerTimeout + ", hasLeaf=" + hasLeaf + ", tempScale=" + tempScale
-                + ", ambientTemperature=" + ambientTemperature + ", humidity=" + humidity + ", targetTemperature="
-                + targetTemperature + ", targetTemperatureHigh=" + targetTemperatureHigh + ", targetTemperatureLow="
-                + targetTemperatureLow + ", mode=" + mode + ", previousMode=" + previousMode + ", state=" + state
-                + ", isLocked=" + isLocked + ", lockedTemperatureHigh=" + lockedTemperatureHigh
-                + ", lockedTemperatureLow=" + lockedTemperatureLow + ", sunlightCorrectionEnabled="
-                + sunlightCorrectionEnabled + ", sunlightCorrectionActive=" + sunlightCorrectionActive
-                + ", fanTimerDuration=" + fanTimerDuration + ", timeToTarget=" + timeToTarget + ", whereName="
-                + whereName + ", getName()=" + getName() + ", getDeviceId()=" + getDeviceId() + ", getLastConnection()="
-                + getLastConnection() + ", isOnline()=" + isOnline() + ", getNameLong()=" + getNameLong()
-                + ", getSoftwareVersion()=" + getSoftwareVersion() + ", getStructureId()=" + getStructureId()
-                + ", getWhereId()=" + getWhereId() + "]";
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((ambientTemperatureC == null) ? 0 : ambientTemperatureC.hashCode());
+        result = prime * result + ((ambientTemperatureF == null) ? 0 : ambientTemperatureF.hashCode());
+        result = prime * result + ((canCool == null) ? 0 : canCool.hashCode());
+        result = prime * result + ((canHeat == null) ? 0 : canHeat.hashCode());
+        result = prime * result + ((ecoTemperatureHighC == null) ? 0 : ecoTemperatureHighC.hashCode());
+        result = prime * result + ((ecoTemperatureHighF == null) ? 0 : ecoTemperatureHighF.hashCode());
+        result = prime * result + ((ecoTemperatureLowC == null) ? 0 : ecoTemperatureLowC.hashCode());
+        result = prime * result + ((ecoTemperatureLowF == null) ? 0 : ecoTemperatureLowF.hashCode());
+        result = prime * result + ((fanTimerActive == null) ? 0 : fanTimerActive.hashCode());
+        result = prime * result + ((fanTimerDuration == null) ? 0 : fanTimerDuration.hashCode());
+        result = prime * result + ((fanTimerTimeout == null) ? 0 : fanTimerTimeout.hashCode());
+        result = prime * result + ((hasFan == null) ? 0 : hasFan.hashCode());
+        result = prime * result + ((hasLeaf == null) ? 0 : hasLeaf.hashCode());
+        result = prime * result + ((humidity == null) ? 0 : humidity.hashCode());
+        result = prime * result + ((hvacMode == null) ? 0 : hvacMode.hashCode());
+        result = prime * result + ((hvacState == null) ? 0 : hvacState.hashCode());
+        result = prime * result + ((isLocked == null) ? 0 : isLocked.hashCode());
+        result = prime * result + ((isUsingEmergencyHeat == null) ? 0 : isUsingEmergencyHeat.hashCode());
+        result = prime * result + ((lockedTempMaxC == null) ? 0 : lockedTempMaxC.hashCode());
+        result = prime * result + ((lockedTempMaxF == null) ? 0 : lockedTempMaxF.hashCode());
+        result = prime * result + ((lockedTempMinC == null) ? 0 : lockedTempMinC.hashCode());
+        result = prime * result + ((lockedTempMinF == null) ? 0 : lockedTempMinF.hashCode());
+        result = prime * result + ((previousHvacMode == null) ? 0 : previousHvacMode.hashCode());
+        result = prime * result + ((sunlightCorrectionActive == null) ? 0 : sunlightCorrectionActive.hashCode());
+        result = prime * result + ((sunlightCorrectionEnabled == null) ? 0 : sunlightCorrectionEnabled.hashCode());
+        result = prime * result + ((targetTemperatureC == null) ? 0 : targetTemperatureC.hashCode());
+        result = prime * result + ((targetTemperatureF == null) ? 0 : targetTemperatureF.hashCode());
+        result = prime * result + ((targetTemperatureHighC == null) ? 0 : targetTemperatureHighC.hashCode());
+        result = prime * result + ((targetTemperatureHighF == null) ? 0 : targetTemperatureHighF.hashCode());
+        result = prime * result + ((targetTemperatureLowC == null) ? 0 : targetTemperatureLowC.hashCode());
+        result = prime * result + ((targetTemperatureLowF == null) ? 0 : targetTemperatureLowF.hashCode());
+        result = prime * result + ((temperatureScale == null) ? 0 : temperatureScale.hashCode());
+        result = prime * result + ((timeToTarget == null) ? 0 : timeToTarget.hashCode());
+        result = prime * result + ((whereName == null) ? 0 : whereName.hashCode());
+        return result;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Thermostat [canCool=").append(canCool).append(", canHeat=").append(canHeat)
+                .append(", isUsingEmergencyHeat=").append(isUsingEmergencyHeat).append(", hasFan=").append(hasFan)
+                .append(", fanTimerActive=").append(fanTimerActive).append(", fanTimerTimeout=").append(fanTimerTimeout)
+                .append(", hasLeaf=").append(hasLeaf).append(", temperatureScale=").append(temperatureScale)
+                .append(", ambientTemperatureC=").append(ambientTemperatureC).append(", ambientTemperatureF=")
+                .append(ambientTemperatureF).append(", humidity=").append(humidity).append(", targetTemperatureC=")
+                .append(targetTemperatureC).append(", targetTemperatureF=").append(targetTemperatureF)
+                .append(", targetTemperatureHighC=").append(targetTemperatureHighC).append(", targetTemperatureHighF=")
+                .append(targetTemperatureHighF).append(", targetTemperatureLowC=").append(targetTemperatureLowC)
+                .append(", targetTemperatureLowF=").append(targetTemperatureLowF).append(", hvacMode=").append(hvacMode)
+                .append(", previousHvacMode=").append(previousHvacMode).append(", hvacState=").append(hvacState)
+                .append(", ecoTemperatureHighC=").append(ecoTemperatureHighC).append(", ecoTemperatureHighF=")
+                .append(ecoTemperatureHighF).append(", ecoTemperatureLowC=").append(ecoTemperatureLowC)
+                .append(", ecoTemperatureLowF=").append(ecoTemperatureLowF).append(", isLocked=").append(isLocked)
+                .append(", lockedTempMaxC=").append(lockedTempMaxC).append(", lockedTempMaxF=").append(lockedTempMaxF)
+                .append(", lockedTempMinC=").append(lockedTempMinC).append(", lockedTempMinF=").append(lockedTempMinF)
+                .append(", sunlightCorrectionEnabled=").append(sunlightCorrectionEnabled)
+                .append(", sunlightCorrectionActive=").append(sunlightCorrectionActive).append(", fanTimerDuration=")
+                .append(fanTimerDuration).append(", timeToTarget=").append(timeToTarget).append(", whereName=")
+                .append(whereName).append(", getId()=").append(getId()).append(", getName()=").append(getName())
+                .append(", getDeviceId()=").append(getDeviceId()).append(", getLastConnection()=")
+                .append(getLastConnection()).append(", isOnline()=").append(isOnline()).append(", getNameLong()=")
+                .append(getNameLong()).append(", getSoftwareVersion()=").append(getSoftwareVersion())
+                .append(", getStructureId()=").append(getStructureId()).append(", getWhereId()=").append(getWhereId())
+                .append("]");
+        return builder.toString();
+    }
+
 }

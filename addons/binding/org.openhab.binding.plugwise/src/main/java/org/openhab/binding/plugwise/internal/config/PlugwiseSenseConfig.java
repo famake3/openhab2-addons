@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,6 +14,7 @@ import static org.openhab.binding.plugwise.internal.protocol.field.BoundaryType.
 
 import java.time.Duration;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.plugwise.internal.protocol.field.BoundaryAction;
 import org.openhab.binding.plugwise.internal.protocol.field.BoundaryType;
 import org.openhab.binding.plugwise.internal.protocol.field.Humidity;
@@ -25,9 +26,10 @@ import org.openhab.binding.plugwise.internal.protocol.field.Temperature;
  *
  * @author Wouter Born - Initial contribution
  */
+@NonNullByDefault
 public class PlugwiseSenseConfig {
 
-    private String macAddress;
+    private String macAddress = "";
     private int measurementInterval = 15; // minutes
     private String boundaryType = UPPER_UNDERSCORE.to(LOWER_CAMEL, NONE.name());
     private String boundaryAction = UPPER_UNDERSCORE.to(LOWER_CAMEL, OFF_BELOW_ON_ABOVE.name());

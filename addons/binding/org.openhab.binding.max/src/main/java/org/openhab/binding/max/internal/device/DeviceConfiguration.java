@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,21 +22,21 @@ import org.openhab.binding.max.internal.message.Message;
  */
 public final class DeviceConfiguration {
 
-    private DeviceType deviceType = null;
-    private String rfAddress = null;
-    private String serialNumber = null;
-    private String name = null;
+    private DeviceType deviceType;
+    private String rfAddress;
+    private String serialNumber;
+    private String name;
     private int roomId = -1;
-    private String roomName = null;
+    private String roomName;
 
     /** Extended configuration properties **/
-    private HashMap<String, Object> properties = new HashMap<>();
+    private Map<String, Object> properties = new HashMap<>();
 
     private DeviceConfiguration() {
     }
 
     public static DeviceConfiguration create(Message message) {
-        DeviceConfiguration configuration = new DeviceConfiguration();
+        final DeviceConfiguration configuration = new DeviceConfiguration();
         configuration.setValues((C_Message) message);
 
         return configuration;

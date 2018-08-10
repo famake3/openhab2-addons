@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,13 +21,12 @@ import org.openhab.binding.max.internal.device.ThermostatModeType;
  */
 public class S_Command extends CubeCommand {
 
-    private String baseStringS = "000040000000"; // for single devices
-    private String baseStringG = "000440000000"; // for group/room devices
+    private static final String BASE_STRING_S = "000040000000"; // for single devices
+    private static final String BASE_STRING_G = "000440000000"; // for group/room devices
 
-    private boolean[] bits = null;
-
-    private String rfAddress = null;
-    private int roomId = -1;
+    private final boolean[] bits;
+    private final String rfAddress;
+    private final int roomId;
 
     /**
      * Creates a new instance of the MAX! protocol S command.
@@ -86,16 +85,16 @@ public class S_Command extends CubeCommand {
     @Override
     public String getCommandString() {
 
-        String baseString = "";
+        final String baseString;
         if (roomId == 0) {
-            baseString = baseStringS;
+            baseString = BASE_STRING_S;
         } else {
-            baseString = baseStringG;
+            baseString = BASE_STRING_G;
         }
 
-        String commandString = baseString + rfAddress + Utils.toHex(roomId) + Utils.toHex(bits);
+        final String commandString = baseString + rfAddress + Utils.toHex(roomId) + Utils.toHex(bits);
 
-        String encodedString = Base64.encodeBase64String(Utils.hexStringToByteArray(commandString));
+        final String encodedString = Base64.encodeBase64String(Utils.hexStringToByteArray(commandString));
 
         return "s:" + encodedString;
     }

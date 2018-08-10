@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -207,15 +207,11 @@ public class MessageProcessor {
      *             when there was no message on the stack
      */
     public Message pull() throws NoMessageAvailableException {
-        Message result = null;
-
+        final Message result = this.currentMessage;
         if (this.currentMessage == null) {
             throw new NoMessageAvailableException();
-        } else {
-            result = this.currentMessage;
-            reset();
         }
-
+        reset();
         return result;
     }
 

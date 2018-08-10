@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,7 +8,9 @@
  */
 package org.openhab.binding.network.internal.utils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -159,13 +161,8 @@ public class NetworkUtils {
         try (Socket socket = new Socket()) {
             socket.connect(socketAddress, timeout);
             return true;
-        } catch (NoRouteToHostException ignored) {
+        } catch (ConnectException | SocketTimeoutException | NoRouteToHostException ignored) {
             return false;
-        } catch (SocketTimeoutException ignored) {
-            return false;
-        } catch (ConnectException e) {
-            // Connection refused, there is a device on the other end though
-            return true;
         }
     }
 
@@ -235,20 +232,54 @@ public class NetworkUtils {
             throws IOException, InterruptedException {
         Process proc;
         // Yes, all supported operating systems have their own ping utility with a different command line
-        if (SystemUtils.IS_OS_WINDOWS) {
-            proc = new ProcessBuilder("ping", "-w", String.valueOf(timeoutInMS), "-n", "1", hostname).start();
-        } else if (SystemUtils.IS_OS_MAC) {
-            proc = new ProcessBuilder("ping", "-t", String.valueOf(timeoutInMS / 1000), "-c", "1", hostname).start();
-        } else if (SystemUtils.IS_OS_UNIX) {
-            proc = new ProcessBuilder("ping", "-w", String.valueOf(timeoutInMS / 1000), "-c", "1", hostname).start();
-        } else {
-            // We cannot estimate the command line for any other operating system and just return false
+        switch (method) {
+            case IPUTILS_LINUX_PING:
+                proc = new ProcessBuilder("ping", "-w", String.valueOf(timeoutInMS / 1000), "-c", "1", hostname)
+                        .start();
+                break;
+            case MAC_OS_PING:
+                proc = new ProcessBuilder("ping", "-t", String.valueOf(timeoutInMS / 1000), "-c", "1", hostname)
+                        .start();
+                break;
+            case WINDOWS_PING:
+                proc = new ProcessBuilder("ping", "-w", String.valueOf(timeoutInMS), "-n", "1", hostname).start();
+                break;
+            case JAVA_PING:
+            default:
+                // We cannot estimate the command line for any other operating system and just return false
+                return false;
+
+        }
+
+        // The return code is 0 for a successful ping, 1 if device didn't
+        // respond, and 2 if there is another error like network interface
+        // not ready.
+        // Exception: return code is also 0 in Windows for all requests on the local subnet.
+        // see https://superuser.com/questions/403905/ping-from-windows-7-get-no-reply-but-sets-errorlevel-to-0
+        if (method != IpPingMethodEnum.WINDOWS_PING) {
+            return proc.waitFor() == 0;
+        }
+
+        int result = proc.waitFor();
+        if (result != 0) {
             return false;
         }
 
-        // The return code is 0 for a successful ping. 1 if device didn't respond and 2 if there is another error like
-        // network interface not ready.
-        return proc.waitFor() == 0;
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
+            String line = r.readLine();
+            if (line == null) {
+                throw new IOException("Received no output from ping process.");
+            }
+            do {
+                if (line.contains("host unreachable") || line.contains("timed out")
+                        || line.contains("could not find host")) {
+                    return false;
+                }
+                line = r.readLine();
+            } while (line != null);
+
+            return true;
+        }
     }
 
     public enum ArpPingUtilEnum {
@@ -279,7 +310,10 @@ public class NetworkUtils {
         }
         Process proc;
         if (arpingTool == ArpPingUtilEnum.THOMAS_HABERT_ARPING_WITHOUT_TIMEOUT) {
-            proc = new ProcessBuilder(arpUtilPath, "-c", "1", "-I", interfaceName, ipV4address).start();
+            proc = new ProcessBuilder(arpUtilPath, "-c", "1", "-i", interfaceName, ipV4address).start();
+        } else if (arpingTool == ArpPingUtilEnum.THOMAS_HABERT_ARPING) {
+            proc = new ProcessBuilder(arpUtilPath, "-w", String.valueOf(timeoutInMS / 1000), "-c", "1", "-i",
+                    interfaceName, ipV4address).start();
         } else {
             proc = new ProcessBuilder(arpUtilPath, "-w", String.valueOf(timeoutInMS / 1000), "-c", "1", "-I",
                     interfaceName, ipV4address).start();
@@ -304,5 +338,4 @@ public class NetworkUtils {
             // We ignore the port unreachable error
         }
     }
-
 }

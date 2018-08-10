@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,14 +9,15 @@
 package org.openhab.binding.netatmo.internal.station;
 
 import static org.openhab.binding.netatmo.NetatmoBindingConstants.*;
+import static org.openhab.binding.netatmo.internal.ChannelTypeUtils.*;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.netatmo.handler.NetatmoModuleHandler;
-import org.openhab.binding.netatmo.internal.ChannelTypeUtils;
-import org.openhab.binding.netatmo.internal.config.NetatmoModuleConfiguration;
 
 import io.swagger.client.model.NADashboardData;
+import io.swagger.client.model.NAStationModule;
 
 /**
  * {@link NAModule3Handler} is the class used to handle the Rain Gauge
@@ -25,10 +26,15 @@ import io.swagger.client.model.NADashboardData;
  * @author Gaël L'hopital - Initial contribution OH2 version
  *
  */
-public class NAModule3Handler extends NetatmoModuleHandler<NetatmoModuleConfiguration> {
+public class NAModule3Handler extends NetatmoModuleHandler<NAStationModule> {
 
-    public NAModule3Handler(Thing thing) {
-        super(thing, NetatmoModuleConfiguration.class);
+    public NAModule3Handler(@NonNull Thing thing) {
+        super(thing);
+    }
+
+    @Override
+    protected void updateProperties(NAStationModule moduleData) {
+        updateProperties(moduleData.getFirmware(), moduleData.getType());
     }
 
     @Override
@@ -37,12 +43,13 @@ public class NAModule3Handler extends NetatmoModuleHandler<NetatmoModuleConfigur
             NADashboardData dashboardData = module.getDashboardData();
             switch (channelId) {
                 case CHANNEL_RAIN:
-                    return ChannelTypeUtils.toDecimalType(dashboardData.getRain());
+                    return toQuantityType(dashboardData.getRain(), API_RAIN_UNIT);
                 case CHANNEL_SUM_RAIN1:
-                    return ChannelTypeUtils.toDecimalType(dashboardData.getSumRain1());
+                    return toQuantityType(dashboardData.getSumRain1(), API_RAIN_UNIT);
                 case CHANNEL_SUM_RAIN24:
-                    return ChannelTypeUtils.toDecimalType(dashboardData.getSumRain24());
-
+                    return toQuantityType(dashboardData.getSumRain24(), API_RAIN_UNIT);
+                case CHANNEL_TIMEUTC:
+                    return toDateTimeType(dashboardData.getTimeUtc());
             }
         }
         return super.getNAThingProperty(channelId);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -11,6 +11,7 @@ package org.openhab.binding.max.internal.command;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.openhab.binding.max.internal.device.Device;
@@ -25,9 +26,9 @@ import org.openhab.binding.max.internal.message.C_Message;
  */
 public class M_CommandTest {
 
-    private ArrayList<DeviceConfiguration> configurations = new ArrayList<DeviceConfiguration>();
-    private ArrayList<Device> devices = new ArrayList<Device>();
-    private ArrayList<RoomInformation> rooms;
+    private List<DeviceConfiguration> configurations = new ArrayList<DeviceConfiguration>();
+    private List<Device> devices = new ArrayList<Device>();
+    private List<RoomInformation> rooms;
 
     String deviceCMsg[] = {
             "C:0b0da3,0gsNowIBEABLRVEwNTQ0MjQyLCQ9CQcYAzAM/wBIYViRSP1ZFE0gTSBNIEUgRSBFIEUgRSBFIEhhWJFQ/VkVUSBRIFEgRSBFIEUgRSBFIEUgSFBYWkj+WRRNIE0gTSBFIEUgRSBFIEUgRSBIUFhaSP5ZFE0gTSBNIEUgRSBFIEUgRSBFIEhQWFpI/lkUTSBNIE0gRSBFIEUgRSBFIEUgSFBYWkj+WRRNIE0gTSBFIEUgRSBFIEUgRSBIUFhaSP5ZFE0gTSBNIEUgRSBFIEUgRSBFIA==",

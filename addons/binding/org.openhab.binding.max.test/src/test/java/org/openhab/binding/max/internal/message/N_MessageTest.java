@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,20 +16,20 @@ import org.openhab.binding.max.internal.device.DeviceType;
 
 /**
  * Tests cases for {@link N_Message}.
- * 
+ *
  * @author Marcel Verpaalen - Initial Version
  * @since 2.0
  */
 public class N_MessageTest {
 
-    public final String rawData = "N:Aw4VzExFUTAwMTUzNDD/";
+    public static final String RAW_DATA = "N:Aw4VzExFUTAwMTUzNDD/";
     // public final String rawData = "N:AQe250tFUTAxNDUxNzL/";
 
-    private N_Message message = null;
+    private N_Message message;
 
     @Before
     public void Before() {
-        message = new N_Message(rawData);
+        message = new N_Message(RAW_DATA);
     }
 
     @Test

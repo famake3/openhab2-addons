@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2017 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,10 +16,10 @@ import javax.jmdns.ServiceInfo;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant;
 import org.openhab.binding.freebox.FreeboxBindingConstants;
 import org.openhab.binding.freebox.internal.config.FreeboxServerConfiguration;
 import org.osgi.service.component.annotations.Component;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * The {@link FreeboxServerDiscoveryParticipant} is responsible for discovering
  * the Freebox Server (bridge) thing using mDNS discovery service
  *
- * @author Laurent Garnier
+ * @author Laurent Garnier - Initial contribution
  */
 @Component(immediate = true)
 public class FreeboxServerDiscoveryParticipant implements MDNSDiscoveryParticipant {
