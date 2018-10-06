@@ -99,18 +99,40 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
         }
     }
 
+    public void inputWrapper(byte[] buffer, int n_requested) throws IOException {
+        int n_read = 0;
+        while (connected && n_read < n_requested) {
+            int n_ew = input.read(buffer, n_read, n_requested - n_read);
+            if (n_ew > 0) {
+                n_read += n_ew;
+            }
+        }
+        if (!connected) {
+            throw new IOException();
+        }
+    }
+
     @Override
     public void run() {
         try {
             Thread.sleep(5000); // Seems we need to wait a little to be able to update state
             while (connected) {
-                while (input.read() != '!') {
-                    ;
+                StringBuilder junc = new StringBuilder("Junk data discarded: ");
+                int n = 0, c;
+                while ((c = input.read()) != '!') {
+                    if (c == -1) {
+                        continue;
+                    } else {
+                        junc.append(c);
+                        junc.append(" ");
+                        n++;
+                    }
+                }
+                if (n > 0) {
+                    logger.info(junc.toString());
                 }
                 byte[] header = new byte[2];
-                if (input.read(header) != 2) {
-                    continue;
-                }
+                inputWrapper(header, 2);
                 int function = header[0] & 0xFF;
 
                 FunctionReceiver receiver = receivers.get(function);
@@ -120,34 +142,22 @@ public class SerialMultiFunctionHandler extends BaseBridgeHandler implements Run
                         continue; // Protect against corrupted data
                     }
                     byte[] data = new byte[length];
-                    int n_read = 0;
-                    while (n_read < length) {
-                        int code = input.read(data, n_read, length - n_read);
-                        if (code == -1) {
-                            break;
-                        } else {
-                            n_read += code;
-                        }
-                    }
-                    if (n_read == length) {
-                        receiver.receivedUpdate(data);
-                    } else {
-
-                        logger.warn("While reading from serial port, expected " + length + " bytes but only read "
-                                + n_read);
-                    }
+                    inputWrapper(data, length);
+                    receiver.receivedUpdate(data);
                 } else {
                     // For unknown codes, we'll read up to 8 data bytes (works for most cases, will re-sync)
                     byte[] data = new byte[Math.min(length, 8)];
-                    input.read(data);
-                    System.out.println("Unknown function " + function + " with data: " + bytesToHex(data));
+                    inputWrapper(data, data.length);
+                    logger.debug("Unknown function " + function + " with data: " + bytesToHex(data));
                 }
             }
         } catch (InterruptedException | IOException e) {
-            connected = false;
-            logger.error("Error while reading from serial port (or waiting)", e);
-            serialPort.disconnect();
-            updateStatus(ThingStatus.OFFLINE);
+            if (connected) {
+                connected = false;
+                logger.error("Error while reading from serial port (or waiting)", e);
+                serialPort.disconnect();
+                updateStatus(ThingStatus.OFFLINE);
+            }
         }
     }
 
