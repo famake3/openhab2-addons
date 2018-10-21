@@ -18,7 +18,7 @@ public class SolidColor extends Layer {
     }
 
     @Override
-    public Layer update(long timeCode) {
+    public Layer update(double timeCode) {
         if (!generated) {
         }
         return null;
