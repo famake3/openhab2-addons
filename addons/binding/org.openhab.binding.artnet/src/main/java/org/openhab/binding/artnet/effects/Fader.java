@@ -37,7 +37,7 @@ public class Fader extends Layer {
     }
 
     @Override
-    public Layer update(double timeCode) {
+    public Layer update(long timeCode) {
         // TODO Auto-generated method stub
         return null;
     }
