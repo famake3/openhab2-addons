@@ -1,15 +1,19 @@
 /**
- * Copyright (c) 2010-2018 by the respective copyright holders.
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.openhab.binding.netatmo.internal.thermostat;
 
-import static org.openhab.binding.netatmo.NetatmoBindingConstants.*;
 import static org.openhab.binding.netatmo.internal.ChannelTypeUtils.*;
+import static org.openhab.binding.netatmo.internal.NetatmoBindingConstants.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,8 +38,8 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.openhab.binding.netatmo.handler.NetatmoModuleHandler;
 import org.openhab.binding.netatmo.internal.NATherm1StateDescriptionProvider;
+import org.openhab.binding.netatmo.internal.handler.NetatmoModuleHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,13 +242,13 @@ public class NATherm1Handler extends NetatmoModuleHandler<NAThermostat> {
             try {
                 switch (channelUID.getId()) {
                     case CHANNEL_SETPOINT_MODE: {
-                        String target_mode = command.toString();
-                        if (CHANNEL_SETPOINT_MODE_MANUAL.equals(target_mode)) {
+                        String targetMode = command.toString();
+                        if (CHANNEL_SETPOINT_MODE_MANUAL.equals(targetMode)) {
                             logger.info(
                                     "Switching to manual mode is done by assigning a setpoint temperature - command dropped");
                             updateState(channelUID, getSetpoint());
                         } else {
-                            pushSetpointUpdate(target_mode, null, null);
+                            pushSetpointUpdate(targetMode, null, null);
                         }
                         break;
                     }

@@ -67,13 +67,16 @@ Bridge icloud:account:myaccount [appleId="mail@example.com", password="secure", 
 }
 ```
 
+The device ID can be found in the Paper UI inbox.
+The information *@ "World"* is optional.
+
 ### icloud.items
 
 ```php
-Group    "iPhone" iCloud_Group
+Group    iCloud_Group "iPhone"
 
-String   iPhone_BatteryStatus             "Battery Status [%s %%]" <battery> (iCloud_Group) {channel="icloud:device:myaccount:myiPhone8:batteryStatus"}
-Number   iPhone_BatteryLevel              "Battery Level [%.0f]"   <battery> (iCloud_Group) {channel="icloud:device:myaccount:myiPhone8:batteryLevel"}
+String   iPhone_BatteryStatus             "Battery Status [%s]" <battery> (iCloud_Group) {channel="icloud:device:myaccount:myiPhone8:batteryStatus"}
+Number   iPhone_BatteryLevel              "Battery Level [%d %%]"   <battery> (iCloud_Group) {channel="icloud:device:myaccount:myiPhone8:batteryLevel"}
 Switch   iPhone_FindMyPhone               "Trigger Find My iPhone"           (iCloud_Group) {channel="icloud:device:myaccount:myiPhone8:findMyPhone", autoupdate="false"}
 Switch   iPhone_Refresh                   "Force iPhone Refresh"             (iCloud_Group) {channel="icloud:device:myaccount:myiPhone8:location", autoupdate="false"}
 Location iPhone_Location                  "Coordinates"                      (iCloud_Group) {channel="icloud:device:myaccount:myiPhone8:location"}
@@ -94,7 +97,7 @@ sitemap icloud label="iCloud" {
         Text item=iPhone_LocationLastUpdate
         Switch item=iPhone_FindMyPhone mappings=[ ON="Find!" ]
         Switch item=iPhone_Refresh mappings=[ REFRESH='Refresh now' ]
-        // mapview for web UI, invisible in iOS client
+        // Mapview for BasicUI and Applications (Android/iOS)
         Mapview item=iPhone_Location height=10
     }
 }

@@ -1,16 +1,19 @@
 /**
- * Copyright (c) 2010-2018 by the respective copyright holders.
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.openhab.binding.kodi.internal.discovery;
 
-import static org.openhab.binding.kodi.KodiBindingConstants.*;
+import static org.openhab.binding.kodi.internal.KodiBindingConstants.*;
 
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,14 +41,13 @@ import org.slf4j.LoggerFactory;
  * @author Paul Frank - Initial contribution
  * @author Christoph Weitkamp - Use "discovery.kodi:background=false" to disable discovery service
  */
-@Component(service = UpnpDiscoveryParticipant.class, immediate = true, configurationPid = "discovery.kodi")
+@Component(immediate = true, configurationPid = "discovery.kodi")
 @NonNullByDefault
 public class KodiUpnpDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
     private Logger logger = LoggerFactory.getLogger(KodiUpnpDiscoveryParticipant.class);
 
     private boolean isAutoDiscoveryEnabled = true;
-    private Set<ThingTypeUID> supportedThingTypes = SUPPORTED_THING_TYPES_UIDS;
 
     @Activate
     protected void activate(ComponentContext componentContext) {
@@ -63,43 +65,42 @@ public class KodiUpnpDiscoveryParticipant implements UpnpDiscoveryParticipant {
         if (StringUtils.isNotEmpty(autoDiscoveryPropertyValue)) {
             isAutoDiscoveryEnabled = Boolean.valueOf(autoDiscoveryPropertyValue);
         }
-        supportedThingTypes = isAutoDiscoveryEnabled ? SUPPORTED_THING_TYPES_UIDS : Collections.emptySet();
     }
 
     @Override
     public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
-        return supportedThingTypes;
+        return SUPPORTED_THING_TYPES_UIDS;
     }
 
     @Override
     public @Nullable DiscoveryResult createResult(RemoteDevice device) {
-        ThingUID thingUid = getThingUID(device);
-        if (thingUid != null) {
-            String label = StringUtils.isEmpty(device.getDetails().getFriendlyName()) ? device.getDisplayString()
-                    : device.getDetails().getFriendlyName();
-            Map<String, Object> properties = new HashMap<>();
-            properties.put(HOST_PARAMETER, device.getIdentity().getDescriptorURL().getHost());
+        if (isAutoDiscoveryEnabled) {
+            ThingUID thingUid = getThingUID(device);
+            if (thingUid != null) {
+                String label = StringUtils.isEmpty(device.getDetails().getFriendlyName()) ? device.getDisplayString()
+                        : device.getDetails().getFriendlyName();
+                Map<String, Object> properties = new HashMap<>();
+                properties.put(HOST_PARAMETER, device.getIdentity().getDescriptorURL().getHost());
 
-            DiscoveryResult result = DiscoveryResultBuilder.create(thingUid).withLabel(label).withProperties(properties)
-                    .withRepresentationProperty(HOST_PARAMETER).build();
+                DiscoveryResult result = DiscoveryResultBuilder.create(thingUid).withLabel(label)
+                        .withProperties(properties).withRepresentationProperty(HOST_PARAMETER).build();
 
-            return result;
+                return result;
+            }
         }
         return null;
     }
 
     @Override
     public @Nullable ThingUID getThingUID(RemoteDevice device) {
-        if (isAutoDiscoveryEnabled) {
-            String manufacturer = device.getDetails().getManufacturerDetails().getManufacturer();
-            if (StringUtils.containsIgnoreCase(manufacturer, MANUFACTURER)) {
-                logger.debug("Manufacturer matched: search: {}, device value: {}.", MANUFACTURER,
-                        device.getDetails().getManufacturerDetails().getManufacturer());
-                if (StringUtils.containsIgnoreCase(device.getType().getType(), UPNP_DEVICE_TYPE)) {
-                    logger.debug("Device type matched: search: {}, device value: {}.", UPNP_DEVICE_TYPE,
-                            device.getType().getType());
-                    return new ThingUID(THING_TYPE_KODI, device.getIdentity().getUdn().getIdentifierString());
-                }
+        String manufacturer = device.getDetails().getManufacturerDetails().getManufacturer();
+        if (StringUtils.containsIgnoreCase(manufacturer, MANUFACTURER)) {
+            logger.debug("Manufacturer matched: search: {}, device value: {}.", MANUFACTURER,
+                    device.getDetails().getManufacturerDetails().getManufacturer());
+            if (StringUtils.containsIgnoreCase(device.getType().getType(), UPNP_DEVICE_TYPE)) {
+                logger.debug("Device type matched: search: {}, device value: {}.", UPNP_DEVICE_TYPE,
+                        device.getType().getType());
+                return new ThingUID(THING_TYPE_KODI, device.getIdentity().getUdn().getIdentifierString());
             }
         }
         return null;

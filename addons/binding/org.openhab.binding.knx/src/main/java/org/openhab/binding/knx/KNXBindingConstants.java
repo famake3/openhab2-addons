@@ -1,10 +1,14 @@
 /**
- * Copyright (c) 2010-2018 by the respective copyright holders.
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.openhab.binding.knx;
 
@@ -53,6 +57,8 @@ public class KNXBindingConstants {
     public static final String DEFAULT_MULTICAST_IP = "224.0.23.12";
 
     // Channel Type IDs
+    public static final String CHANNEL_COLOR = "color";
+    public static final String CHANNEL_COLOR_CONTROL = "color-control";
     public static final String CHANNEL_CONTACT = "contact";
     public static final String CHANNEL_CONTACT_CONTROL = "contact-control";
     public static final String CHANNEL_DATETIME = "datetime";
@@ -68,25 +74,26 @@ public class KNXBindingConstants {
     public static final String CHANNEL_SWITCH = "switch";
     public static final String CHANNEL_SWITCH_CONTROL = "switch-control";
 
-    public static final Set<String> CONTROL_CHANNEL_TYPES = Collections
-            .unmodifiableSet(Stream.of(CHANNEL_CONTACT_CONTROL, //
-                    CHANNEL_DATETIME_CONTROL, //
-                    CHANNEL_DIMMER_CONTROL, //
-                    CHANNEL_NUMBER_CONTROL, //
-                    CHANNEL_ROLLERSHUTTER_CONTROL, //
-                    CHANNEL_STRING_CONTROL, //
-                    CHANNEL_SWITCH_CONTROL //
+    public static final Set<String> CONTROL_CHANNEL_TYPES = Collections.unmodifiableSet(Stream.of(CHANNEL_COLOR_CONTROL, //
+            CHANNEL_CONTACT_CONTROL, //
+            CHANNEL_DATETIME_CONTROL, //
+            CHANNEL_DIMMER_CONTROL, //
+            CHANNEL_NUMBER_CONTROL, //
+            CHANNEL_ROLLERSHUTTER_CONTROL, //
+            CHANNEL_STRING_CONTROL, //
+            CHANNEL_SWITCH_CONTROL //
     ).collect(toSet()));
 
     public static final String CHANNEL_RESET = "reset";
 
     // Channel Configuration parameters
     public static final String GA = "ga";
+    public static final String HSB_GA = "hsb";
     public static final String INCREASE_DECREASE_GA = "increaseDecrease";
     public static final String POSITION_GA = "position";
+    public static final String REPEAT_FREQUENCY = "frequency";
     public static final String STOP_MOVE_GA = "stopMove";
     public static final String SWITCH_GA = "switch";
     public static final String UP_DOWN_GA = "upDown";
-    public static final String REPEAT_FREQUENCY = "frequency";
 
 }
