@@ -47,7 +47,7 @@ public class LifxDeviceAnalyzer implements DeviceListener {
         this.label = label;
         logger.debug("Received a label '" + label + "' for light ID " + LifxDiscoveryService.getIdString(id));
         if (this.type != null) {
-            protocol.unregisterDeviceListener(id);
+            protocol.unregisterDeviceListener(id, this);
             listener.lightIdentified(this);
         }
     }
@@ -73,18 +73,18 @@ public class LifxDeviceAnalyzer implements DeviceListener {
                 type = LifxBindingConstants.THING_TYPE_LIGHT_COLOR;
             }
         } else {
-            protocol.unregisterDeviceListener(id);
+            protocol.unregisterDeviceListener(id, this);
             listener.lightIdFailed(this);
         }
         if (label != null) {
-            protocol.unregisterDeviceListener(id);
+            protocol.unregisterDeviceListener(id, this);
             listener.lightIdentified(this);
         }
     }
 
     @Override
     public void timeout() {
-        protocol.unregisterDeviceListener(id);
+        protocol.unregisterDeviceListener(id, this);
         listener.lightIdFailed(this);
     }
 

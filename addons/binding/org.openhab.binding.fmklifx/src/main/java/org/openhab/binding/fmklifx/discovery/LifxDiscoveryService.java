@@ -109,7 +109,7 @@ public class LifxDiscoveryService extends AbstractDiscoveryService
     @Override
     public void lightIdFailed(LifxDeviceAnalyzer ident) {
         logger.debug("Identification of light " + getIdString(ident.getId()) + " timed out.");
-        discoveredDevices.remove(ident);
+        discoveredDevices.remove(ident.getId());
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.openhab.binding.fmklifx.protocol;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,10 +13,13 @@ public class LifxProtocolDevice {
     byte sequenceNumber;
 
     InetAddress ipAddress;
-    final DeviceListener deviceListener;
+    final public ArrayList<DeviceListener> deviceListeners = new ArrayList<DeviceListener>();
 
-    public LifxProtocolDevice(long id, DeviceListener dl) {
-        this.deviceListener = dl;
+    public interface CallDeviceListener {
+        public void call(DeviceListener dl);
+    }
+
+    public LifxProtocolDevice(long id) {
         this.requestResponseHandlers = new HashMap<>();
         this.id = id;
     }
@@ -26,6 +30,23 @@ public class LifxProtocolDevice {
 
     public static String idString(long id) {
         return Long.toHexString(id);
+    }
+
+    public synchronized void addDeviceListener(DeviceListener dl) {
+        deviceListeners.add(dl);
+    }
+
+    public synchronized boolean removeDeviceListener(DeviceListener dl) {
+        deviceListeners.remove(dl);
+        return deviceListeners.isEmpty();
+    }
+
+    public synchronized void callDeviceListeners(CallDeviceListener callable) {
+        ArrayList<DeviceListener> a = new ArrayList<>(deviceListeners); // Make a copy, as the original
+                                                                        // may be changed
+        for (DeviceListener dl : a) {
+            callable.call(dl);
+        }
     }
 
 }

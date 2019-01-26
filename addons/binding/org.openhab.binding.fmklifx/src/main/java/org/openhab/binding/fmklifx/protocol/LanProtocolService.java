@@ -147,28 +147,42 @@ public class LanProtocolService implements Runnable, PacketSender {
     static void callDeviceEventListener(LifxProtocolDevice device, LanProtocolPacket lpp) throws PacketFormatException {
         int type = lpp.getMessageType();
         if (type == TYPE_STATE_SERVICE || type == TYPE_ECHO_RESPONSE || type == TYPE_ACK) {
-            device.deviceListener.ping();
+            device.callDeviceListeners((dl) -> {
+                dl.ping();
+            });
         } else if (type == LIGHT_STATE) {
-            ;
-            processLightStateMessage(device.deviceListener, lpp);
-        } else if (type == TYPE_STATE_POWER || type == LIGHT_STATE_POWER) {
+            device.callDeviceListeners((dl) -> {
+                processLightStateMessage(dl, lpp);
+            });
+        } else if (type == TYPE_STATE_POWER || type == LIGHT_STATE_POWER)
+
+        {
             try {
-                device.deviceListener.power(lpp.getPayload()[0] != 0);
+                device.callDeviceListeners((dl) -> {
+                    dl.power(lpp.getPayload()[0] != 0);
+                });
             } catch (IndexOutOfBoundsException e) {
                 throw new PacketFormatException("Too short", e);
             }
         } else if (type == TYPE_STATE_LABEL) {
-            device.deviceListener.label(new String(lpp.getPayload()).trim());
+            device.callDeviceListeners((dl) -> {
+                dl.label(new String(lpp.getPayload()).trim());
+            });
         } else if (type == TYPE_STATE_VERSION) {
-            processVersionMessage(device.deviceListener, lpp);
+            device.callDeviceListeners((dl) -> {
+                processVersionMessage(dl, lpp);
+            });
         }
     }
 
-    private static void processLightStateMessage(DeviceListener deviceListener, LanProtocolPacket lpp)
-            throws PacketFormatException {
+    private static void processLightStateMessage(DeviceListener deviceListener, LanProtocolPacket lpp) {
         ByteBuffer bb = ByteBuffer.wrap(lpp.getPayload());
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        deviceListener.color(LifxColor.decodeFrom(bb));
+        try {
+            deviceListener.color(LifxColor.decodeFrom(bb));
+        } catch (PacketFormatException e) {
+            return; // Silently ignore the error
+        }
         bb.getShort(); // Reserved
         deviceListener.power(bb.getShort() != 0);
         byte[] label = new byte[32];
@@ -186,13 +200,22 @@ public class LanProtocolService implements Runnable, PacketSender {
     }
 
     public synchronized LifxProtocolDevice registerDeviceListener(long id, DeviceListener dl) {
-        LifxProtocolDevice device = new LifxProtocolDevice(id, dl);
-        deviceMap.put(id, device);
+        LifxProtocolDevice device = deviceMap.get(id);
+        if (device == null) {
+            device = new LifxProtocolDevice(id);
+            deviceMap.put(id, device);
+        }
+        device.addDeviceListener(dl);
         return device;
     }
 
-    public synchronized void unregisterDeviceListener(long id) {
-        deviceMap.remove(id);
+    public synchronized void unregisterDeviceListener(long id, DeviceListener dl) {
+        LifxProtocolDevice device = deviceMap.get(id);
+        if (device != null) {
+            if (device.removeDeviceListener(dl)) {
+                deviceMap.remove(id);
+            }
+        }
     }
 
     public synchronized void registerDiscoveryListener(LifxDiscoveryListener dl) {
@@ -204,7 +227,7 @@ public class LanProtocolService implements Runnable, PacketSender {
     }
 
     public synchronized void supersedeCommand(LifxProtocolDevice device, short type) {
-        for (Iterator< Map.Entry<Byte, RequestResponseHandler>>it = device.requestResponseHandlers.entrySet()
+        for (Iterator<Map.Entry<Byte, RequestResponseHandler>> it = device.requestResponseHandlers.entrySet()
                 .iterator(); it.hasNext();) {
             Map.Entry<Byte, RequestResponseHandler> entry = it.next();
             if (entry.getValue().getRequestPacket().getMessageType() == type) {
@@ -248,10 +271,10 @@ public class LanProtocolService implements Runnable, PacketSender {
     private synchronized void sendAndExpectReply(LifxProtocolDevice device, short type, boolean responseTypeAck,
             byte[] payload) {
         byte seq = device.sequenceNumber;
+        device.sequenceNumber = (byte) ((seq + 1) & 0xFFL);
         if (seq == 0) {
             seq++; // We reserve seq 0 for discovery
         }
-        device.sequenceNumber = (byte) ((seq & 0xFFL) + 1);
         LanProtocolPacket cmdPacket = new LanProtocolPacket(clientId, false, responseTypeAck, !responseTypeAck, seq,
                 device.id, type, payload);
         RequestResponseHandler rrHandler = new RequestResponseHandler(device, cmdPacket, this);
