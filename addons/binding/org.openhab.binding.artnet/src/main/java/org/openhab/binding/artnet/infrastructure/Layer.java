@@ -20,7 +20,7 @@ public abstract class Layer {
      * refresh cycle. Normally returns self.
      *
      * @param timeCode Monotonically increasing number representing milliseconds
-     * @return Layer to use for ext frame, or null if the animation is finished.
+     * @return Layer to use for current frame, or null if the animation is finished.
      */
     public abstract Layer update(long timeCode);
 }

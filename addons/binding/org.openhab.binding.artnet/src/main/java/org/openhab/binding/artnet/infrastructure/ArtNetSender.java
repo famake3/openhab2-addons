@@ -39,8 +39,7 @@ public class ArtNetSender {
         return output_buffer;
     }
 
-    public void sendData(String destinationIp, int universe, byte[] data) throws IOException {
-        InetAddress inetAddress = InetAddress.getByName(destinationIp);
+    public void sendData(InetAddress inetAddress, int universe, byte[] data) throws IOException {
         byte[] output_buffer = makePacket(universe, data);
         DatagramPacket packet = new DatagramPacket(output_buffer, output_buffer.length, inetAddress, ARTNET_PORT);
         socket.send(packet);
