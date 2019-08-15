@@ -1,0 +1,16 @@
+# Temporary development notes file
+
+Abstractions to use for color / frame / fixture
+
+Color: 
+ * It's not useful to have an abstract Color. Too many effects need to use a concrete representation like RGB.
+
+Frame / model:
+
+Requirements:
+ - Support layering. The chosen model is hierarchical: the "top" layer may depend on other layers,
+   and combines the results from them. The output loop only ever deals with one layer, but this 
+   may have many layers beneath it.
+    * Consequently, Layers can't write directly to the output buffer. Each layer must have a 
+      complete representation of the output structure (Model).
+ 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="benqprojector"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- Sample Thing Type -->
+    <thing-type id="projector">
+        <label>Benq Projector</label>
+        <description>Projector connected with RS232.</description>
+
+        <channels>
+            <channel id="power" typeId="power"/>
+        </channels>
+        
+        <config-description>
+            <parameter name="port" type="text">
+                <label>COM port</label>
+                <description>Select serial port</description>
+                <default>COM1</default>
+            </parameter>
+            <parameter name="polling-interval" type="integer">
+                <label>Polling interval</label>
+                <description>Seconds between check power on off state, zero to disable.</description>
+                <default>60</default>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+    <channel-type id="power">
+        <item-type>Switch</item-type>
+        <label>On/Off</label>
+        <description>Power on/off</description>
+    </channel-type>
+
+</thing:thing-descriptions>
