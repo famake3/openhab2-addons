@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.color.ColorSpace;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.net.SocketException;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -20,6 +21,7 @@ import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -69,14 +71,16 @@ public class ArtNetHandler extends BaseThingHandler {
             b = (int) (100.0 * hsb[2]);
         }
 
-        ChannelUID channelUID = getThing().getChannel(COLOR).getUID();
-        updateStatus(ThingStatus.ONLINE);
-        updateState(channelUID, new HSBType(new DecimalType(h), new PercentType(BigDecimal.valueOf(s)),
-                new PercentType(BigDecimal.valueOf(b))));
-        try {
-            sendColor(false);
-        } catch (IOException e) {
-            e.printStackTrace();
+        Channel channel = getThing().getChannel(COLOR);
+        if (channel != null) {
+            updateStatus(ThingStatus.ONLINE);
+            updateState(channel.getUID(), new HSBType(new DecimalType(h), new PercentType(BigDecimal.valueOf(s)),
+                    new PercentType(BigDecimal.valueOf(b))));
+            try {
+                sendColor(false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -165,10 +169,11 @@ public class ArtNetHandler extends BaseThingHandler {
             System.out.println("No IP address configured!");
             return;
         }
+        InetAddress address = InetAddress.getByName(ipAddress);
         while (num > 0) {
             int n_packet = Math.min(MAX_PIXELS_PER_PACKET, num);
             byte[] data = getData(n_packet, red, green, blue);
-            artNetSender.sendData(ipAddress, universe, data);
+            artNetSender.sendData(address, universe, data);
             universe++;
             num -= n_packet;
             if (num > 0) {
