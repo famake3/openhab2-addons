@@ -51,7 +51,6 @@ public class InputSwitchHandler extends BaseThingHandler implements FunctionRece
 
     private void refresh() {
         if (getFunctionId() != 0) {
-            System.out.println("Send refresh regqeust");
             ((SerialMultiFunctionHandler) getBridge().getHandler()).send(getFunctionId(), new byte[] {});
         }
     }

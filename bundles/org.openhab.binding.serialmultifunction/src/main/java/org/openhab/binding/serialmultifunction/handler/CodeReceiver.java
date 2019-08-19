@@ -23,6 +23,7 @@ public class CodeReceiver extends BaseThingHandler implements FunctionReceiver {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
         } else {
             bridge.addFunctionReceiver(getFunctionId(), this);
+            updateStatus(ThingStatus.ONLINE);
         }
     }
 
