@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.openhab.binding.serialmultifunction.handler.CodeReceiver;
 import org.openhab.binding.serialmultifunction.handler.DecimalTemperatureHandler;
 import org.openhab.binding.serialmultifunction.handler.InputSwitchHandler;
@@ -25,6 +26,7 @@ import org.openhab.binding.serialmultifunction.handler.OnOffCodeHandler;
 import org.openhab.binding.serialmultifunction.handler.SerialMultiFunctionHandler;
 import org.openhab.binding.serialmultifunction.handler.SwitchHandler;
 import org.openhab.binding.serialmultifunction.handler.TemperatureHandler;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The {@link SerialMultiFunctionHandlerFactory} is responsible for creating things and thing
@@ -32,6 +34,8 @@ import org.openhab.binding.serialmultifunction.handler.TemperatureHandler;
  *
  * @author FaMaKe - Initial contribution
  */
+
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.serialmultifunction")
 public class SerialMultiFunctionHandlerFactory extends BaseThingHandlerFactory {
 
     private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<ThingTypeUID>(

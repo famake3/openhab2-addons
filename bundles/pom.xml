@@ -210,6 +210,12 @@
     <module>org.openhab.binding.yeelight</module>
     <module>org.openhab.binding.zoneminder</module>
     <module>org.openhab.binding.zway</module>
+
+    <module>org.openhab.binding.artnet</module>
+    <module>org.openhab.binding.fmklifx</module>
+    <module>org.openhab.binding.ninjablocks</module>
+    <module>org.openhab.binding.receivernadt748</module>
+    <module>org.openhab.binding.serialmultifunction</module>
     <!-- extensionservices -->
     <module>org.openhab.extensionservice.marketplace</module>
     <module>org.openhab.extensionservice.marketplace.automation</module>

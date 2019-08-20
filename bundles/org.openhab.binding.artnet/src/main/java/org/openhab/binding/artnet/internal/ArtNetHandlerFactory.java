@@ -13,11 +13,15 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.openhab.binding.artnet.handler.ArtNetHandler;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The {@link ArtNetHandlerFactory} is responsible for creating things and thing
@@ -25,6 +29,8 @@ import org.openhab.binding.artnet.handler.ArtNetHandler;
  *
  * @author Famake - Initial contribution
  */
+@NonNullByDefault
+@Component(service = ThingHandlerFactory.class, configurationPid = "binding.artnet")
 public class ArtNetHandlerFactory extends BaseThingHandlerFactory {
 
     private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_NODE);
@@ -35,7 +41,7 @@ public class ArtNetHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Override
-    protected ThingHandler createHandler(Thing thing) {
+    protected @Nullable ThingHandler createHandler(Thing thing) {
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 

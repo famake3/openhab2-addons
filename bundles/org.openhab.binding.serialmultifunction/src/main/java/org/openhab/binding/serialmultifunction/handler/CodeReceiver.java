@@ -35,7 +35,7 @@ public class CodeReceiver extends BaseThingHandler implements FunctionReceiver {
     public void receivedUpdate(byte[] data) {
         updateStatus(ThingStatus.ONLINE);
         ChannelUID channelUID = getThing().getChannel("code-input").getUID();
-        updateState(channelUID, new StringType(SerialMultiFunctionHandler.bytesToHex(data)));
+        postCommand(channelUID, new StringType(SerialMultiFunctionHandler.bytesToHex(data)));
     }
 
     private int getFunctionId() {

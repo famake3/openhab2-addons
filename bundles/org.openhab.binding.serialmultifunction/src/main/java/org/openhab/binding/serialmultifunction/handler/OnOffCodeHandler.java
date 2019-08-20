@@ -3,6 +3,7 @@ package org.openhab.binding.serialmultifunction.handler;
 import java.math.BigDecimal;
 
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
@@ -36,11 +37,17 @@ public class OnOffCodeHandler extends BaseThingHandler {
     public void handleCommand(ChannelUID channelUID, Command command) {
         int funcId = ((BigDecimal) getThing().getConfiguration().get("func_id")).intValue();
         try {
-            if (command == OnOffType.ON) {
-                ((SerialMultiFunctionHandler) getBridge().getHandler()).send(funcId, getCode("on_code"));
-            }
-            if (command == OnOffType.OFF) {
-                ((SerialMultiFunctionHandler) getBridge().getHandler()).send(funcId, getCode("off_code"));
+            Bridge bridge = getBridge();
+            if (bridge != null) {
+                SerialMultiFunctionHandler handler = (SerialMultiFunctionHandler) bridge.getHandler();
+                if (handler != null) {
+                    if (command == OnOffType.ON) {
+                        handler.send(funcId, getCode("on_code"));
+                    }
+                    if (command == OnOffType.OFF) {
+                        handler.send(funcId, getCode("off_code"));
+                    }
+                }
             }
         } catch (NotConfiguredException e) {
             e.printStackTrace();

@@ -21,10 +21,10 @@ import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
-import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.artnet.infrastructure.ArtNetSender;
@@ -71,16 +71,12 @@ public class ArtNetHandler extends BaseThingHandler {
             b = (int) (100.0 * hsb[2]);
         }
 
-        Channel channel = getThing().getChannel(COLOR);
-        if (channel != null) {
-            updateStatus(ThingStatus.ONLINE);
-            updateState(channel.getUID(), new HSBType(new DecimalType(h), new PercentType(BigDecimal.valueOf(s)),
-                    new PercentType(BigDecimal.valueOf(b))));
-            try {
-                sendColor(false);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        updateStatus(ThingStatus.ONLINE);
+        try {
+            sendColor(false);
+        } catch (IOException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
+                    "Send ArtNet packet failed.");
         }
     }
 
